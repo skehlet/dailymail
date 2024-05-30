@@ -80,6 +80,17 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
 
   # The above permissions are the basics needed to operate the build pipeline.
   # Permissions below this line are for the app's CodeBuild scripts, terraform plan/apply, etc
+
+  statement {
+    actions = [
+      "dynamodb:CreateTable",
+      "dynamodb:DeleteTable",
+      "dynamodb:DescribeTable",
+    ]
+    resources = [
+      "arn:aws:dynamodb:*:*:table/dailymail-*"
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "codebuild_role_policy" {

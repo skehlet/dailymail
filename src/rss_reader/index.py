@@ -1,12 +1,12 @@
 import json
 import traceback
-from process_records import process_records
 from app_settings import show_settings
+from read_rss_feeds import read_rss_feeds
 
 def handler(event, context): # pylint: disable=unused-argument
     try:
         show_settings()
-        process_records(event["Records"])
+        read_rss_feeds()
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
