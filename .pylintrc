@@ -1,0 +1,8 @@
+# https://www.codeac.io/documentation/pylint-configuration.html
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-function-docstring,
+    broad-exception-raised,
+    broad-exception-caught,
+    import-outside-toplevel,

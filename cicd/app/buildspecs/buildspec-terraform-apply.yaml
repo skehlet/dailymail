@@ -1,0 +1,28 @@
+version: 0.2
+
+env:
+  # IMAGE_URI
+  # BUILD_ID
+  exported-variables:
+    - CODEBUILD_BUILD_ID
+
+phases:
+  install:
+    commands:
+      - echo IMAGE_URI=${IMAGE_URI}
+      - echo BUILD_ID=${BUILD_ID}
+      - terraform --version
+
+  pre_build:
+    commands:
+      - cd cicd/app/terraform
+      - ls -la
+      - terraform init --plugin-dir /tf-plugins -reconfigure
+
+  build:
+    commands:
+      - ls -la
+      - terraform apply
+        -var=image_uri=${IMAGE_URI}
+        -var=build_id=${BUILD_ID}
+        -auto-approve
