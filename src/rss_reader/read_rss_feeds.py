@@ -10,6 +10,7 @@ ETAG_TABLE_NAME = "dailymail-rss-reader-etag-table"
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(ETAG_TABLE_NAME)
 
+
 def read_rss_feeds():
     for url in URLS:
         hit_feed(url)
@@ -17,7 +18,7 @@ def read_rss_feeds():
 
 def fetch_stored_etag(url):
     try:
-        response = table.get_item(Key={'url': url})
+        response = table.get_item(Key={"url": url})
         if "Item" not in response:
             print(f"No etag found in DynamoDB table for URL {url}.")
             return None
@@ -30,6 +31,21 @@ def fetch_stored_etag(url):
         print(
             f"Error retrieving etag from DynamoDB table: {error_code} - {error_message}"
         )
+        raise e
+
+
+def store_etag(url, etag):
+    try:
+        table.update_item(
+            Key={"url": url},
+            UpdateExpression="SET etag = :etag",
+            ExpressionAttributeValues={":etag": {"S": etag}},
+        )
+        print(f"Successfully stored etag '{etag}' for URL '{url}' in DynamoDB table.")
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        error_message = e.response["Error"]["Message"]
+        print(f"Error storing etag in DynamoDB table: {error_code} - {error_message}")
         raise e
 
 
@@ -58,23 +74,12 @@ def hit_feed(url):
         etag=etag,
     )
 
+    print(f"URL: {url}")
     print(f"Status: {feed.status}")
     print(f"Etag: {feed.etag}")
 
+    store_etag(url, feed.etag)
     dump_rss_entries(feed.entries)
-
-    # Put the etag in the DynamoDB table
-    item = {"url": {"S": url}, "etag": {"S": feed.etag}}
-    try:
-        dynamodb.put_item(TableName=ETAG_TABLE_NAME, Item=item)
-        print(
-            f"Successfully stored etag '{feed.etag}' for URL '{url}' in DynamoDB table."
-        )
-    except ClientError as e:
-        error_code = e.response["Error"]["Code"]
-        error_message = e.response["Error"]["Message"]
-        print(f"Error storing etag in DynamoDB table: {error_code} - {error_message}")
-        raise e
 
 
 # if called as main

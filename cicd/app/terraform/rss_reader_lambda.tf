@@ -5,7 +5,6 @@ resource "aws_lambda_function" "rss_reader" {
   role          = aws_iam_role.rss_reader.arn
   timeout       = 180
   memory_size   = 512
-  handler       = "index.handler"
   #   environment {
   #     variables = {
   #       foo = "bar"
