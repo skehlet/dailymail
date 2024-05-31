@@ -23,6 +23,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
+      "logs:DescribeLogGroups",
       "logs:PutLogEvents",
       "logs:PutRetentionPolicy",
     ]
