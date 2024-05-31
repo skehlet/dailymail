@@ -115,6 +115,15 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "arn:aws:iam::*:role/DailyMail-*",
     ]
   }
+
+  statement {
+    actions = [
+      "lambda:*",
+    ]
+    resources = [
+      "arn:aws:lambda:*:*:function:dailymail-*",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "codebuild_role_policy" {
