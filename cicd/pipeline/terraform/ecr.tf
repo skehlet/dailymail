@@ -69,6 +69,29 @@ data "aws_iam_policy_document" "policy" {
       "ecr:ListImages",
     ]
   }
+
+  statement {
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:DeleteRepositoryPolicy",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:GetRepositoryPolicy",
+      "ecr:SetRepositoryPolicy",
+    ]
+    principals {
+      type = "Service"
+      identifiers = [
+        "lambda.amazonaws.com"
+      ]
+    }
+    condition {
+      test     = "StringLike"
+      variable = "aws:sourceArn"
+      values = [
+        "arn:aws:lambda:*:${data.aws_caller_identity.current.account_id}:function:*"
+      ]
+    }
+  }
 }
 
 resource "aws_ecr_repository_policy" "policy" {
