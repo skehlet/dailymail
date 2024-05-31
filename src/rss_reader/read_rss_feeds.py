@@ -8,7 +8,7 @@ URLS = [
 ETAG_TABLE_NAME = "dailymail-rss-reader-etag-table"
 
 dynamodb = boto3.client("dynamodb")
-
+table = dynamodb.Table(ETAG_TABLE_NAME)
 
 def read_rss_feeds():
     for url in URLS:
@@ -17,8 +17,11 @@ def read_rss_feeds():
 
 def fetch_stored_etag(url):
     key = {"url": {"S": url}}
+    import pprint
+    pprint.pprint(key)
     try:
-        response = dynamodb.get_item(TableName=ETAG_TABLE_NAME, Key=key)
+        # response = dynamodb.get_item(TableName=ETAG_TABLE_NAME, Key=key)
+        response = table.get_item(Key={'url': url})
         if "Item" not in response:
             print(f"No etag found in DynamoDB table for URL {url}.")
             return None
