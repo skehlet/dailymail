@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "logs:DescribeLogGroups",
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group::log-stream",
+      "arn:aws:logs:*:*:log-group::log-stream:",
     ]
   }
   statement {
