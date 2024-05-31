@@ -7,9 +7,4 @@ resource "aws_dynamodb_table" "rss_reader_etag_table" {
     name = "url"
     type = "S"
   }
-
-  attribute {
-    name = "etag"
-    type = "S"
-  }
 }
