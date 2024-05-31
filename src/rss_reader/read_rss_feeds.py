@@ -1,3 +1,4 @@
+import json
 import feedparser
 from db import (
     get_feed_metadata,
@@ -5,6 +6,7 @@ from db import (
     id_already_processed,
     mark_id_as_processed,
 )
+from app_queue import enqueue
 
 # TODO: move to dynamic location, e.g. ParameterStore?
 URLS = [
@@ -12,67 +14,81 @@ URLS = [
 ]
 
 
-def process_rss_entries(url, entries):
-    for entry in entries:
-        id = entry.id
-
-        if id_already_processed(url, id):
-            print(f"Already seen {url}/{id}")
-            continue
-
-        article_title = entry.title
-        article_link = entry.link
-        article_published_at = entry.published  # Unicode string
-        article_published_at_parsed = entry.published_parsed  # Time object
-        # article_author = entry.author  DOES NOT EXIST
-        content = entry.summary
-        # article_tags = entry.tags  DOES NOT EXIST
-        print(f"[{article_title}]({article_link})")
-        print(f"Id: {id}")
-        print(f"Published: {article_published_at}")
-        # print ("Published by {}".format(article_author))
-        print(f"Content: {content}")
-        print("")
-
-        mark_id_as_processed(url, id)
+def read_rss_feeds():
+    for url in URLS:
+        read_feed(url)
 
 
 def read_feed(url):
     print(f"URL: {url}")
-    (etag, last_modified) = get_feed_metadata(url)
-    print(f"Previous Etag: {etag}")
-    print(f"Previous Last modified: {last_modified}")
+    (previous_etag, previous_last_modified) = get_feed_metadata(url)
+    print(f"Previous Etag: {previous_etag}")
+    print(f"Previous Last modified: {previous_last_modified}")
 
     d = feedparser.parse(
         url,
-        etag=etag,
-        modified=last_modified,
+        etag=previous_etag,
+        modified=previous_last_modified,
     )
 
     print(f"Status: {d.status}")
     if "etag" in d:
-        new_etag = d.etag
-        print(f"Etag: {new_etag}")
+        etag = d.etag
+        print(f"Etag: {etag}")
     else:
-        new_etag = None
+        etag = None
     if "modified" in d:
-        new_last_modified = d.modified
-        print(f"Last modified: {new_last_modified}")
+        last_modified = d.modified
+        print(f"Last modified: {last_modified}")
     else:
-        new_last_modified = None
+        last_modified = None
     print(f"Title: {d.feed.get('title', 'Unknown')}")
     print(f"Description: {d.feed.get('description', 'Unknown')}")
     print(f"Published: {d.feed.get('published', 'Unknown')}")
 
-    if new_etag != etag or new_last_modified != last_modified:
-        store_feed_metadata(url, new_etag, new_last_modified)
-
     process_rss_entries(url, d.entries)
 
+    if etag != previous_etag or last_modified != previous_last_modified:
+        store_feed_metadata(url, etag, last_modified)
 
-def read_rss_feeds():
-    for url in URLS:
-        read_feed(url)
+
+def process_rss_entries(url, entries):
+    for entry in entries:
+        article_id = entry.id
+
+        if id_already_processed(url, article_id):
+            print(f"Already seen {url}/{article_id}")
+            continue
+
+        article_title = entry.title
+        article_link = entry.link
+        article_description = entry.description
+        article_published = entry.published
+        article_content = entry.summary
+
+        print(f"=== {article_id}")
+        print(f"Title: {article_title}")
+        print(f"Link: {article_link}")
+        print(f"Description: {article_description}")
+        print(f"Published: {article_published}")
+        print(f"Content: {article_content}")
+        print("")
+
+        record = {
+            "id": article_id,
+            "title": article_title,
+            "link": article_link,
+            "description": article_description,
+            "published": article_published,
+        }
+
+        write_to_queue(record)
+
+        mark_id_as_processed(url, article_id)
+
+
+def write_to_queue(entry):
+    enqueue("DailyMail-ScrapeQueue", json.dumps(entry))
 
 
 if __name__ == "__main__":

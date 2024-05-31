@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "rss_reader" {
-  function_name = "dailymail-rss-reader"
+  function_name = "${local.app_id}-rss-reader"
   package_type  = "Image"
   image_uri     = var.image_uri
   role          = aws_iam_role.rss_reader.arn
