@@ -21,14 +21,11 @@ data "aws_iam_policy_document" "codebuild_role_assume_policy" {
 data "aws_iam_policy_document" "codebuild_role_policy" {
   statement {
     actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:DescribeLogGroups",
-      "logs:ListTagsLogGroup",
-      "logs:PutLogEvents",
-      "logs:PutRetentionPolicy",
+      "logs:*",
     ]
-    resources = ["*"]
+    resources = [
+      "arn:aws:logs:*:*:log-group:/aws/codebuild/DailyMailPipeline-*",
+    ]
   }
   statement {
     actions = [
@@ -86,11 +83,16 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
 
   statement {
     actions = [
-      "dynamodb:CreateTable",
-      "dynamodb:DeleteTable",
-      "dynamodb:DescribeContinuousBackups",
-      "dynamodb:DescribeTable",
-      "dynamodb:DescribeTimeToLive",
+      "logs:*",
+    ]
+    resources = [
+      "arn:aws:logs:*:*:log-group:/aws/lambda/dailymail-*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "dynamodb:*",
     ]
     resources = [
       "arn:aws:dynamodb:*:*:table/dailymail-*",
@@ -99,8 +101,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
 
   statement {
     actions = [
-      "iam:CreateRole",
-      "iam:DeleteRole",
+      "iam:*",
     ]
     resources = [
       "arn:aws:iam::*:role/DailyMail-*",
