@@ -24,6 +24,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+      "logs:PutRetentionPolicy",
     ]
     resources = ["*"]
   }
@@ -44,7 +45,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "dynamodb:DescribeTable",
       "dynamodb:GetItem",
       "dynamodb:PutItem",
-      "dynamodb:DeleteItem"
+      "dynamodb:DeleteItem",
     ]
     resources = [
       "arn:aws:dynamodb:*:*:table/terraform-state"
@@ -86,9 +87,20 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "dynamodb:CreateTable",
       "dynamodb:DeleteTable",
       "dynamodb:DescribeTable",
+      "dynamodb:DescribeContinuousBackups",
     ]
     resources = [
-      "arn:aws:dynamodb:*:*:table/dailymail-*"
+      "arn:aws:dynamodb:*:*:table/dailymail-*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:CreateRole",
+      "iam:DeleteRole",
+    ]
+    resources = [
+      "arn:aws:iam::*:role/DailyMail-*",
     ]
   }
 }
