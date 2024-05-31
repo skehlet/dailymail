@@ -21,6 +21,14 @@ data "aws_iam_policy_document" "codebuild_role_assume_policy" {
 data "aws_iam_policy_document" "codebuild_role_policy" {
   statement {
     actions = [
+      "logs:DescribeLogGroups",
+    ]
+    resources = [
+      "arn:aws:logs:*:*:log-group::log-stream",
+    ]
+  }
+  statement {
+    actions = [
       "logs:*",
     ]
     resources = [
