@@ -24,6 +24,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:DescribeLogGroups",
+      "logs:ListTagsLogGroup",
       "logs:PutLogEvents",
       "logs:PutRetentionPolicy",
     ]
@@ -87,8 +88,9 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     actions = [
       "dynamodb:CreateTable",
       "dynamodb:DeleteTable",
-      "dynamodb:DescribeTable",
       "dynamodb:DescribeContinuousBackups",
+      "dynamodb:DescribeTable",
+      "dynamodb:DescribeTimeToLive",
     ]
     resources = [
       "arn:aws:dynamodb:*:*:table/dailymail-*",
