@@ -90,49 +90,28 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
   # Permissions below this line are for the app's buildspec scripts, terraform plan/apply, etc
 
   statement {
-    actions = [
-      "logs:*",
-    ]
-    resources = [
-      "arn:aws:logs:*:*:log-group:/aws/lambda/dailymail-*", // TODO remove once the old log group is deleted
-      "arn:aws:logs:*:*:log-group:/aws/lambda/DailyMail-*",
-    ]
+    actions = ["logs:*"]
+    resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/DailyMail-*"]
   }
-
   statement {
-    actions = [
-      "dynamodb:*",
-    ]
-    resources = [
-      "arn:aws:dynamodb:*:*:table/DailyMail-*",
-    ]
+    actions = ["dynamodb:*"]
+    resources = ["arn:aws:dynamodb:*:*:table/DailyMail-*"]
   }
-
   statement {
-    actions = [
-      "iam:*",
-    ]
-    resources = [
-      "arn:aws:iam::*:role/DailyMail-*",
-    ]
+    actions = ["iam:*"]
+    resources = ["arn:aws:iam::*:role/DailyMail-*"]
   }
-
   statement {
-    actions = [
-      "lambda:*",
-    ]
-    resources = [
-      "arn:aws:lambda:*:*:function:DailyMail-*",
-    ]
+    actions = ["lambda:*"]
+    resources = ["arn:aws:lambda:*:*:function:DailyMail-*"]
   }
-
   statement {
-    actions = [
-      "sqs:*",
-    ]
-    resources = [
-      "arn:aws:sqs:*:*:DailyMail-*",
-    ]
+    actions = ["lambda:CreateEventSourceMapping"]
+    resources = ["*"]
+  }
+  statement {
+    actions = ["sqs:*"]
+    resources = ["arn:aws:sqs:*:*:DailyMail-*"]
   }
 }
 
