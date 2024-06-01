@@ -21,18 +21,18 @@ phases:
   build:
     commands:
       - cd src/rss_reader
-      - docker build -f Dockerfile -t DailyMail-RssReader .
+      - docker build -f Dockerfile -t dailymail-rss-reader .
       - cd ../link_scraper
-      - docker build -f Dockerfile -t DailyMail-Scraper .
+      - docker build -f Dockerfile -t dailymail-scraper .
 
   post_build:
     commands:
       - BUILD_ID=${CODEBUILD_BUILD_ID##*:}
-      - RSS_READER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/DailyMail-RssReader:$BUILD_ID
+      - RSS_READER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-rss-reader:$BUILD_ID
       - echo $RSS_READER_IMAGE_URI
-      - docker tag DailyMail-RssReader $RSS_READER_IMAGE_URI
+      - docker tag dailymail-rss-reader $RSS_READER_IMAGE_URI
       - docker push $RSS_READER_IMAGE_URI
-      - SCRAPER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/DailyMail-Scraper:$BUILD_ID
+      - SCRAPER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-scraper:$BUILD_ID
       - echo $SCRAPER_IMAGE_URI
-      - docker tag DailyMail-Scraper $SCRAPER_IMAGE_URI
+      - docker tag dailymail-scraper $SCRAPER_IMAGE_URI
       - docker push $SCRAPER_IMAGE_URI
