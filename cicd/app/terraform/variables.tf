@@ -15,3 +15,9 @@ variable "build_id" {
   description = "The build id"
   nullable = false
 }
+
+variable "scraper_batch_size" {
+  type = number
+  description = "How many events to batch to a single lambda invocation, default 10"
+  default = 10
+}
