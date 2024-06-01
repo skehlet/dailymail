@@ -1,36 +1,21 @@
 {
     "Records": [
         {
-            "messageId": "059f36b4-87a3-44ab-83d2-661975830a7d",
-            "receiptHandle": "AQEBwJnKyrHigUMZj6rYigCgxlaS3SLy0a...",
-            "body": "Test message.",
+            "messageId": "35c3a8fd-1715-4552-9fe0-b25695768d66",
+            "receiptHandle": "AQEBhtvW55/BVkRz7Sq+pDKWWX1WzK3/DdtNrBDXxTcGRkQguPfZ927Bu5r76/TKTpmReA/2eO5idretau3qIX9ytfpYstl5Zak0pqO4hJFWDeUCAEvmVwtv8xkEXfVI4k3kQU2Z1Uvz+qVvLDcpr3elKQ0/B2S7GMLRSs7p/Xs/GZPPhizPjGX+NkECuoxIgA7LkWGFn0FjO7idJnWwtC+ebXJ4WVCXDiyq7hZnujFYYkGIzerdMa5hAXxfpla4Sd00OprHiQBIsRpzn+jZ6yQknZOgeFBgJE99OUgve1S2kWVzCUtZIfF3YRGNsxV1OvDaI8aRL3lv7V/jUbYG9Z0RNpJy/97uLTAfbDo/Gv/WlQ4SLk/qBZwQx1tGIqqBxNiSJC9LIIjIax7V/R4RKT2PyZCBsI57Dzvw2u2Qfc4FZzA=",
+            "body": "{\"id\": \"https:\/\/yourlocalepidemiologist.substack.com\/p\/time100\", \"title\": \"TIME100\", \"link\": \"https:\/\/yourlocalepidemiologist.substack.com\/p\/time100\", \"description\": \"YLE makes the list (!)\", \"published\": \"Thu, 02 May 2024 13:23:57 GMT\"}",
             "attributes": {
                 "ApproximateReceiveCount": "1",
-                "SentTimestamp": "1545082649183",
-                "SenderId": "AIDAIENQZJOLO23YVJ4VO",
-                "ApproximateFirstReceiveTimestamp": "1545082649185"
+                "SentTimestamp": "1717207271441",
+                "SenderId": "AIDAJLH42KMEABMHTTTW4",
+                "ApproximateFirstReceiveTimestamp": "1717207287203"
             },
             "messageAttributes": {},
-            "md5OfBody": "e4e68fb7bd0e697a0ae8f1bb342846b3",
+            "md5OfMessageAttributes": null,
+            "md5OfBody": "7715f153fb1cc4f6e7f993656ca6e5bb",
             "eventSource": "aws:sqs",
-            "eventSourceARN": "arn:aws:sqs:us-east-2:123456789012:my-queue",
-            "awsRegion": "us-east-2"
-        },
-        {
-            "messageId": "2e1424d4-f796-459a-8184-9c92662be6da",
-            "receiptHandle": "AQEBzWwaftRI0KuVm4tP+/7q1rGgNqicHq...",
-            "body": "Test message.",
-            "attributes": {
-                "ApproximateReceiveCount": "1",
-                "SentTimestamp": "1545082650636",
-                "SenderId": "AIDAIENQZJOLO23YVJ4VO",
-                "ApproximateFirstReceiveTimestamp": "1545082650649"
-            },
-            "messageAttributes": {},
-            "md5OfBody": "e4e68fb7bd0e697a0ae8f1bb342846b3",
-            "eventSource": "aws:sqs",
-            "eventSourceARN": "arn:aws:sqs:us-east-2:123456789012:my-queue",
-            "awsRegion": "us-east-2"
+            "eventSourceARN": "arn:aws:sqs:us-west-2:519765885403:DailyMail-ScraperQueue",
+            "awsRegion": "us-west-2"
         }
     ]
 }

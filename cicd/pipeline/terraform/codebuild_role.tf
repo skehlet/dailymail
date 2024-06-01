@@ -90,35 +90,37 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
   # Permissions below this line are for the app's buildspec scripts, terraform plan/apply, etc
 
   statement {
-    actions = ["logs:*"]
+    actions   = ["logs:*"]
     resources = ["arn:aws:logs:*:*:log-group:/aws/lambda/DailyMail-*"]
   }
   statement {
-    actions = ["dynamodb:*"]
+    actions   = ["dynamodb:*"]
     resources = ["arn:aws:dynamodb:*:*:table/DailyMail-*"]
   }
   statement {
-    actions = ["iam:*"]
+    actions   = ["iam:*"]
     resources = ["arn:aws:iam::*:role/DailyMail-*"]
   }
   statement {
-    actions = ["lambda:*"]
+    actions   = ["lambda:*"]
     resources = ["arn:aws:lambda:*:*:function:DailyMail-*"]
   }
   statement {
-    actions = ["lambda:CreateEventSourceMapping"]
+    actions = [
+      "lambda:CreateEventSourceMapping",
+      "lambda:GetEventSourceMapping",
+    ]
     resources = ["*"]
   }
   statement {
     actions = [
-      "lambda:GetEventSourceMapping",
       "lambda:DeleteEventSourceMapping",
       "lambda:UpdateEventSourceMapping",
     ]
     resources = ["arn:aws:lambda:*:*:event-source-mapping:*"]
   }
   statement {
-    actions = ["sqs:*"]
+    actions   = ["sqs:*"]
     resources = ["arn:aws:sqs:*:*:DailyMail-*"]
   }
 }
