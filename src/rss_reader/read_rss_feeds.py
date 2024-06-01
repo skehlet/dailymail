@@ -1,6 +1,6 @@
 import json
 import feedparser
-from app_settings import RSS_FEEDS
+from app_settings import RSS_FEEDS, SCRAPER_QUEUE
 from db import (
     get_feed_metadata,
     store_feed_metadata,
@@ -84,7 +84,7 @@ def process_rss_entries(url, entries):
 
 
 def write_to_queue(entry):
-    enqueue("DailyMail-ScrapeQueue", json.dumps(entry))
+    enqueue(SCRAPER_QUEUE, json.dumps(entry))
 
 
 if __name__ == "__main__":

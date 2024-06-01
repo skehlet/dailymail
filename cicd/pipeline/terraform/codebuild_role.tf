@@ -110,6 +110,14 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     resources = ["*"]
   }
   statement {
+    actions = [
+      "lambda:GetEventSourceMapping",
+      "lambda:DeleteEventSourceMapping",
+      "lambda:UpdateEventSourceMapping",
+    ]
+    resources = ["arn:aws:lambda:*:*:event-source-mapping:*"]
+  }
+  statement {
     actions = ["sqs:*"]
     resources = ["arn:aws:sqs:*:*:DailyMail-*"]
   }
