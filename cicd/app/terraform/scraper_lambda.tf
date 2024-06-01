@@ -5,6 +5,11 @@ resource "aws_lambda_function" "scraper" {
   role          = aws_iam_role.scraper.arn
   timeout       = var.scraper_batch_size * 15 // enough time to process an entire batch of items
   memory_size   = 512
+  environment {
+    variables = {
+      BUILD_ID = var.build_id
+    }
+  }
   depends_on = [
     aws_cloudwatch_log_group.scraper_logs,
   ]

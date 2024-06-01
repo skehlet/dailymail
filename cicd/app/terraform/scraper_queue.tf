@@ -12,7 +12,7 @@ resource "aws_sqs_queue" "scrape_queue" {
   })
 }
 
-resource "aws_sqs_queue" "scrape_queue_dlq" {
+resource "aws_sqs_queue" "scraper_queue_dlq" {
   name = "${local.app_id}-ScraperQueue-dlq"
 }
 
