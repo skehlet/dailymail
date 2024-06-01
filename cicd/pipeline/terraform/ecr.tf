@@ -51,9 +51,6 @@ data "aws_iam_policy_document" "policy" {
       variable = "aws:SourceAccount"
       values   = [data.aws_caller_identity.current.account_id]
     }
-    resources = [
-      aws_ecr_repository.image_repo[each.key].arn
-    ]
   }
 
   statement {
@@ -94,9 +91,6 @@ data "aws_iam_policy_document" "policy" {
         "arn:aws:lambda:*:${data.aws_caller_identity.current.account_id}:function:*"
       ]
     }
-    resources = [
-      aws_ecr_repository.image_repo[each.key].arn
-    ]
   }
 }
 
