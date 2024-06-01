@@ -1,5 +1,5 @@
 // Read https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#events-sqs-queueconfig
-resource "aws_sqs_queue" "scrape_queue" {
+resource "aws_sqs_queue" "scraper_queue" {
   name                       = "${local.app_id}-ScraperQueue"
   message_retention_seconds  = 86400 * 2
   // We recommend setting your queue's visibility timeout to six times your
@@ -16,7 +16,7 @@ resource "aws_sqs_queue" "scraper_queue_dlq" {
   name = "${local.app_id}-ScraperQueue-dlq"
 }
 
-resource "aws_sqs_queue_redrive_allow_policy" "terraform_queue_redrive_allow_policy" {
+resource "aws_sqs_queue_redrive_allow_policy" "scraper_queue_redrive_allow_policy" {
   queue_url = aws_sqs_queue.scraper_queue_dlq.id
   redrive_allow_policy = jsonencode({
     redrivePermission = "byQueue",
