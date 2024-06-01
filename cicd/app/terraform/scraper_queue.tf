@@ -4,7 +4,7 @@ resource "aws_sqs_queue" "scraper_queue" {
   message_retention_seconds  = 86400 * 2
   // We recommend setting your queue's visibility timeout to six times your
   // function timeout, plus the value of MaximumBatchingWindowInSeconds
-  visibility_timeout_seconds = (6 * aws_lambda_function.scraper.timeout) + aws_lambda_event_source_mapping.scraper.maximum_batching_window_in_seconds
+  visibility_timeout_seconds = (6 * aws_lambda_function.scraper.timeout) + var.scraper_trigger_maximum_batching_window_in_seconds
   receive_wait_time_seconds  = 20
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.scraper_queue_dlq.arn
