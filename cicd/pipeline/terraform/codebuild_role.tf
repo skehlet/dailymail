@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     actions = ["ecr:*"]
     resources = [
       "arn:aws:ecr:*:*:repository/codebuild-terraform-image",
-      "arn:aws:ecr:*:*:repository/DailyMail-*",
+      "arn:aws:ecr:*:*:repository/dailymail-*",
     ]
   }
 
