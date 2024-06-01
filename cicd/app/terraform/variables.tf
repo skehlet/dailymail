@@ -1,6 +1,12 @@
-variable "image_uri" {
+variable "rss_reader_image_uri" {
   type        = string
-  description = "URI of ECR image"
+  description = "URI of RSS Reader ECR image"
+  nullable    = false
+}
+
+variable "scraper_image_uri" {
+  type        = string
+  description = "URI of Scraper ECR image"
   nullable    = false
 }
 

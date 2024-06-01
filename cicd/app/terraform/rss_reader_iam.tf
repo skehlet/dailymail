@@ -25,10 +25,17 @@ data "aws_iam_policy_document" "rss_reader_policy" {
       "dynamodb:DeleteItem",
     ]
     resources = [
-      "arn:aws:dynamodb:*:*:table/dailymail-rss-reader-etag-table"
+      "arn:aws:dynamodb:*:*:table/DailyMail-*"
     ]
   }
-  // TODO: allow to add messages to the scrape queue
+  statement {
+    actions = [
+      "sqs:SendMessage",
+    ]
+    resources = [
+      "arn:aws:sqs:*:*:DailyMail-ScrapeQueue",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "rss_reader_policy" {

@@ -1,10 +1,10 @@
 resource "aws_ecr_repository" "image_repo" {
-  for_each = toset(["dailymail-rss-reader"])
+  for_each = toset(["DailyMail-RssReader", "DailyMail-Scraper"])
   name     = each.key
 }
 
 resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
-  for_each   = toset(["dailymail-rss-reader"])
+  for_each   = toset(["DailyMail-RssReader", "DailyMail-Scraper"])
   repository = aws_ecr_repository.image_repo[each.key].name
   policy = jsonencode(
     {
@@ -26,7 +26,7 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
 }
 
 data "aws_iam_policy_document" "policy" {
-  for_each = toset(["dailymail-rss-reader"])
+  for_each = toset(["DailyMail-RssReader", "DailyMail-Scraper"])
   statement {
     principals {
       type        = "Service"
@@ -51,6 +51,9 @@ data "aws_iam_policy_document" "policy" {
       variable = "aws:SourceAccount"
       values   = [data.aws_caller_identity.current.account_id]
     }
+    resources = [
+      aws_ecr_repository.image_repo[each.key].arn
+    ]
   }
 
   statement {
@@ -91,11 +94,14 @@ data "aws_iam_policy_document" "policy" {
         "arn:aws:lambda:*:${data.aws_caller_identity.current.account_id}:function:*"
       ]
     }
+    resources = [
+      aws_ecr_repository.image_repo[each.key].arn
+    ]
   }
 }
 
 resource "aws_ecr_repository_policy" "policy" {
-  for_each   = toset(["dailymail-rss-reader"])
+  for_each   = toset(["DailyMail-RssReader", "DailyMail-Scraper"])
   repository = aws_ecr_repository.image_repo[each.key].name
   policy     = data.aws_iam_policy_document.policy[each.key].json
 }

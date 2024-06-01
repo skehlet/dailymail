@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     actions = ["ecr:*"]
     resources = [
       "arn:aws:ecr:*:*:repository/codebuild-terraform-image",
-      "arn:aws:ecr:*:*:repository/dailymail-*",
+      "arn:aws:ecr:*:*:repository/DailyMail-*",
     ]
   }
 
@@ -94,7 +94,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "logs:*",
     ]
     resources = [
-      "arn:aws:logs:*:*:log-group:/aws/lambda/dailymail-*",
+      "arn:aws:logs:*:*:log-group:/aws/lambda/DailyMail-*",
     ]
   }
 
@@ -103,7 +103,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "dynamodb:*",
     ]
     resources = [
-      "arn:aws:dynamodb:*:*:table/dailymail-*",
+      "arn:aws:dynamodb:*:*:table/DailyMail-*",
     ]
   }
 
@@ -121,7 +121,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "lambda:*",
     ]
     resources = [
-      "arn:aws:lambda:*:*:function:dailymail-*",
+      "arn:aws:lambda:*:*:function:DailyMail-*",
     ]
   }
 }

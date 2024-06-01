@@ -60,9 +60,8 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName   = aws_codebuild_project.dev_terraform_apply.name
         EnvironmentVariables = jsonencode([
-          { "name" : "ENV", "value" : "dev" },
-          { "name" : "IMAGE_URI", "value" : "#{CreateImages.IMAGE_URI}" },
-          # { "name" : "PRE_SYNC_IMAGE_URI", "value" : "#{CreateImages.PRE_SYNC_IMAGE_URI}" },
+          { "name" : "RSS_READER_IMAGE_URI", "value" : "#{CreateImages.RSS_READER_IMAGE_URI}" },
+          { "name" : "SCRAPER_IMAGE_URI", "value" : "#{CreateImages.SCRAPER_IMAGE_URI}" },
           { "name" : "BUILD_ID", value : "#{CreateImages.BUILD_ID}" },
         ])
       }

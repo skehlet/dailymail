@@ -1,5 +1,6 @@
 import json
 import feedparser
+from app_settings import RSS_FEEDS
 from db import (
     get_feed_metadata,
     store_feed_metadata,
@@ -8,14 +9,9 @@ from db import (
 )
 from app_queue import enqueue
 
-# TODO: move to dynamic location, e.g. ParameterStore?
-URLS = [
-    "https://yourlocalepidemiologist.substack.com/feed",
-]
-
 
 def read_rss_feeds():
-    for url in URLS:
+    for url in RSS_FEEDS:
         read_feed(url)
 
 
