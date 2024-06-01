@@ -87,13 +87,14 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
   }
 
   # The above permissions are the basics needed to operate the build pipeline.
-  # Permissions below this line are for the app's CodeBuild scripts, terraform plan/apply, etc
+  # Permissions below this line are for the app's buildspec scripts, terraform plan/apply, etc
 
   statement {
     actions = [
       "logs:*",
     ]
     resources = [
+      "arn:aws:logs:*:*:log-group:/aws/lambda/dailymail-*", // TODO remove once the old log group is deleted
       "arn:aws:logs:*:*:log-group:/aws/lambda/DailyMail-*",
     ]
   }
@@ -122,6 +123,15 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     ]
     resources = [
       "arn:aws:lambda:*:*:function:DailyMail-*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "sqs:*",
+    ]
+    resources = [
+      "arn:aws:sqs:*:*:DailyMail-*",
     ]
   }
 }
