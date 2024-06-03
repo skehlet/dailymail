@@ -34,7 +34,7 @@ def process_record(record):
     # Now that we have the link, we can scrape it
     (fetched_title, fetched_content) = fetch_site_content(body["link"])
     print(f"Title: {fetched_title}")
-    print(f"Content: {fetched_content}")
+    print(f"Content (first 100 chars): {fetched_content[:100]}")
 
     # Now store it in S3
     record = {

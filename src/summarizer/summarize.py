@@ -47,7 +47,7 @@ def get_summarization_prompt():
     from langchain.prompts import ChatPromptTemplate
 
     prompt_template = """\
-Please provide a concise summary of the following text, limiting it to three or four sentences.
+Please provide a concise summary of the following text, limiting it to four or five sentences.
 Then, in a new paragraph, please highlight one or two interesting aspects about it in a separate sentence or two.
 
 {text}""".strip()

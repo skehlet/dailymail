@@ -30,11 +30,10 @@ data "aws_iam_policy_document" "rss_reader_policy" {
   }
   statement {
     actions = [
+      "sqs:GetQueueUrl",
       "sqs:SendMessage",
     ]
-    resources = [
-      "arn:aws:sqs:*:*:DailyMail-ScrapeQueue",
-    ]
+    resources = ["arn:aws:sqs:*:*:DailyMail-ScraperQueue"]
   }
 }
 
