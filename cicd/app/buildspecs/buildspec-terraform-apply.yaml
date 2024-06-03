@@ -3,6 +3,7 @@ version: 0.2
 env:
   # RSS_READER_IMAGE_URI
   # SCRAPER_IMAGE_URI
+  # SUMMARIZER_IMAGE_URI
   # BUILD_ID
   exported-variables:
     - CODEBUILD_BUILD_ID
@@ -12,6 +13,7 @@ phases:
     commands:
       - echo RSS_READER_IMAGE_URI=${RSS_READER_IMAGE_URI}
       - echo SCRAPER_IMAGE_URI=${SCRAPER_IMAGE_URI}
+      - echo SUMMARIZER_IMAGE_URI=${SUMMARIZER_IMAGE_URI}
       - echo BUILD_ID=${BUILD_ID}
       - terraform --version
 
@@ -27,5 +29,6 @@ phases:
       - terraform apply
         -var=rss_reader_image_uri=${RSS_READER_IMAGE_URI}
         -var=scraper_image_uri=${SCRAPER_IMAGE_URI}
+        -var=summarizer_image_uri=${SUMMARIZER_IMAGE_URI}
         -var=build_id=${BUILD_ID}
         -auto-approve

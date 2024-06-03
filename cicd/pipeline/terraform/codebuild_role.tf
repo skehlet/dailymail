@@ -123,6 +123,13 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     actions   = ["sqs:*"]
     resources = ["arn:aws:sqs:*:*:DailyMail-*"]
   }
+  statement {
+    actions = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::skehlet-dailymail-*",
+      "arn:aws:s3:::skehlet-dailymail-*/*",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "codebuild_role_policy" {

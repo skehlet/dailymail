@@ -6,6 +6,7 @@ env:
     - CODEBUILD_BUILD_ID
     - RSS_READER_IMAGE_URI
     - SCRAPER_IMAGE_URI
+    - SUMMARIZER_IMAGE_URI
     - BUILD_ID
 
 phases:
@@ -24,6 +25,8 @@ phases:
       - docker build -f Dockerfile -t dailymail-rss-reader .
       - cd ../link_scraper
       - docker build -f Dockerfile -t dailymail-scraper .
+      - cd ../summarizer
+      - docker build -f Dockerfile -t dailymail-summarizer .
 
   post_build:
     commands:
@@ -36,3 +39,7 @@ phases:
       - echo $SCRAPER_IMAGE_URI
       - docker tag dailymail-scraper $SCRAPER_IMAGE_URI
       - docker push $SCRAPER_IMAGE_URI
+      - SUMMARIZER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-summarizer:$BUILD_ID
+      - echo $SUMMARIZER_IMAGE_URI
+      - docker tag dailymail-summarizer $SUMMARIZER_IMAGE_URI
+      - docker push $SUMMARIZER_IMAGE_URI

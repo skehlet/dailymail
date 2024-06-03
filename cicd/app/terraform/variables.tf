@@ -10,6 +10,12 @@ variable "scraper_image_uri" {
   nullable    = false
 }
 
+variable "summarizer_image_uri" {
+  type        = string
+  description = "URI of Summarizer ECR image"
+  nullable    = false
+}
+
 variable "build_id" {
   type = string
   description = "The build id"
