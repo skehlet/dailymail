@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlparse, parse_qs
 import feedparser
 from app_settings import RSS_FEEDS, SCRAPER_QUEUE
 from db import (
@@ -47,6 +48,7 @@ def read_feed(feed_url):
 
     process_rss_entries(feed_url, feed_title, feed_description, d.entries)
 
+    # Note Google Alerts does NOT provide either ETag nor Last-Modified
     if etag != previous_etag or last_modified != previous_last_modified:
         store_feed_metadata(feed_url, etag, last_modified)
 
@@ -60,7 +62,7 @@ def process_rss_entries(url, feed_title, feed_description, entries):
             continue
 
         article_title = entry.title
-        article_link = entry.link
+        article_link = remove_redirectors_from_link(entry.link)
         article_description = entry.description
         article_published = entry.published
         article_content = entry.summary
@@ -85,6 +87,18 @@ def process_rss_entries(url, feed_title, feed_description, entries):
         write_to_queue(record)
 
         mark_id_as_processed(url, article_id)
+
+
+def remove_redirectors_from_link(link):
+    """
+    For example:
+    https://www.google.com/url?rct=j&sa=t&url=https://www.caranddriver.com/news/a46717089/vw-id-buzz-super-bowl-ad-sale-date/&ct=ga&cd=CAEYACoUMTMxODg2NDY3Mzc0MzM4Mzc1OTMyGjUwNWZiNzdjNjQ5ODI4MzI6Y29tOmVuOlVT&usg=AOvVaw28L7Vbwdv_m3WH6gCBCnK8
+    Extract out that `url` part of the query string, and return it
+    """
+    if link.startswith("https://www.google.com/url?"):
+        return parse_qs(urlparse(link).query)["url"][0]
+    else:
+        return link
 
 
 def write_to_queue(entry):

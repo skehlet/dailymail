@@ -36,6 +36,13 @@ def process_record(record):
     print(f"Title: {fetched_title}")
     print(f"Content (first 100 chars): {fetched_content[:100]}")
 
+    # STOP if there is no content
+    if not fetched_content:
+        print("=" * 80)
+        print("No content found, skipping")
+        print("=" * 80)
+        return
+
     # Now store it in S3
     record = {
         "feed_title": body["feed_title"],

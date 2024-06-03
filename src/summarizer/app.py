@@ -17,6 +17,11 @@ def process_record(record):
     # body has fields: feed_title, feed_description, url, published, title, content
     print(body)
 
+    # STOP if there is no content
+    if body["content"] == "":
+        print(f"No content for {key}")
+        return
+
     # if the feed_title is a Google Alert, extract the topic
     if is_google_alert(body["feed_title"]):
         topic = get_topic_from_google_alert_title(body["feed_title"])
