@@ -27,7 +27,10 @@ data "aws_iam_policy_document" "summarizer_policy" {
     resources = ["arn:aws:secretsmanager:*:*:secret:OPENAI_API_KEY-*"]
   }
   statement {
-    actions = ["sqs:SendMessage"]
+    actions = [
+      "sqs:GetQueueUrl",
+      "sqs:SendMessage",
+    ]
     resources = ["arn:aws:sqs:*:*:DailyMail-DailyDigestQueue"]
   }
 }
