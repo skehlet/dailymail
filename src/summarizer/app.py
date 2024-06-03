@@ -7,17 +7,13 @@ from summarize import llm_summarize_text
 
 
 def process_record(record):
-    print(record)
+    # print(record)
 
     if not "eventSource" in record or record["eventSource"] != "aws:s3":
         raise Exception("Not an S3 notification event")
 
     key = record["s3"]["object"]["key"]
-
-    # read that key from s3
-    content = read_from_s3(SUMMARIZER_BUCKET, key)
-    print(content)
-    body = json.loads(content)
+    body = json.loads(read_from_s3(SUMMARIZER_BUCKET, key))
     # body has fields: feed_title, feed_description, url, published, title, content
     print(body)
 
