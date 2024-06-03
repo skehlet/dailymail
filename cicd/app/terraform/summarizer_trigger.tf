@@ -6,6 +6,6 @@ resource "aws_s3_bucket_notification" "summarizer_trigger" {
     filter_prefix       = "incoming/"
   }
   depends_on = [
-    aws_lambda_permission.summarizer
+    aws_lambda_permission.summarizer_allow_bucket_notifications
   ]
 }
