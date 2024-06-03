@@ -23,7 +23,7 @@ phases:
     commands:
       - cd src/rss_reader
       - docker build -f Dockerfile -t dailymail-rss-reader .
-      - cd ../link_scraper
+      - cd ../scraper
       - docker build -f Dockerfile -t dailymail-scraper .
       - cd ../summarizer
       - docker build -f Dockerfile -t dailymail-summarizer .

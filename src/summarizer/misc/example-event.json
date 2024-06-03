@@ -1,0 +1,38 @@
+{
+    "Records": [
+        {
+            "eventVersion": "2.1",
+            "eventSource": "aws:s3",
+            "awsRegion": "us-west-2",
+            "eventTime": "2024-06-03T21:32:42.756Z",
+            "eventName": "ObjectCreated:Put",
+            "userIdentity": {
+                "principalId": "AWS:AIDAJLH42KMEABMHTTTW4"
+            },
+            "requestParameters": {
+                "sourceIPAddress": "184.180.221.111"
+            },
+            "responseElements": {
+                "x-amz-request-id": "GNPPDZTB3N9QRXEE",
+                "x-amz-id-2": "zVL8cYichtCS4W3f8oJ7/5ob37v6TU0c7P0O/e1JYkA6ax+eGkokQ48EOaOkYfqk02p3jwEmT64B+SvNfrPDg5sk94XdGAgz"
+            },
+            "s3": {
+                "s3SchemaVersion": "1.0",
+                "configurationId": "tf-s3-lambda-20240603211900818700000003",
+                "bucket": {
+                    "name": "skehlet-dailymail-summarizer",
+                    "ownerIdentity": {
+                        "principalId": "AWSI8VF2BUGCP"
+                    },
+                    "arn": "arn:aws:s3:::skehlet-dailymail-summarizer"
+                },
+                "object": {
+                    "key": "incoming/fe942c4f-a3ba-4a2b-86e8-bb9b3e122730",
+                    "size": 2806,
+                    "eTag": "8250f07d6b7cb0c5382eee3b85e5b8a5",
+                    "sequencer": "00665E367AAB3D51C7"
+                }
+            }
+        }
+    ]
+}

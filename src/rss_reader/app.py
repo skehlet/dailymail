@@ -15,14 +15,14 @@ def read_rss_feeds():
         read_feed(url)
 
 
-def read_feed(url):
-    print(f"URL: {url}")
-    (previous_etag, previous_last_modified) = get_feed_metadata(url)
+def read_feed(feed_url):
+    print(f"URL: {feed_url}")
+    (previous_etag, previous_last_modified) = get_feed_metadata(feed_url)
     print(f"Previous Etag: {previous_etag}")
     print(f"Previous Last modified: {previous_last_modified}")
 
     d = feedparser.parse(
-        url,
+        feed_url,
         etag=previous_etag,
         modified=previous_last_modified,
     )
@@ -38,17 +38,20 @@ def read_feed(url):
         print(f"Last modified: {last_modified}")
     else:
         last_modified = None
-    print(f"Title: {d.feed.get('title', 'Unknown')}")
-    print(f"Description: {d.feed.get('description', 'Unknown')}")
-    print(f"Published: {d.feed.get('published', 'Unknown')}")
+    feed_title = d.feed.get("title", "Unknown")
+    feed_description = d.feed.get("description", "Unknown")
 
-    process_rss_entries(url, d.entries)
+    print(f"Feed title: {feed_title}")
+    print(f"Feed description: {feed_description}")
+    print(f"Feed published: {d.feed.get('published', 'Unknown')}")
+
+    process_rss_entries(feed_url, feed_title, feed_description, d.entries)
 
     if etag != previous_etag or last_modified != previous_last_modified:
-        store_feed_metadata(url, etag, last_modified)
+        store_feed_metadata(feed_url, etag, last_modified)
 
 
-def process_rss_entries(url, entries):
+def process_rss_entries(url, feed_title, feed_description, entries):
     for entry in entries:
         article_id = entry.id
 
@@ -71,7 +74,8 @@ def process_rss_entries(url, entries):
         print("")
 
         record = {
-            "id": article_id,
+            "feed_title": feed_title,
+            "feed_description": feed_description,
             "title": article_title,
             "link": article_link,
             "description": article_description,

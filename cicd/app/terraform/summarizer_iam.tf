@@ -22,6 +22,10 @@ data "aws_iam_policy_document" "summarizer_policy" {
       "arn:aws:s3:::skehlet-dailymail-summarizer/*",
     ]
   }
+  statement {
+    actions = ["sqs:SendMessage"]
+    resources = ["arn:aws:sqs:*:*:DailyMail-DailyDigestQueue"]
+  }
 }
 
 resource "aws_iam_role_policy" "summarizer_policy" {

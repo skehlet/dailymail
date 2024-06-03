@@ -1,44 +1,50 @@
-from app_s3 import delete_from_s3
-from app_settings import SUMMARIZER_BUCKET
+import json
+from app_s3 import read_from_s3, delete_from_s3
+from app_queue import enqueue
+from app_settings import SUMMARIZER_BUCKET, DAILY_DIGEST_QUEUE
+from google_alerts import is_google_alert, get_topic_from_google_alert_title
+from summarize import llm_summarize_text
+
 
 def process_record(record):
     print(record)
 
-    # # delete the record from s3
-    # delete_from_summarizer_bucket(record['key'])
+    if not "eventSource" in record or record["eventSource"] != "aws:s3":
+        raise Exception("Not an S3 notification event")
 
-#     # TODO: What to do about exceptions? e.g. JSON parse errors. I think
-#     # it'll just work to fail, and let it retry however many times, and then
-#     # fail it into the DLQ
+    key = record["s3"]["object"]["key"]
 
-#     if not "eventSource" in record or record['eventSource'] != 'aws:sqs':
-#         raise Exception("Not an SQS event")
+    # read that key from s3
+    content = read_from_s3(SUMMARIZER_BUCKET, key)
+    print(content)
+    body = json.loads(content)
+    # body has fields: feed_title, feed_description, url, published, title, content
+    print(body)
 
-#     body = json.loads(record['body'])
-#     print(f"Body: {body}")
+    # if the feed_title is a Google Alert, extract the topic
+    if is_google_alert(body["feed_title"]):
+        topic = get_topic_from_google_alert_title(body["feed_title"])
+        print(f"Google Alert Topic: {topic}")
+    else:
+        topic = None
 
-#     # Records have fields: id, title, link, description, published
-#     # See ../rss_reader/app.py
-#     # print(f"Link: {body['link']}")
+    # now, summarize the content
+    summary = llm_summarize_text(body["content"], topic)
 
-#     # Now that we have the link, we can scrape it
-#     (my_page_title, my_content) = fetch_site_content(body['link'])
-#     print(f"Title: {my_page_title}")
-#     print(f"Content: {my_content}")
+    # now, store in sqs
+    outgoing_record = {
+        "feed_title": body["feed_title"],
+        "feed_description": body["feed_description"],
+        "url": body["url"],
+        "published": body["published"],
+        "title": body["title"],
+        "summary": summary,
+    }
 
-#     # Now store it in S3
-#     record = {
-#         "url": body['link'],
-#         "published": body['published'],
-#         "title": my_page_title,
-#         "content": my_content,
-#     }
-#     write_to_summarizer_bucket(record)
+    enqueue(DAILY_DIGEST_QUEUE, json.dumps(outgoing_record))
 
-    # print("=" * 80)
-    # print(f"Successfully summarized content for {record['key']}")
-    # print("=" * 80)
-
-
-def delete_from_summarizer_bucket(key):
     delete_from_s3(SUMMARIZER_BUCKET, key)
+
+    print("=" * 80)
+    print(f"Successfully summarized content for {key}")
+    print("=" * 80)
