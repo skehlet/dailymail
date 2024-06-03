@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "summarizer" {
-  bucket = "skehlet-${local.app_id}-summarizer"
+  bucket = "skehlet-${lower(local.app_id)}-summarizer"
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "summarizer" {
