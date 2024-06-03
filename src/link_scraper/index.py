@@ -1,12 +1,14 @@
 import json
 import traceback
 from app_settings import show_settings
-from scrape_urls import process_records
+from app import process_record
 
-def handler(event, context): # pylint: disable=unused-argument
+def handler(event, context): # pylint: disable=unused-argument,redefined-outer-name
     try:
         show_settings()
-        process_records(event["Records"])
+        for record in event["Records"]:
+            process_record(record)
+
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
@@ -23,3 +25,8 @@ def handler(event, context): # pylint: disable=unused-argument
             "headers": {"Content-Type": "application/json"},
             "body": str(e),
         }
+
+if __name__ == "__main__":
+    with open("misc/example-event.json", "r", encoding="utf-8") as f:
+        event = json.load(f)
+        handler(event, {})

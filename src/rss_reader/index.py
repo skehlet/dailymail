@@ -1,7 +1,7 @@
 import json
 import traceback
 from app_settings import show_settings
-from read_rss_feeds import read_rss_feeds
+from app import read_rss_feeds
 
 def handler(event, context): # pylint: disable=unused-argument
     try:
