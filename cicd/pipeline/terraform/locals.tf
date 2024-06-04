@@ -4,5 +4,6 @@ locals {
     "dailymail-rss-reader",
     "dailymail-scraper",
     "dailymail-summarizer",
+    "dailymail-digest",
   ]
 }
