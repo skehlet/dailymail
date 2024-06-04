@@ -24,8 +24,3 @@ def handler(event, context): # pylint: disable=unused-argument,redefined-outer-n
             "headers": {"Content-Type": "application/json"},
             "body": str(e),
         }
-
-if __name__ == "__main__":
-    with open("misc/example-event.json", "r", encoding="utf-8") as f:
-        event = json.load(f)
-        handler(event, {})
