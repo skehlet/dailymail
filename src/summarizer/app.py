@@ -32,6 +32,8 @@ def process_record(record):
     # now, summarize the content
     summary = llm_summarize_text(body["content"], topic)
 
+    # STOP if it's NOT RELEVANT
+
     # now, store in sqs
     outgoing_record = {
         "feed_title": body["feed_title"],
