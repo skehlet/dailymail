@@ -16,6 +16,12 @@ variable "summarizer_image_uri" {
   nullable    = false
 }
 
+variable "digest_image_uri" {
+  type        = string
+  description = "URI of Digest ECR image"
+  nullable    = false
+}
+
 variable "build_id" {
   type = string
   description = "The build id"

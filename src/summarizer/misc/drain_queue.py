@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # read and discard all messages from a given SQS queue
-# DailyMail-DailyDigestQueue
+# DailyMail-DigestQueue
 
 import boto3
 import sys

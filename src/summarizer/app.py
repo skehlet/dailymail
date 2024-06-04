@@ -1,7 +1,7 @@
 import json
 from app_s3 import read_from_s3, delete_from_s3
 from app_queue import enqueue
-from app_settings import SUMMARIZER_BUCKET, DAILY_DIGEST_QUEUE
+from app_settings import SUMMARIZER_BUCKET, DIGEST_QUEUE
 from google_alerts import is_google_alert, get_topic_from_google_alert_title
 from summarize import llm_summarize_text
 
@@ -47,7 +47,7 @@ def process_record(record):
         "summary": summary,
     }
 
-    enqueue(DAILY_DIGEST_QUEUE, json.dumps(outgoing_record))
+    enqueue(DIGEST_QUEUE, json.dumps(outgoing_record))
 
     delete_from_s3(SUMMARIZER_BUCKET, key)
 

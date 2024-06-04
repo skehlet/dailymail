@@ -2,7 +2,7 @@ import os
 
 BUILD_ID = os.environ.get("BUILD_ID", "Unknown")
 SUMMARIZER_BUCKET = os.environ.get("SUMMARIZER_BUCKET", "skehlet-dailymail-summarizer")
-DAILY_DIGEST_QUEUE = "DailyMail-DailyDigestQueue"
+DIGEST_QUEUE = "DailyMail-DigestQueue"
 LLM = os.environ.get(
     "LLM",
     # "mistral.mixtral-8x7b-instruct-v0:1",
@@ -19,7 +19,7 @@ BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "us-west-2")
 def show_settings():
     print(f"{BUILD_ID=}")
     print(f"{SUMMARIZER_BUCKET=}")
-    print(f"{DAILY_DIGEST_QUEUE=}")
+    print(f"{DIGEST_QUEUE=}")
     print(f"{LLM=}")
     print(f"{CONTEXT_WINDOW_SIZE=}")
     print(f"{BEDROCK_REGION=}")

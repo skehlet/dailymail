@@ -34,7 +34,7 @@ def process_record(record):
     # Now that we have the link, we can scrape it
     (fetched_title, fetched_content) = fetch_site_content(body["link"])
     print(f"Title: {fetched_title}")
-    content_brief = fetched_content.replace("\n", "")[:100]
+    content_brief = fetched_content.replace("\n", " ")[:100]
     print(f"Content (first 100 chars): {content_brief}")
 
     # STOP if there is no content

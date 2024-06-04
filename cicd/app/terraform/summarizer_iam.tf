@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "summarizer_policy" {
       "sqs:GetQueueUrl",
       "sqs:SendMessage",
     ]
-    resources = ["arn:aws:sqs:*:*:DailyMail-DailyDigestQueue"]
+    resources = ["arn:aws:sqs:*:*:DailyMail-DigestQueue"]
   }
 }
 
