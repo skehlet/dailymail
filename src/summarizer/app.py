@@ -32,22 +32,19 @@ def process_record(record):
     # now, summarize the content
     summary = llm_summarize_text(body["content"], topic)
 
-    # STOP if it's NOT RELEVANT
+    # Skip enqueuing to the next step if it's NOT RELEVANT
     if "NOT RELEVANT" in summary:
-        print("The content is NOT RELEVANT to the topic, skipping")
-        return
-
-    # now, store in sqs
-    outgoing_record = {
-        "feed_title": body["feed_title"],
-        "feed_description": body["feed_description"],
-        "url": body["url"],
-        "published": body["published"],
-        "title": body["title"],
-        "summary": summary,
-    }
-
-    enqueue(DIGEST_QUEUE, json.dumps(outgoing_record))
+        print("The content is NOT RELEVANT to the topic, not enqueuing into the digest queue")
+    else:
+        outgoing_record = {
+            "feed_title": body["feed_title"],
+            "feed_description": body["feed_description"],
+            "url": body["url"],
+            "published": body["published"],
+            "title": body["title"],
+            "summary": summary,
+        }
+        enqueue(DIGEST_QUEUE, json.dumps(outgoing_record))
 
     delete_from_s3(SUMMARIZER_BUCKET, key)
 
