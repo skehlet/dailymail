@@ -33,6 +33,9 @@ def process_record(record):
     summary = llm_summarize_text(body["content"], topic)
 
     # STOP if it's NOT RELEVANT
+    if "NOT RELEVANT" in summary:
+        print("The content is NOT RELEVANT to the topic, skipping")
+        return
 
     # now, store in sqs
     outgoing_record = {
