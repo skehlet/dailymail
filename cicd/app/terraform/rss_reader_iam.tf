@@ -19,10 +19,11 @@ data "aws_iam_policy_document" "rss_reader_assume_policy" {
 data "aws_iam_policy_document" "rss_reader_policy" {
   statement {
     actions = [
+      "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
       "dynamodb:GetItem",
       "dynamodb:PutItem",
-      "dynamodb:DeleteItem",
+      "dynamodb:UpdateItem",
     ]
     resources = [
       "arn:aws:dynamodb:*:*:table/DailyMail-*"

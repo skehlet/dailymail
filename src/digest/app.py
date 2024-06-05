@@ -66,6 +66,16 @@ def process_messages(messages):
     email += "\n<hr>\n".join(sections)
     email += "</span>"
 
+    # TODO: send to the LLM asking for it to pick the top articles
+
+    # Review the following email, which is list of topics I find interesting with accompanying summaries of recent articles, and extract out the one or two most interesting articles. Your output should look like:
+    #
+    # TOP ARTICLES
+    # 1. <First most interesting Article Name and HTML LINK>
+    # 2.<Second most interesting Article Name and HTML LINK> 
+    #
+    # <One or two sentence explanation of why those two articles were chosen as the most interesting>
+
     # Email it using SES
     subject = f"Daily Digest - {utc_to_local(datetime.now(timezone.utc)).strftime('%Y-%m-%d %H:%M %Z')}"
     print("-" * 80)
