@@ -24,6 +24,13 @@ data "aws_iam_policy_document" "digest_policy" {
     ]
     resources = ["arn:aws:sqs:*:*:DailyMail-DigestQueue"]
   }
+  statement {
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail",
+    ]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "digest_policy" {
