@@ -1,12 +1,7 @@
 import os
 
 BUILD_ID = os.environ.get("BUILD_ID", "Unknown")
-# TODO: move to dynamic location, e.g. ParameterStore?
-RSS_FEEDS = [
-    "https://yourlocalepidemiologist.substack.com/feed",
-    "https://www.platformer.news/rss/",
-    "https://www.google.com/alerts/feeds/16015459558271372840/13688969461733419055",
-]
+RSS_FEEDS_PARAMETER_NAME = "DAILY_MAIL_RSS_FEEDS"
 SCRAPER_QUEUE = "DailyMail-ScraperQueue"
 
 

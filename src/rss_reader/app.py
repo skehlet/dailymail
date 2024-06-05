@@ -1,7 +1,7 @@
 import json
 from urllib.parse import urlparse, parse_qs
 import feedparser
-from app_settings import RSS_FEEDS, SCRAPER_QUEUE
+from app_settings import RSS_FEEDS_PARAMETER_NAME, SCRAPER_QUEUE
 from db import (
     get_feed_metadata,
     store_feed_metadata,
@@ -9,11 +9,19 @@ from db import (
     mark_id_as_processed,
 )
 from app_queue import enqueue
+import boto3
 
 
 def read_rss_feeds():
-    for url in RSS_FEEDS:
+    for url in get_rss_feeds():
         read_feed(url)
+
+
+def get_rss_feeds():
+    # fetch the list of rss feeds from AWS parameter store
+    ssm = boto3.client("ssm")
+    parameter = ssm.get_parameter(Name=RSS_FEEDS_PARAMETER_NAME)
+    return json.loads(parameter["Parameter"]["Value"])
 
 
 def read_feed(feed_url):
