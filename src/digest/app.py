@@ -1,7 +1,10 @@
 import html
 import json
 import boto3
-from app_settings import DIGEST_QUEUE, EMAIL_INLINE_CSS_STYLE
+from dateutil.parser import parse
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+from app_settings import DIGEST_QUEUE, EMAIL_INLINE_CSS_STYLE, MY_TIMEZONE
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -12,28 +15,18 @@ def read_from_digest_queue():
     if len(messages) == 0:
         print("No messages in queue")
         return
+    process_messages(messages)
 
+
+def process_messages(messages):
     grouped_records = {}
     for message in messages:
-        print(message)
-
-        # {
-        #     "MessageId": "bca83085-df3e-4e0c-a7f3-8714aafe24f5",
-        #     "ReceiptHandle": "AQEBbamIWsIKB8Q7GOVbdUx7lI3eU5piR2X6VCIW0G7Z8z6CbOyInSfZ+P3mK2BIpHMeOVL85OKvc+SJv+u2RGHwG1Lgpq0e6aADuhrMQfb3T5kOE03RA0NroWkxT0yVmpcoc3k2GFkMYuRThqZDmMmmbf1L+hDfzyc9I40Ic97ogPlQLSNguYiIKjzIARPVDxFXDmXq3ApIZQfhSDhJDEC5RRPtswCAOARYnLGsXiW1n4kifzIly8zymPpqF42AyBFRQiWkEAC7nG5ZWTu0lwyBtsVgr3kyTsURx8SM4w4jwEaFXglMCodah2BswnCK8V919btvKfTjtHdPkZd3IgbPvPc0IWghKKRgoScXAeMkm2J74yXOnvHL0jS/Xp7Agy3gQUWyZ1l7hezsZ3wESKI/nA==",
-        #     "MD5OfBody": "e433bfd06141b54917141983d384aced",
-        #     "Body": "{\"feed_title\": \"Google Alert - Red dead redemption \\\\u201cpc\\\\u201d\", \"feed_description\": \"Unknown\", \"url\": \"https:\/\/www.pcguide.com\/news\/nvidias-project-g-assist-brings-the-ai-chatbot-experience-to-pc-gamers\/\", \"published\": \"2024-06-03T10:56:28Z\", \"title\": \"Nvidia\\'s Project G-Assist brings the AI chatbot experience to PC gamers - here\\'s how - PC Guide\", \"summary\": \"Summary: The text discusses Nvidia\\'s announcement of Project G-Assist, an AI-powered assistant designed to help PC gamers by providing real-time information and optimizing game performance without the need to pause the game. The AI can answer in-game questions, offer strategies, and tweak system settings for better performance. Although currently a demo, it promises to enhance gaming experiences by reducing the need to search for external resources.\\\\n\\\\nRELEVANT: The text mentions that Project G-Assist can optimize settings for games like Red Dead Redemption 2, making it directly relevant to the topic of Red Dead Redemption on PC.\\\\n\\\\nOf interest: One interesting aspect is that G-Assist uses AI vision to understand what is happening on the screen and provide context-specific advice. Another notable point is its ability to optimize game performance by adjusting settings such as HDR and G-Sync to make full use of your PC\\'s capabilities.\"}"
-        # }
-        # Body:
-        # {
-        #     "feed_title": "Google Alert - Red dead redemption \\u201cpc\\u201d",
-        #     "feed_description": "Unknown",
-        #     "url": "https://www.pcguide.com/news/nvidias-project-g-assist-brings-the-ai-chatbot-experience-to-pc-gamers/",
-        #     "published": "2024-06-03T10:56:28Z",
-        #     "title": "Nvidia\'s Project G-Assist brings the AI chatbot experience to PC gamers - here\'s how - PC Guide",
-        #     "summary": "Summary: The text discusses Nvidia\'s announcement of Project G-Assist, an AI-powered assistant designed to help PC gamers by providing real-time information and optimizing game performance without the need to pause the game. The AI can answer in-game questions, offer strategies, and tweak system settings for better performance. Although currently a demo, it promises to enhance gaming experiences by reducing the need to search for external resources.\\n\\nRELEVANT: The text mentions that Project G-Assist can optimize settings for games like Red Dead Redemption 2, making it directly relevant to the topic of Red Dead Redemption on PC.\\n\\nOf interest: One interesting aspect is that G-Assist uses AI vision to understand what is happening on the screen and provide context-specific advice. Another notable point is its ability to optimize game performance by adjusting settings such as HDR and G-Sync to make full use of your PC\'s capabilities."
-        # }
-
+        print(json.dumps(message))
         record = json.loads(message["Body"])
+
+        if parsed_published := parse(record["published"], fuzzy=True):
+            parsed_published = utc_to_local(parsed_published)
+            record["published"] = parsed_published.strftime("%Y-%m-%d %H:%M:%S %Z")
 
         print("-" * 80)
         print(f"Feed Title: {record['feed_title']}")
@@ -53,18 +46,22 @@ def read_from_digest_queue():
     sections = []
     for feed_title, records in sorted(grouped_records.items()):
         summaries = []
-        # TODO: need to sort records by published date
-        # TODO: also need to reformat the date, and convert to Pacific time
+        # reverse sort records by record['published']
+        records.sort(key=lambda x: x["published"], reverse=True)
         for record in records:
             summaries.append(
                 format_summary_using_html(
-                    record["url"], record["title"], record['published'], record["summary"]
+                    record["url"],
+                    record["title"],
+                    record["published"],
+                    record["summary"],
                 )
             )
         section = f"""<div style="font-size: 24px; font-weight: bold; margin-top: 25px">{feed_title}</div>\n"""
         section += "\n".join(summaries)
         sections.append(section)
 
+    print("-" * 80)
     email = f"""<span style="{EMAIL_INLINE_CSS_STYLE}">\n"""
     email += "\n<hr>\n".join(sections)
     email += "</span>"
@@ -93,12 +90,17 @@ def format_summary_using_html(url, site_title, published_on, summary):
             safe_summary += f"<p>{html.escape(paragraph)}</p>\n"
     return f"""\
 <div style="padding-top: 10px">
-    <b><a href="{safe_url}">{safe_site_title}</a></b> {published_on}
+    <div><b><a href="{safe_url}">{safe_site_title}</a></b></dib>
+    <div>{published_on}</div>
 </div>
 <span>
     {safe_summary.strip()}
 </span>
 """
+
+
+def utc_to_local(utc_dt):
+    return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=ZoneInfo(MY_TIMEZONE))
 
 
 def delete_messages_from_queue(messages):
@@ -112,5 +114,12 @@ def delete_messages_from_queue(messages):
         sqs.delete_message_batch(QueueUrl=queue_url, Entries=entries)
 
 
+def local_test():
+    with open("misc/example-messages.json", "r", encoding="utf-8") as f:
+        messages = json.load(f)
+        process_messages(messages)
+
+
 if __name__ == "__main__":
-    read_from_digest_queue()
+    # read_from_digest_queue()
+    local_test()
