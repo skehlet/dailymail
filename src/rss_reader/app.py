@@ -83,22 +83,21 @@ def process_rss_entries(url, feed_title, feed_description, entries):
         print(f"Content: {article_content}")
         print("")
 
-        # Skip if article_content is empty. For https://www.platformer.news/rss/
-        # at least, that would seem to indicate an entry is paid-only.
         if not article_content:
+            # Skip if article_content is empty. For
+            # https://www.platformer.news/rss/ at least, that would seem to
+            # indicate an entry is paid-only.
             print("Skipping empty content")
-            continue
-
-        record = {
-            "feed_title": feed_title,
-            "feed_description": feed_description,
-            "title": article_title,
-            "link": article_link,
-            "description": article_description,
-            "published": article_published,
-        }
-
-        write_to_queue(record)
+        else:
+            record = {
+                "feed_title": feed_title,
+                "feed_description": feed_description,
+                "title": article_title,
+                "link": article_link,
+                "description": article_description,
+                "published": article_published,
+            }
+            write_to_queue(record)
 
         mark_id_as_processed(url, article_id)
 

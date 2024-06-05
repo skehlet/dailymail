@@ -72,12 +72,12 @@ def process_messages(messages):
     #
     # TOP ARTICLES
     # 1. <First most interesting Article Name and HTML LINK>
-    # 2.<Second most interesting Article Name and HTML LINK> 
+    # 2. <Second most interesting Article Name and HTML LINK>
     #
     # <One or two sentence explanation of why those two articles were chosen as the most interesting>
 
     # Email it using SES
-    subject = f"Daily Digest - {utc_to_local(datetime.now(timezone.utc)).strftime('%Y-%m-%d %H:%M %Z')}"
+    subject = f"Your Daily Digest - {utc_to_local(datetime.now(timezone.utc)).strftime('%Y-%m-%d %H:%M %Z')}"
     print("-" * 80)
     print(f"Subject: {subject}")
     print("Body:")
