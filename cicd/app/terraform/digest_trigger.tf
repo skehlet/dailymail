@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_event_rule" "twice_daily" {
-  name                = "${local.app_id}-twice-daily-prior-to-digest"
+  name                = "${local.app_id}-twice-daily"
   description         = "Fires twice daily"
   schedule_expression = "cron(0 6,14 * * ? *)"
 }
