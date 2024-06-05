@@ -1,10 +1,11 @@
 import html
 import json
+from zoneinfo import ZoneInfo
+from datetime import datetime, timezone
 import boto3
 from dateutil.parser import parse
-from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
-from app_settings import DIGEST_QUEUE, EMAIL_INLINE_CSS_STYLE, MY_TIMEZONE
+from app_settings import DIGEST_QUEUE, EMAIL_INLINE_CSS_STYLE, MY_TIMEZONE, DIGEST_EMAIL_TO
+from my_email_lib import send_email
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -61,13 +62,17 @@ def process_messages(messages):
         section += "\n".join(summaries)
         sections.append(section)
 
-    print("-" * 80)
     email = f"""<span style="{EMAIL_INLINE_CSS_STYLE}">\n"""
     email += "\n<hr>\n".join(sections)
     email += "</span>"
 
     # Email it using SES
+    subject = f"Daily Digest - {utc_to_local(datetime.now(timezone.utc)).strftime('%Y-%m-%d %H:%M %Z')}"
+    print("-" * 80)
+    print(f"Subject: {subject}")
+    print("Body:")
     print(email)
+    send_email(DIGEST_EMAIL_TO, subject, html=email)
 
     delete_messages_from_queue(messages)
 

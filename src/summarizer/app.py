@@ -33,6 +33,7 @@ def process_record(record):
     summary = llm_summarize_text(body["content"], topic)
 
     # Skip enqueuing to the next step if it's NOT RELEVANT
+    # TODO: consider forcing the LLM to generate JSON responses. But this is working fine for now.
     if "NOT RELEVANT" in summary:
         print("The content is NOT RELEVANT to the topic, not enqueuing into the digest queue")
     else:
