@@ -130,6 +130,10 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "arn:aws:s3:::skehlet-dailymail-*/*",
     ]
   }
+  statement {
+    actions = ["events:*"]
+    resources = ["arn:aws:events:us-west-2:519765885403:rule/DailyMail-*"]
+  }
 }
 
 resource "aws_iam_role_policy" "codebuild_role_policy" {
