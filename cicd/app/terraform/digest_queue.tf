@@ -2,7 +2,7 @@
 resource "aws_sqs_queue" "digest_queue" {
   name                       = "${local.app_id}-DigestQueue"
   message_retention_seconds  = 86400 * 2
-  visibility_timeout_seconds = 120
+  visibility_timeout_seconds = 60
   receive_wait_time_seconds  = 20
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.digest_queue_dlq.arn
