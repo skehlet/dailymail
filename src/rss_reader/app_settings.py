@@ -7,4 +7,5 @@ SCRAPER_QUEUE = "DailyMail-ScraperQueue"
 
 def show_settings():
     print(f"{BUILD_ID=}")
-    print(f"{RSS_FEEDS=}")
+    print(f"{RSS_FEEDS_PARAMETER_NAME=}")
+    print(f"{SCRAPER_QUEUE=}")
