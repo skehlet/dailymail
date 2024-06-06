@@ -98,6 +98,7 @@ def process_rss_entries(url, feed_title, feed_description, entries):
             print("Skipping empty content")
         else:
             record = {
+                "type": "rss_entry",
                 "feed_title": feed_title,
                 "feed_description": feed_description,
                 "title": article_title,

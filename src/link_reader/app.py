@@ -16,6 +16,7 @@ def process_event(event):
         raise StatusCodeError("No url in query string parameters", status_code=400)
 
     record = {
+        "type": "url",
         "url": event["queryStringParameters"]["url"],
         "immediate": True,
     }

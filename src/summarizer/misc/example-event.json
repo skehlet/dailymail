@@ -1,38 +1,22 @@
 {
     "Records": [
         {
-            "eventVersion": "2.1",
-            "eventSource": "aws:s3",
-            "awsRegion": "us-west-2",
-            "eventTime": "2024-06-03T21:32:42.756Z",
-            "eventName": "ObjectCreated:Put",
-            "userIdentity": {
-                "principalId": "AWS:AIDAJLH42KMEABMHTTTW4"
+            "messageId": "1d12c895-e3d6-4918-baae-0a5f76b7bbf5",
+            "receiptHandle": "AQEBX1Sb7Ogy6BG3+NFoyTZq/wprS/ZJ85edxb+bt3eRfGsV6W7QNngw1XQySBuf9Sw2eytg6B7j0gH1GDz0aIqmnwByRiWh5nK2qNKaa5fxcGe3jYgWRfmvqqEhPt/st8lkmPYQxlnQCt4omuNy3QaiVW01UsoQtD97JvEiyA8jeGlYiCFMHjs+dF4H4HVH4KIIKilyNQuAmAXgiz57Pqgdt7XNxMXZ6oim2ebEOjdAX8Rr0dDpCVqlc4N6svks/h9x7wrWv4iGLeGq/VAf9UI6dYS+z23jfrxKuFWaJ5JBTr/uk5R3vaPG6chMqHmudTe7DirL/16ulhetIn53d9bshkEncaW1R/tKSyZy0CCqbC39Xstr8urk59rsCBAFgXV/Ib8YsXwy4CkzHLQLd1ksqJBduyeGDg8TK0eZPhd6RU4=",
+            "body": "{\"Records\":[{\"eventVersion\":\"2.1\",\"eventSource\":\"aws:s3\",\"awsRegion\":\"us-west-2\",\"eventTime\":\"2024-06-06T21:58:41.434Z\",\"eventName\":\"ObjectCreated:Put\",\"userIdentity\":{\"principalId\":\"AWS:AROAXSBDWAHN3VFJDKGBT:DailyMail-Scraper\"},\"requestParameters\":{\"sourceIPAddress\":\"52.89.31.99\"},\"responseElements\":{\"x-amz-request-id\":\"H29QT00WDDFAAJMY\",\"x-amz-id-2\":\"MvRr9X23iKDLTpeOMza\/u9VtNZQAr3diRxA1Lyu8jxBkS\/xgmnJ8tVDZF4CbvDWYMtteq1vPUamV9w3Gp\/UznVbif2J8vunn\"},\"s3\":{\"s3SchemaVersion\":\"1.0\",\"configurationId\":\"tf-s3-queue-20240606214636744500000001\",\"bucket\":{\"name\":\"skehlet-dailymail-summarizer\",\"ownerIdentity\":{\"principalId\":\"AWSI8VF2BUGCP\"},\"arn\":\"arn:aws:s3:::skehlet-dailymail-summarizer\"},\"object\":{\"key\":\"incoming\/5c3d2fe3-a84d-415d-b424-48c188be7bf8\",\"size\":12685,\"eTag\":\"7d2162c5becd09e8980d41eab549fe84\",\"sequencer\":\"006662311166568017\"}}}]}",
+            "attributes": {
+                "ApproximateReceiveCount": "1",
+                "AWSTraceHeader": "Root=1-66623100-222a9d7cb7b9dbae7b7eb76e;Parent=2534599940abebe6;Sampled=0",
+                "SentTimestamp": "1717711122679",
+                "SenderId": "AROAUWHQT37XQVCB4XU5S:S3-PROD-END",
+                "ApproximateFirstReceiveTimestamp": "1717711122680"
             },
-            "requestParameters": {
-                "sourceIPAddress": "184.180.221.111"
-            },
-            "responseElements": {
-                "x-amz-request-id": "GNPPDZTB3N9QRXEE",
-                "x-amz-id-2": "zVL8cYichtCS4W3f8oJ7/5ob37v6TU0c7P0O/e1JYkA6ax+eGkokQ48EOaOkYfqk02p3jwEmT64B+SvNfrPDg5sk94XdGAgz"
-            },
-            "s3": {
-                "s3SchemaVersion": "1.0",
-                "configurationId": "tf-s3-lambda-20240603211900818700000003",
-                "bucket": {
-                    "name": "skehlet-dailymail-summarizer",
-                    "ownerIdentity": {
-                        "principalId": "AWSI8VF2BUGCP"
-                    },
-                    "arn": "arn:aws:s3:::skehlet-dailymail-summarizer"
-                },
-                "object": {
-                    "key": "incoming/fe942c4f-a3ba-4a2b-86e8-bb9b3e122730",
-                    "size": 2806,
-                    "eTag": "8250f07d6b7cb0c5382eee3b85e5b8a5",
-                    "sequencer": "00665E367AAB3D51C7"
-                }
-            }
+            "messageAttributes": {},
+            "md5OfMessageAttributes": null,
+            "md5OfBody": "20c610356e06e1a6dccbeeb9abb9d290",
+            "eventSource": "aws:sqs",
+            "eventSourceARN": "arn:aws:sqs:us-west-2:519765885403:DailyMail-SummarizerQueue",
+            "awsRegion": "us-west-2"
         }
     ]
 }

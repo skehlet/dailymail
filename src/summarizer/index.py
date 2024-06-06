@@ -1,13 +1,13 @@
 import json
 import traceback
 from app_settings import show_settings
-from app import process_record
+from app import process_sqs_record
 
 def handler(event, context): # pylint: disable=unused-argument,redefined-outer-name
     try:
         show_settings()
         for record in event["Records"]:
-            process_record(record)
+            process_sqs_record(record)
 
         return {
             "statusCode": 200,
