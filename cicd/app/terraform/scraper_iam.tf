@@ -18,10 +18,6 @@ data "aws_iam_policy_document" "scraper_assume_policy" {
 
 data "aws_iam_policy_document" "scraper_policy" {
   statement {
-    actions = ["sqs:SendMessage"]
-    resources = ["arn:aws:sqs:*:*:DailyMail-SummarizeQueue"]
-  }
-  statement {
     actions = ["s3:PutObject"]
     resources = ["arn:aws:s3:::skehlet-dailymail-summarizer/*"]
   }

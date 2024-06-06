@@ -17,15 +17,6 @@ data "aws_iam_policy_document" "immediate_assume_policy" {
 data "aws_iam_policy_document" "immediate_policy" {
   statement {
     actions = [
-      "sqs:GetQueueUrl",
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:DeleteMessageBatch",
-    ]
-    resources = ["arn:aws:sqs:*:*:DailyMail-ImmediateQueue"]
-  }
-  statement {
-    actions = [
       "ses:SendEmail",
       "ses:SendRawEmail",
     ]
@@ -42,4 +33,9 @@ resource "aws_iam_role_policy" "immediate_policy" {
 resource "aws_iam_role_policy_attachment" "immediate_attachment1" {
   role       = aws_iam_role.immediate.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "immediate_attachment2" {
+  role       = aws_iam_role.immediate.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
 }

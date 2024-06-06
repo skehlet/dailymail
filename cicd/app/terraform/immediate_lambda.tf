@@ -19,11 +19,3 @@ resource "aws_cloudwatch_log_group" "immediate_logs" {
   name              = "/aws/lambda/DailyMail-Immediate"
   retention_in_days = 7
 }
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_immediate" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.immediate.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.twice_daily.arn
-}
