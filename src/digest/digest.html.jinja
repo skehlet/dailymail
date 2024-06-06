@@ -1,0 +1,34 @@
+<span style="{{EMAIL_INLINE_CSS_STYLE}}">
+
+    {% for feed_title, records in feeds %}
+
+    <div style="font-size: 24px; font-weight: bold; margin-top: 25px">
+        {{ feed_title }}
+    </div>
+
+    {% for record in records %}
+
+    <div style="padding-top: 10px">
+        <div><b><a href="{{ record['url']|e }}">{{ record['title']|e }}</a></b></div>
+        <div>{{ record['published']|e }}</div>
+    </div>
+    <span>
+
+        {% set paragraphs = record['summary'].strip().split("\n\n") %}
+        {% for paragraph in paragraphs %}
+        <p>
+            {{ paragraph|wordwrap|e }}
+        </p>
+        {% endfor %}
+
+    </span>
+
+    {% endfor %}
+
+    {% if not loop.last %}
+    <hr>
+    {% endif %}
+
+    {% endfor %}
+
+</span>

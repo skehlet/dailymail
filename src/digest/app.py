@@ -1,10 +1,15 @@
-import html
 import json
 from zoneinfo import ZoneInfo
 from datetime import datetime, timezone
 import boto3
 from dateutil.parser import parse
-from app_settings import DIGEST_QUEUE, EMAIL_INLINE_CSS_STYLE, MY_TIMEZONE, DIGEST_EMAIL_TO
+from jinja2 import Template
+from app_settings import (
+    DIGEST_QUEUE,
+    EMAIL_INLINE_CSS_STYLE,
+    MY_TIMEZONE,
+    DIGEST_EMAIL_TO,
+)
 from my_email_lib import send_email
 
 sqs = boto3.client("sqs")
@@ -20,7 +25,7 @@ def read_from_digest_queue():
 
 
 def process_messages(messages):
-    grouped_records = {}
+    records_by_feed = {}
     for message in messages:
         print(json.dumps(message))
         record = json.loads(message["Body"])
@@ -30,6 +35,8 @@ def process_messages(messages):
             record["published"] = parsed_published.strftime("%Y-%m-%d %H:%M:%S %Z")
 
         # TODO: handle some of these fields not guaranteed to be there
+        # I added `type` to help with this
+        # Right now only type=rss_entry records come here so no big
         print("-" * 80)
         print(f"Feed Title: {record['feed_title']}")
         print(f"Feed Description: {record['feed_description']}")
@@ -39,33 +46,21 @@ def process_messages(messages):
         print(f"Summary: {record['summary']}")
 
         # Group records by feed_title
-        if record["feed_title"] not in grouped_records:
-            grouped_records[record["feed_title"]] = []
-        grouped_records[record["feed_title"]].append(record)
+        if record["feed_title"] not in records_by_feed:
+            records_by_feed[record["feed_title"]] = []
+        records_by_feed[record["feed_title"]].append(record)
 
     # Produce HTML message
-    # TODO: really need to look into Jinja2 or something
-    sections = []
-    for feed_title, records in sorted(grouped_records.items()):
-        summaries = []
-        # reverse sort records by record['published']
+    feeds = sorted(records_by_feed.items())
+    for _, records in feeds:
+        # sort records (this is done in place) by date, descending
         records.sort(key=lambda x: x["published"], reverse=True)
-        for record in records:
-            summaries.append(
-                format_summary_using_html(
-                    record["url"],
-                    record["title"],
-                    record["published"],
-                    record["summary"],
-                )
-            )
-        section = f"""<div style="font-size: 24px; font-weight: bold; margin-top: 25px">{feed_title}</div>\n"""
-        section += "\n".join(summaries)
-        sections.append(section)
 
-    email = f"""<span style="{EMAIL_INLINE_CSS_STYLE}">\n"""
-    email += "\n<hr>\n".join(sections)
-    email += "</span>"
+    with open("digest.html.jinja", encoding="utf8") as f:
+        email = Template(f.read()).render(
+            EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
+            feeds=feeds,
+        )
 
     # TODO: send to the LLM asking for it to pick the top articles
 
@@ -95,24 +90,6 @@ def read_all_from_queue():
         if "Messages" not in response:
             return messages
         messages.extend(response["Messages"])
-
-
-def format_summary_using_html(url, site_title, published_on, summary):
-    safe_url = html.escape(url)
-    safe_site_title = html.escape(site_title)
-    safe_summary = ""
-    for paragraph in summary.strip().split("\n\n"):
-        if paragraph:
-            safe_summary += f"<p>{html.escape(paragraph)}</p>\n"
-    return f"""\
-<div style="padding-top: 10px">
-    <div><b><a href="{safe_url}">{safe_site_title}</a></b></dib>
-    <div>{published_on}</div>
-</div>
-<span>
-    {safe_summary.strip()}
-</span>
-"""
 
 
 def utc_to_local(utc_dt):
