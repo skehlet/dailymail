@@ -25,9 +25,9 @@ def handler(event, context):  # pylint: disable=unused-argument
         return create_lambda_response(e.status_code, str(e))
 
     except Exception as e:
-        response = traceback.format_exc()
+        stack_trace = traceback.format_exc()
         print("=== BEGIN stack trace ===")
-        print(response)
+        print(stack_trace)
         print("=== END stack trace ===")
         return create_lambda_response(500, str(e))
 
