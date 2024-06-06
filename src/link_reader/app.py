@@ -20,6 +20,8 @@ def process_event(event):
         "immediate": True,
     }
 
+    print(json.dumps(record))
+
     enqueue(SCRAPER_QUEUE, json.dumps(record))
 
 

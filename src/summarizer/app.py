@@ -27,7 +27,7 @@ def process_record(s3_notification):
         return
 
     # if the feed_title is a Google Alert, extract the topic
-    if is_google_alert(record["feed_title"]):
+    if "feed_title" in record and is_google_alert(record["feed_title"]):
         topic = get_topic_from_google_alert_title(record["feed_title"])
         print(f"Google Alert Topic: {topic}")
     else:
@@ -41,7 +41,7 @@ def process_record(s3_notification):
             break
         except openai.RateLimitError:
             sleep_time = random.randint(10, 30)
-            print(f"Rate limit error encounter, sleeping for {sleep_time} seconds")
+            print(f"Got rate limit error, sleeping for {sleep_time} seconds")
             time.sleep(sleep_time)
             tries_left -= 1
 
