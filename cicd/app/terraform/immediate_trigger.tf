@@ -4,6 +4,6 @@ resource "aws_lambda_event_source_mapping" "immediate_trigger" {
   event_source_arn                   = aws_sqs_queue.immediate_queue.arn
   function_name                      = aws_lambda_function.immediate.arn
   scaling_config {
-    maximum_concurrency = 10
+    maximum_concurrency = 3
   }
 }
