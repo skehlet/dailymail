@@ -3,6 +3,7 @@ import os
 BUILD_ID = os.environ.get("BUILD_ID", "Unknown")
 SUMMARIZER_BUCKET = os.environ.get("SUMMARIZER_BUCKET", "skehlet-dailymail-summarizer")
 DIGEST_QUEUE = "DailyMail-DigestQueue"
+IMMEDIATE_QUEUE = "DailyMail-ImmediateQueue"
 LLM = os.environ.get(
     "LLM",
     # "mistral.mixtral-8x7b-instruct-v0:1",

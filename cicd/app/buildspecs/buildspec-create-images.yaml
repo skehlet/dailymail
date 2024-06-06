@@ -9,6 +9,7 @@ env:
     - SCRAPER_IMAGE_URI
     - SUMMARIZER_IMAGE_URI
     - DIGEST_IMAGE_URI
+    - IMMEDIATE_IMAGE_URI
     - BUILD_ID
 
 phases:
@@ -33,6 +34,8 @@ phases:
       - docker build -f Dockerfile -t dailymail-summarizer .
       - cd ../digest
       - docker build -f Dockerfile -t dailymail-digest .
+      - cd ../immediate
+      - docker build -f Dockerfile -t dailymail-immediate .
 
   post_build:
     commands:
@@ -57,3 +60,7 @@ phases:
       - echo $DIGEST_IMAGE_URI
       - docker tag dailymail-digest $DIGEST_IMAGE_URI
       - docker push $DIGEST_IMAGE_URI
+      - IMMEDIATE_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-immediate:$BUILD_ID
+      - echo $IMMEDIATE_IMAGE_URI
+      - docker tag dailymail-immediate $IMMEDIATE_IMAGE_URI
+      - docker push $IMMEDIATE_IMAGE_URI

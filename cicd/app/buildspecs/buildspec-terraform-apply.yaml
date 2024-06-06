@@ -6,6 +6,7 @@ env:
   # SCRAPER_IMAGE_URI
   # SUMMARIZER_IMAGE_URI
   # DIGEST_IMAGE_URI
+  # IMMEDIATE_IMAGE_URI
   # BUILD_ID
   exported-variables:
     - CODEBUILD_BUILD_ID
@@ -18,6 +19,7 @@ phases:
       - echo SCRAPER_IMAGE_URI=${SCRAPER_IMAGE_URI}
       - echo SUMMARIZER_IMAGE_URI=${SUMMARIZER_IMAGE_URI}
       - echo DIGEST_IMAGE_URI=${DIGEST_IMAGE_URI}
+      - echo IMMEDIATE_IMAGE_URI=${IMMEDIATE_IMAGE_URI}
       - echo BUILD_ID=${BUILD_ID}
       - terraform --version
 
@@ -36,5 +38,6 @@ phases:
         -var=scraper_image_uri=${SCRAPER_IMAGE_URI}
         -var=summarizer_image_uri=${SUMMARIZER_IMAGE_URI}
         -var=digest_image_uri=${DIGEST_IMAGE_URI}
+        -var=immediate_image_uri=${IMMEDIATE_IMAGE_URI}
         -var=build_id=${BUILD_ID}
         -auto-approve

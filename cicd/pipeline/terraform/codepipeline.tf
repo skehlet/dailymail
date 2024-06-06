@@ -65,6 +65,7 @@ resource "aws_codepipeline" "codepipeline" {
           { "name" : "SCRAPER_IMAGE_URI", "value" : "#{CreateImages.SCRAPER_IMAGE_URI}" },
           { "name" : "SUMMARIZER_IMAGE_URI", "value" : "#{CreateImages.SUMMARIZER_IMAGE_URI}" },
           { "name" : "DIGEST_IMAGE_URI", "value" : "#{CreateImages.DIGEST_IMAGE_URI}" },
+          { "name" : "IMMEDIATE_IMAGE_URI", "value" : "#{CreateImages.IMMEDIATE_IMAGE_URI}" },
           { "name" : "BUILD_ID", value : "#{CreateImages.BUILD_ID}" },
         ])
       }

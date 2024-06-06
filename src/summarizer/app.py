@@ -4,7 +4,7 @@ import random
 import openai
 from app_s3 import read_from_s3, delete_from_s3
 from app_queue import enqueue
-from app_settings import SUMMARIZER_BUCKET, DIGEST_QUEUE
+from app_settings import SUMMARIZER_BUCKET, DIGEST_QUEUE, IMMEDIATE_QUEUE
 from google_alerts import is_google_alert, get_topic_from_google_alert_title
 from summarize import llm_summarize_text
 
@@ -18,6 +18,7 @@ def process_record(s3_notification):
     key = s3_notification["s3"]["object"]["key"]
     record = json.loads(read_from_s3(SUMMARIZER_BUCKET, key))
     # record has fields: feed_title, feed_description, url, published, title, content
+    # or for immediate links: url, title, content
     print(record)
 
     # STOP if there is no content
@@ -44,9 +45,13 @@ def process_record(s3_notification):
             time.sleep(sleep_time)
             tries_left -= 1
 
+    del record["content"]
+    record["summary"] = summary
+
     if "immediate" in record:
-        # TODO: send to immediate queue
-        pass
+        # Send to immediate queue
+        enqueue(IMMEDIATE_QUEUE, json.dumps(record))
+
     else:
         # Send to digest queue
         # But skip if it's NOT RELEVANT
@@ -54,8 +59,6 @@ def process_record(s3_notification):
         if "NOT RELEVANT" in summary:
             print("The content is NOT RELEVANT to the topic, not enqueuing into the digest queue")
         else:
-            del record["content"]
-            record["summary"] = summary
             enqueue(DIGEST_QUEUE, json.dumps(record))
 
     delete_from_s3(SUMMARIZER_BUCKET, key)
