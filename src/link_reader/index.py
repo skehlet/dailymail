@@ -3,6 +3,7 @@ import traceback
 from app_settings import show_settings
 from app import process_event
 from auth import authenticate, create_basic_auth_header_value
+from my_errors import StatusCodeError
 
 
 def handler(event, context):  # pylint: disable=unused-argument
@@ -10,11 +11,7 @@ def handler(event, context):  # pylint: disable=unused-argument
         show_settings()
         if not authenticate(event):
             print("Authentication failed")
-            return {
-                "statusCode": 401,
-                "headers": {"Content-Type": "application/json"},
-                "body": json.dumps({"result": "Authentication failed"}),
-            }
+            raise StatusCodeError("Authentication failed", status_code=401)
 
         process_event(event)
 
@@ -24,16 +21,24 @@ def handler(event, context):  # pylint: disable=unused-argument
             "body": json.dumps({"result": "OK"}),
         }
 
+    except StatusCodeError as e:
+        return create_lambda_response(e.status_code, str(e))
+
     except Exception as e:
         response = traceback.format_exc()
         print("=== BEGIN stack trace ===")
         print(response)
         print("=== END stack trace ===")
-        return {
-            "statusCode": 500,
-            "headers": {"Content-Type": "application/json"},
-            "body": str(e),
-        }
+        return create_lambda_response(500, str(e))
+
+
+def create_lambda_response(status_code, message):
+    print(f"Response: {status_code}: {message}")
+    return {
+        "statusCode": status_code,
+        "headers": {"Content-Type": "application/json"},
+        "body": {"result": message},
+    }
 
 
 def main():

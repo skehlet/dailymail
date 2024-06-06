@@ -1,20 +1,19 @@
 import json
-from app_settings import SCRAPER_QUEUE
 import boto3
+from app_settings import SCRAPER_QUEUE
+from my_errors import StatusCodeError
 
 
 sqs = boto3.client("sqs")
 
 
 def process_event(event):
-    print(event)
+    # print(event)
 
     if not "queryStringParameters" in event:
-        print("no query string parameters")
-        return
+        raise StatusCodeError("Missing query string parameters", status_code=400)
     if not "url" in event["queryStringParameters"]:
-        print("no url in query string parameters")
-        return
+        raise StatusCodeError("No url in query string parameters", status_code=400)
 
     record = {
         "url": event["queryStringParameters"]["url"],
