@@ -6,5 +6,6 @@ locals {
     "dailymail-scraper",
     "dailymail-summarizer",
     "dailymail-digest",
+    "dailymail-immediate",
   ]
 }
