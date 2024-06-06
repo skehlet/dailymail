@@ -5,6 +5,7 @@ env:
   exported-variables:
     - CODEBUILD_BUILD_ID
     - RSS_READER_IMAGE_URI
+    - LINK_READER_IMAGE_URI
     - SCRAPER_IMAGE_URI
     - SUMMARIZER_IMAGE_URI
     - DIGEST_IMAGE_URI
@@ -24,6 +25,8 @@ phases:
     commands:
       - cd src/rss_reader
       - docker build -f Dockerfile -t dailymail-rss-reader .
+      - cd ../link_reader
+      - docker build -f Dockerfile -t dailymail-link-reader .
       - cd ../scraper
       - docker build -f Dockerfile -t dailymail-scraper .
       - cd ../summarizer
@@ -38,6 +41,10 @@ phases:
       - echo $RSS_READER_IMAGE_URI
       - docker tag dailymail-rss-reader $RSS_READER_IMAGE_URI
       - docker push $RSS_READER_IMAGE_URI
+      - LINK_READER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-link-reader:$BUILD_ID
+      - echo $LINK_READER_IMAGE_URI
+      - docker tag dailymail-link-reader $LINK_READER_IMAGE_URI
+      - docker push $LINK_READER_IMAGE_URI
       - SCRAPER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-scraper:$BUILD_ID
       - echo $SCRAPER_IMAGE_URI
       - docker tag dailymail-scraper $SCRAPER_IMAGE_URI

@@ -4,6 +4,12 @@ variable "rss_reader_image_uri" {
   nullable    = false
 }
 
+variable "link_reader_image_uri" {
+  type        = string
+  description = "URI of Link Reader ECR image"
+  nullable    = false
+}
+
 variable "scraper_image_uri" {
   type        = string
   description = "URI of Scraper ECR image"
