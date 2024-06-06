@@ -45,3 +45,8 @@ resource "aws_iam_role_policy_attachment" "summarizer_attachment1" {
   role       = aws_iam_role.summarizer.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+
+resource "aws_iam_role_policy_attachment" "summarizer_attachment2" {
+  role       = aws_iam_role.summarizer.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+}

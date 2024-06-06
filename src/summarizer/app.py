@@ -9,13 +9,15 @@ from google_alerts import is_google_alert, get_topic_from_google_alert_title
 from summarize import llm_summarize_text
 
 
-def process_record(s3_notification):
-    # print(s3_notification)
+def process_record(sqs_record):
+    print(sqs_record)
 
-    if not "eventSource" in s3_notification or s3_notification["eventSource"] != "aws:s3":
-        raise Exception("Not an S3 notification event")
+    if not "eventSource" in sqs_record or sqs_record["eventSource"] != "aws:sqs":
+        raise Exception("Not an SQS event")
 
-    key = s3_notification["s3"]["object"]["key"]
+    # TODO: this will need to be updated to handle SQS events instead of S3
+
+    key = sqs_record["s3"]["object"]["key"]
     record = json.loads(read_from_s3(SUMMARIZER_BUCKET, key))
     # record has fields: feed_title, feed_description, url, published, title, content
     # or for immediate links: url, title, content
