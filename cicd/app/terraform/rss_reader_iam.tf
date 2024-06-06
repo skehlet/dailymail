@@ -48,7 +48,7 @@ resource "aws_iam_role_policy" "rss_reader_policy" {
   policy = data.aws_iam_policy_document.rss_reader_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "terraform_lambda_policy" {
+resource "aws_iam_role_policy_attachment" "rss_reader_attachment1" {
   role       = aws_iam_role.rss_reader.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }

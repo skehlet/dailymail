@@ -32,7 +32,7 @@ resource "aws_iam_role_policy" "link_reader_policy" {
   policy = data.aws_iam_policy_document.link_reader_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "terraform_lambda_policy" {
+resource "aws_iam_role_policy_attachment" "link_reader_attachment1" {
   role       = aws_iam_role.link_reader.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
