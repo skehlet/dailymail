@@ -20,7 +20,6 @@ resource "aws_cloudwatch_log_group" "digest_logs" {
   retention_in_days = 7
 }
 
-
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_digest" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"

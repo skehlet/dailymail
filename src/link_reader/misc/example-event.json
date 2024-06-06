@@ -1,0 +1,40 @@
+{
+    "version": "2.0",
+    "routeKey": "$default",
+    "rawPath": "/",
+    "rawQueryString": "url=https%3A%2F%2Fwww.reuters.com%2Fworld%2Famericas%2Fwho-confirms-first-human-case-avian-influenza-ah5n2-mexico-2024-06-05%2F",
+    "headers": {
+        "authorization": "Basic redacted",
+        "x-amzn-tls-cipher-suite": "TLS_AES_128_GCM_SHA256",
+        "x-amzn-tls-version": "TLSv1.3",
+        "x-amzn-trace-id": "Root=1-666111e6-4dc6d2d30c9629b20d723bf9",
+        "x-forwarded-proto": "https",
+        "host": "f53muhq5jfnx7gxdt7ihdb2q2u0cwfmj.lambda-url.us-west-2.on.aws",
+        "x-forwarded-port": "443",
+        "x-forwarded-for": "2600:8802:b00:46b:716e:5433:8ca4:6dbc",
+        "accept": "*/*",
+        "user-agent": "curl/8.6.0"
+    },
+    "queryStringParameters": {
+        "url": "https://www.reuters.com/world/americas/who-confirms-first-human-case-avian-influenza-ah5n2-mexico-2024-06-05/"
+    },
+    "requestContext": {
+        "accountId": "anonymous",
+        "apiId": "f53muhq5jfnx7gxdt7ihdb2q2u0cwfmj",
+        "domainName": "f53muhq5jfnx7gxdt7ihdb2q2u0cwfmj.lambda-url.us-west-2.on.aws",
+        "domainPrefix": "f53muhq5jfnx7gxdt7ihdb2q2u0cwfmj",
+        "http": {
+            "method": "GET",
+            "path": "/",
+            "protocol": "HTTP/1.1",
+            "sourceIp": "2600:8802:b00:46b:716e:5433:8ca4:6dbc",
+            "userAgent": "curl/8.6.0"
+        },
+        "requestId": "52566657-5e5e-4360-96a4-20c42b0e7312",
+        "routeKey": "$default",
+        "stage": "$default",
+        "time": "06/Jun/2024:01:33:26 +0000",
+        "timeEpoch": 1717637606301
+    },
+    "isBase64Encoded": False
+}

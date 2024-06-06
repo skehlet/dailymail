@@ -63,24 +63,32 @@ def read_feed(feed_url):
 
 def process_rss_entries(url, feed_title, feed_description, entries):
     for entry in entries:
-        article_id = entry.id
+        if "link" not in entry:
+            print("Skipping entry without link")
+            continue
+
+        article_url = remove_redirectors_from_url(entry.link)
+
+        if "id" in entry:
+            article_id = entry.id
+        else:
+            article_id = article_url
 
         if id_already_processed(url, article_id):
             print(f"Already seen {url}/{article_id}")
             continue
 
         article_title = entry.title
-        article_link = remove_redirectors_from_link(entry.link)
         article_description = entry.description
         article_published = entry.published
         article_content = entry.summary
 
         print(f"=== {article_id}")
         print(f"Title: {article_title}")
-        print(f"Link: {article_link}")
-        print(f"Description: {article_description}")
+        print(f"URL: {article_url}")
+        # print(f"Description: {article_description}")
         print(f"Published: {article_published}")
-        print(f"Content: {article_content}")
+        # print(f"Content: {article_content}")
         print("")
 
         if not article_content:
@@ -93,7 +101,7 @@ def process_rss_entries(url, feed_title, feed_description, entries):
                 "feed_title": feed_title,
                 "feed_description": feed_description,
                 "title": article_title,
-                "link": article_link,
+                "url": article_url,
                 "description": article_description,
                 "published": article_published,
             }
@@ -102,16 +110,16 @@ def process_rss_entries(url, feed_title, feed_description, entries):
         mark_id_as_processed(url, article_id)
 
 
-def remove_redirectors_from_link(link):
+def remove_redirectors_from_url(url):
     """
     For example:
     https://www.google.com/url?rct=j&sa=t&url=https://www.caranddriver.com/news/a46717089/vw-id-buzz-super-bowl-ad-sale-date/&ct=ga&cd=CAEYACoUMTMxODg2NDY3Mzc0MzM4Mzc1OTMyGjUwNWZiNzdjNjQ5ODI4MzI6Y29tOmVuOlVT&usg=AOvVaw28L7Vbwdv_m3WH6gCBCnK8
     Extract out that `url` part of the query string, and return it
     """
-    if link.startswith("https://www.google.com/url?"):
-        return parse_qs(urlparse(link).query)["url"][0]
+    if url.startswith("https://www.google.com/url?"):
+        return parse_qs(urlparse(url).query)["url"][0]
     else:
-        return link
+        return url
 
 
 def write_to_queue(entry):

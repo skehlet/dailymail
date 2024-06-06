@@ -5,34 +5,30 @@ from app_s3 import write_to_s3
 from app_settings import SUMMARIZER_BUCKET
 
 
-def process_record(record):
-    # print(record)
+def process_record(sqs_record):
+    # print(sqs_record)
 
-    # TODO: What to do about exceptions? e.g. JSON parse errors. I think
-    # it'll just work to fail, and let it retry however many times, and then
-    # fail it into the DLQ
-
-    if not "eventSource" in record or record["eventSource"] != "aws:sqs":
+    if not "eventSource" in sqs_record or sqs_record["eventSource"] != "aws:sqs":
         raise Exception("Not an SQS event")
 
-    body = json.loads(record["body"])
-    print(f"Body: {body}")
+    record = json.loads(sqs_record["body"])
+    print(f"Record: {record}")
 
     # {
     #     "feed_title": "Your Local Epidemiologist",
     #     "feed_description": "Providing a direct line of public health science to you",
     #     "title": "7 ways our health is tied to the planet’s",
-    #     "link": "https://yourlocalepidemiologist.substack.com/p/7-ways-our-health-is-tied-to-the",
+    #     "url": "https://yourlocalepidemiologist.substack.com/p/7-ways-our-health-is-tied-to-the",
     #     "description": "Happy Earth Day!",
     #     "published": "Mon, 22 Apr 2024 21:09:53 GMT"
     # }
 
-    # Records have fields: feed_title, feed_description, title, link, description, published
+    # Records have fields: feed_title, feed_description, title, url, description, published
     # See ../rss_reader/app.py
-    # print(f"Link: {body['link']}")
+    # print(f"URL: {record['url']}")
 
-    # Now that we have the link, we can scrape it
-    (fetched_title, fetched_content) = fetch_site_content(body["link"])
+    # Now that we have the url, we can scrape it
+    (fetched_title, fetched_content) = fetch_site_content(record["url"])
     print(f"Title: {fetched_title}")
     content_brief = fetched_content.replace("\n", " ")[:100]
     print(f"Content (first 100 chars): {content_brief}")
@@ -44,19 +40,14 @@ def process_record(record):
         print("=" * 80)
         return
 
-    # Now store it in S3
-    record = {
-        "feed_title": body["feed_title"],
-        "feed_description": body["feed_description"],
-        "url": body["link"],
-        "published": body["published"],
-        "title": fetched_title,
-        "content": fetched_content,
-    }
+    # Now update the record and write it to the summarizer bucket
+    record["title"] = fetched_title
+    record["content"] = fetched_content
+
     write_to_summarizer_bucket(record)
 
     print("=" * 80)
-    print(f"Successfully scraped link contents and wrote them to {SUMMARIZER_BUCKET}")
+    print(f"Successfully scraped url contents and wrote them to {SUMMARIZER_BUCKET}")
     print("=" * 80)
 
 
