@@ -1,17 +1,16 @@
 import json
-from zoneinfo import ZoneInfo
 from datetime import datetime, timezone
 import boto3
 from dateutil.parser import parse
 from jinja2 import Template
 from app_settings import (
     DIGEST_QUEUE,
-    EMAIL_INLINE_CSS_STYLE,
     MY_TIMEZONE,
     DIGEST_EMAIL_FROM,
     DIGEST_EMAIL_TO,
 )
-from shared.my_email_lib import send_email
+from shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
+from shared.my_datetime import utc_to_local
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -32,7 +31,7 @@ def process_messages(messages):
         record = json.loads(message["Body"])
 
         if parsed_published := parse(record["published"], fuzzy=True):
-            parsed_published = utc_to_local(parsed_published)
+            parsed_published = utc_to_local(parsed_published, MY_TIMEZONE)
             record["published"] = parsed_published.strftime("%Y-%m-%d %H:%M:%S %Z")
 
         # TODO: handle some of these fields not guaranteed to be there
@@ -74,7 +73,7 @@ def process_messages(messages):
     # <One or two sentence explanation of why those two articles were chosen as the most interesting>
 
     # Email it using SES
-    subject = f"Your Daily Digest - {utc_to_local(datetime.now(timezone.utc)).strftime('%Y-%m-%d %H:%M %Z')}"
+    subject = f"Your Daily Digest — {utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%Y-%m-%d %H:%M %Z')}"
     print("-" * 80)
     print(f"Subject: {subject}")
     print("Body:")
@@ -91,10 +90,6 @@ def read_all_from_queue():
         if "Messages" not in response:
             return messages
         messages.extend(response["Messages"])
-
-
-def utc_to_local(utc_dt):
-    return utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=ZoneInfo(MY_TIMEZONE))
 
 
 def delete_messages_from_queue(messages):

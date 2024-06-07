@@ -16,9 +16,3 @@ def handler(event, context):  # pylint: disable=unused-argument,redefined-outer-
         print(stack_trace)
         print("=== END stack trace ===")
         raise e
-
-
-if __name__ == "__main__":
-    with open("misc/example-event.json", "r", encoding="utf-8") as f:
-        event = json.load(f)
-        handler(event, {})

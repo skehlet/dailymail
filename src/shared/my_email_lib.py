@@ -4,6 +4,8 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import boto3
 
+EMAIL_INLINE_CSS_STYLE = "color:#444; font: 16px/1.5 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji"
+
 # https://stackoverflow.com/a/52105406/296829
 def create_multipart_message(
     sender: str,

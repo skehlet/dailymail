@@ -1,0 +1,14 @@
+<span style="{{EMAIL_INLINE_CSS_STYLE}}">
+
+    <div style="padding-top: 10px">
+        <div><b><a href="{{ record['url']|e }}">{{ record['title']|e }}</a></b></div>
+    </div>
+
+    {% set paragraphs = record['summary'].strip().split("\n\n") %}
+    {% for paragraph in paragraphs %}
+    <p>
+        {{ paragraph|wordwrap|e }}
+    </p>
+    {% endfor %}
+
+</span>
