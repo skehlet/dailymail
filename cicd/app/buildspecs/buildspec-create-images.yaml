@@ -25,8 +25,8 @@ phases:
   build:
     commands:
       - cd src
-      - for symlink in $(find . -name shared -type l); do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
-      - for symlink in $(find . -name shared -type l); do echo rm -f "$symlink"; echo cp -R shared $(dirname "$symlink"); done
+      - for symlink in */shared; do echo rm -f "$symlink"; echo cp -R shared $(dirname "$symlink"); done
+      - for symlink in */shared; do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
       - find . -type f | sort
       - ls -la digest immediate
       - cd rss_reader
