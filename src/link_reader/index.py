@@ -15,11 +15,7 @@ def handler(event, context):  # pylint: disable=unused-argument
 
         process_event(event)
 
-        return {
-            "statusCode": 200,
-            "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"result": "OK"}),
-        }
+        return create_lambda_response(200, "OK")
 
     except StatusCodeError as e:
         return create_lambda_response(e.status_code, str(e))
@@ -36,7 +32,10 @@ def create_lambda_response(status_code, message):
     print(f"Response: {status_code}: {message}")
     return {
         "statusCode": status_code,
-        "headers": {"Content-Type": "application/json"},
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
         "body": {"result": message},
     }
 

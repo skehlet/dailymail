@@ -23,4 +23,13 @@ resource "aws_cloudwatch_log_group" "link_reader_logs" {
 resource "aws_lambda_function_url" "link_reader" {
   function_name      = aws_lambda_function.link_reader.function_name
   authorization_type = "NONE"
+
+  cors {
+    allow_credentials = true
+    allow_origins     = ["*"]
+    allow_methods     = ["GET"]
+    allow_headers     = ["authorization", "date", "keep-alive"]
+    expose_headers    = ["access-control-allow-origin", "keep-alive", "date"]
+    max_age           = 86400
+  }
 }
