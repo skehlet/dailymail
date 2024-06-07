@@ -29,7 +29,7 @@ resource "aws_lambda_function_url" "link_reader" {
     allow_origins     = ["*"]
     allow_methods     = ["GET"]
     allow_headers     = ["authorization", "date", "keep-alive"]
-    expose_headers    = ["access-control-allow-origin", "keep-alive", "date"]
+    expose_headers    = ["keep-alive", "date"]
     max_age           = 86400
   }
 }
