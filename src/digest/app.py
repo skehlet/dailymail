@@ -8,9 +8,10 @@ from app_settings import (
     DIGEST_QUEUE,
     EMAIL_INLINE_CSS_STYLE,
     MY_TIMEZONE,
+    DIGEST_EMAIL_FROM,
     DIGEST_EMAIL_TO,
 )
-from my_email_lib import send_email
+from shared.my_email_lib import send_email
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -78,7 +79,7 @@ def process_messages(messages):
     print(f"Subject: {subject}")
     print("Body:")
     print(email)
-    send_email(DIGEST_EMAIL_TO, subject, html=email)
+    send_email(DIGEST_EMAIL_FROM, DIGEST_EMAIL_TO, subject, html=email)
 
     delete_messages_from_queue(messages)
 

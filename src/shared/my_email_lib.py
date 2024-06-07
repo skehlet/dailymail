@@ -3,9 +3,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import boto3
-from app_settings import IMMEDIATE_EMAIL_FROM
-
-# TODO: copy/paste for now from digest. Figure out how to share code between lambdas.
 
 # https://stackoverflow.com/a/52105406/296829
 def create_multipart_message(
@@ -58,11 +55,11 @@ def create_multipart_message(
     return msg
 
 
-def send_email(to, subject, text: str = None, html: str = None):
+def send_email(from_email, to, subject, text: str = None, html: str = None):
     client = boto3.client("ses", region_name="us-west-2")
-    msg = create_multipart_message(IMMEDIATE_EMAIL_FROM, [to], subject, text, html)
+    msg = create_multipart_message(from_email, [to], subject, text, html)
     response = client.send_raw_email(
-        Source=IMMEDIATE_EMAIL_FROM,
+        Source=from_email,
         Destinations=[to],
         RawMessage={"Data": msg.as_string()},
     )

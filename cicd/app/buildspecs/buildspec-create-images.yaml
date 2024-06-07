@@ -24,7 +24,10 @@ phases:
 
   build:
     commands:
-      - cd src/rss_reader
+      - cd src
+      - for symlink in $(find . -name shared -type l); do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
+      - find . -type f | sort
+      - cd rss_reader
       - docker build -f Dockerfile -t dailymail-rss-reader .
       - cd ../link_reader
       - docker build -f Dockerfile -t dailymail-link-reader .

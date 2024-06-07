@@ -1,8 +1,8 @@
 import json
 from zoneinfo import ZoneInfo
 from datetime import datetime, timezone
-from app_settings import IMMEDIATE_EMAIL_TO, MY_TIMEZONE
-from my_email_lib import send_email
+from app_settings import IMMEDIATE_EMAIL_FROM, IMMEDIATE_EMAIL_TO, MY_TIMEZONE
+from shared.my_email_lib import send_email
 
 
 def process_record(sqs_record):
@@ -28,7 +28,7 @@ def process_record(sqs_record):
     print("Body:")
     email = record["summary"]
     print(email)
-    send_email(IMMEDIATE_EMAIL_TO, subject, html=email)
+    send_email(IMMEDIATE_EMAIL_FROM, IMMEDIATE_EMAIL_TO, subject, html=email)
 
 
 # TODO: copy/paste
