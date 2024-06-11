@@ -19,6 +19,10 @@ def process_record(sqs_record):
     print(f"URL: {record['url']}")
 
     # Now that we have the url, we can scrape it
+    # TODO: getting timeout exceptions, e.g.:
+    # requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='www.emergentmind.com', port=443): Read timed out. (read timeout=20)
+    # should try/catch these because it's causing the whole lambda to fail, and subsequent entries in the queue to never get processed, when it's just one site that's down
+    # AND, handle partial batch failures. See terraform.
     (fetched_title, fetched_content) = fetch_site_content(record["url"])
     print(f"Title: {fetched_title}")
     content_brief = fetched_content.replace("\n", " ")[:100]
@@ -28,6 +32,10 @@ def process_record(sqs_record):
     if not fetched_content:
         print("No content found, skipping")
         return
+
+    # TODO: STOP if it says
+    # paying subscribers only
+    # This post is for paid subscribers
 
     # Now update the record and write it to the summarizer bucket
     record["title"] = fetched_title

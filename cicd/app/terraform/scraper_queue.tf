@@ -32,4 +32,8 @@ resource "aws_lambda_event_source_mapping" "scraper_trigger" {
   scaling_config {
     maximum_concurrency = 10
   }
+  // TODO: handle partial batch failures
+  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping#function_response_types
+  // https://stackoverflow.com/a/70725725/296829
+  # function_response_types = ["ReportBatchItemFailures"]
 }
