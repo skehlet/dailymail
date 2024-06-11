@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timezone
 import boto3
 from dateutil.parser import parse
+from urllib.parse import urlparse
 from jinja2 import Template
 from app_settings import (
     DIGEST_QUEUE,
@@ -36,7 +37,7 @@ def process_messages(messages):
 
         # TODO: handle some of these fields not guaranteed to be there
         # I added `type` to help with this
-        # Right now only type=rss_entry records come here so no big
+        # Right now only type=rss_entry records come here so this shouldn't be a problem, for now
         print("-" * 80)
         print(f"Feed Title: {record['feed_title']}")
         print(f"Feed Description: {record['feed_description']}")
@@ -44,6 +45,9 @@ def process_messages(messages):
         print(f"URL: {record['url']}")
         print(f"Published: {record['published']}")
         print(f"Summary: {record['summary']}")
+
+        # parse out domain from the url
+        record["domain"] = urlparse(record["url"]).netloc
 
         # Group records by feed_title
         if record["feed_title"] not in records_by_feed:
