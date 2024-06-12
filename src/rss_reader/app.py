@@ -91,11 +91,15 @@ def process_rss_entries(url, feed_title, feed_description, entries):
         # print(f"Content: {article_content}")
         print("")
 
+        # Skip if article_content is empty. For
+        # https://www.platformer.news/rss/ at least, that would seem to
+        # indicate an entry is paid-only.
+        # Looks like our feedparser library might be putting the description
+        # into the content, if empty, so handle that too
         if not article_content:
-            # Skip if article_content is empty. For
-            # https://www.platformer.news/rss/ at least, that would seem to
-            # indicate an entry is paid-only.
             print("Skipping empty content")
+        elif article_content == article_description:
+            print("Content is identical to description, the content is probably empty, so skipping")
         else:
             record = {
                 "type": "rss_entry",
