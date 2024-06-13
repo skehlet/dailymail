@@ -98,8 +98,9 @@ def process_rss_entries(url, feed_title, feed_description, entries):
         # into the content, if empty, so handle that too
         if not article_content:
             print("Skipping empty content")
-        elif article_content == article_description:
-            print("Content is identical to description, the content is probably empty, so skipping")
+        # TODO: no, don't do this, skipping a lot of articles. Find a better way to detect paid content.
+        # elif article_content == article_description:
+        #     print("Content is identical to description, the content is probably empty, so skipping")
         else:
             record = {
                 "type": "rss_entry",
