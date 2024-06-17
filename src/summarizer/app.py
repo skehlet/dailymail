@@ -104,7 +104,7 @@ def process_s3_record(s3_record):
         topic = None
 
     # Now, summarize the content. Retry on rate limit errors.
-    # TODO: retries should be moved into the summarize module
+    # TODO: retry logic should be moved into the llm/summarize module
     tries_left = 3
     while tries_left > 0:
         try:

@@ -13,9 +13,6 @@ data "aws_iam_policy_document" "codebuild_role_assume_policy" {
       ]
     }
   }
-
-  # Allow developers to assume this role on their systems
-  # TODO
 }
 
 data "aws_iam_policy_document" "codebuild_role_policy" {

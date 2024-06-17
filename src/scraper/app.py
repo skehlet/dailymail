@@ -33,7 +33,7 @@ def process_record(sqs_record):
         print("No content found, skipping")
         return
 
-    # TODO: STOP if it says
+    # TODO: STOP if it says:
     # paying subscribers only
     # This post is for paid subscribers
 

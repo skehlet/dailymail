@@ -76,6 +76,8 @@ def process_messages(messages):
     #
     # <One or two sentence explanation of why those two articles were chosen as the most interesting>
 
+    # TODO: store summaries in a vector store. On new summaries, check for high similarity to previous articles. Hopefully this will filter only "new" news.
+
     # Email it using SES
     subject = f"Your Daily Digest — {utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%Y-%m-%d %H:%M %Z')}"
     print("-" * 80)
