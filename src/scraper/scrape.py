@@ -51,6 +51,8 @@ def fetch_site_content(url):
     # file is now removed
 
     for element in elements:
+        # See: https://docs.unstructured.io/api-reference/api-services/document-elements
+        # Selecting only NarrativeText for now. Title seems to get too much garbage.
         if isinstance(element, (NarrativeText,)):
             body_pieces.append(str(element))
 
@@ -59,9 +61,10 @@ def fetch_site_content(url):
 
 if __name__ == "__main__":
     (my_page_title, my_content) = fetch_site_content(
-        # "https://www.caranddriver.com/news/a46717089/vw-id-buzz-super-bowl-ad-sale-date/",
-        # "https://www.klbjfm.com/blogs/chillville-spotify-playlist-may-19-2024/",
-        "https://yourlocalepidemiologist.substack.com/p/time100",
+        # "https://www.caranddriver.com/news/a46717089/vw-id-buzz-super-bowl-ad-sale-date/"
+        # "https://www.klbjfm.com/blogs/chillville-spotify-playlist-may-19-2024/"
+        # "https://yourlocalepidemiologist.substack.com/p/time100"
+        "https://fandomwire.com/it-was-money-we-didnt-spend-but-money-we-had-to-make-one-game-saving-take-two-from-a-100m-debt-is-how-you-got-gta-v-red-dead-redemption-2/"
     )
     print(f"Title: {my_page_title}")
     print(f"Content: {my_content}")
