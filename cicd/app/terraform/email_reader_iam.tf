@@ -22,6 +22,13 @@ data "aws_iam_policy_document" "email_reader_policy" {
     resources = ["*"]
   }
   statement {
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail",
+    ]
+    resources = ["*"]
+  }
+  statement {
     actions   = ["s3:PutObject"]
     resources = ["arn:aws:s3:::skehlet-dailymail-summarizer/*"]
   }
