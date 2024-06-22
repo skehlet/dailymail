@@ -135,6 +135,10 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     actions = ["sns:*"]
     resources = ["arn:aws:sns:*:*:DailyMail-*"]
   }
+  statement {
+    actions = ["ses:*"]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "codebuild_role_policy" {
