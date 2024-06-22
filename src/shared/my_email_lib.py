@@ -1,10 +1,32 @@
 import os
+import email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 import boto3
 
 EMAIL_INLINE_CSS_STYLE = "color:#444; font: 16px/1.5 -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji"
+
+
+def get_primary_email_content(email_content):
+    body = ""
+    message = email.message_from_string(email_content)
+    if message.is_multipart():
+        print("Message IS multipart")
+        for part in message.walk():
+            content_type = part.get_content_type()
+            content_disposition = str(part.get("Content-Disposition"))
+            # print(f"Content-Disposition: {content_disposition}")
+            # Find the first text/plain part, but skip any that are actually attachments
+            if content_type == "text/plain" and "attachment" not in content_disposition:
+                body = part.get_payload(decode=True)
+                break
+    else:
+        # not multipart - i.e. plain text, no attachments, keeping fingers crossed
+        print("Message is NOT multipart")
+        body = message.get_payload(decode=True)
+    return body.decode("utf-8")
+
 
 # https://stackoverflow.com/a/52105406/296829
 def create_multipart_message(

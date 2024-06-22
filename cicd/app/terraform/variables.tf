@@ -10,6 +10,12 @@ variable "link_reader_image_uri" {
   nullable    = false
 }
 
+variable "email_reader_image_uri" {
+  type        = string
+  description = "URI of Immediate ECR image"
+  nullable    = false
+}
+
 variable "scraper_image_uri" {
   type        = string
   description = "URI of Scraper ECR image"

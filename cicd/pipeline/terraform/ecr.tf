@@ -11,11 +11,11 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
       "rules" : [
         {
           "rulePriority" : 1,
-          "description" : "Only keep 5 images",
+          "description" : "Only keep 3 images",
           "selection" : {
             "tagStatus" : "any",
             "countType" : "imageCountMoreThan",
-            "countNumber" : 5
+            "countNumber" : 3
           },
           "action" : {
             "type" : "expire"

@@ -35,9 +35,6 @@ def process_messages(messages):
             parsed_published = utc_to_local(parsed_published, MY_TIMEZONE)
             record["published"] = parsed_published.strftime("%Y-%m-%d %H:%M:%S %Z")
 
-        # TODO: handle some of these fields not guaranteed to be there
-        # I added `type` to help with this
-        # Right now only type=rss_entry records come here so this shouldn't be a problem, for now
         print("-" * 80)
         print(f"Feed Title: {record['feed_title']}")
         print(f"Feed Description: {record['feed_description']}")

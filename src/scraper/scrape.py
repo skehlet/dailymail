@@ -64,7 +64,8 @@ if __name__ == "__main__":
         # "https://www.caranddriver.com/news/a46717089/vw-id-buzz-super-bowl-ad-sale-date/"
         # "https://www.klbjfm.com/blogs/chillville-spotify-playlist-may-19-2024/"
         # "https://yourlocalepidemiologist.substack.com/p/time100"
-        "https://fandomwire.com/it-was-money-we-didnt-spend-but-money-we-had-to-make-one-game-saving-take-two-from-a-100m-debt-is-how-you-got-gta-v-red-dead-redemption-2/"
+        # "https://fandomwire.com/it-was-money-we-didnt-spend-but-money-we-had-to-make-one-game-saving-take-two-from-a-100m-debt-is-how-you-got-gta-v-red-dead-redemption-2/"
+        "https://yourlocalepidemiologist.substack.com/p/h5n1-update"
     )
     print(f"Title: {my_page_title}")
     print(f"Content: {my_content}")

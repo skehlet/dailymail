@@ -1,8 +1,8 @@
 import uuid
 import json
 from scrape import fetch_site_content
-from app_s3 import write_to_s3
 from app_settings import SUMMARIZER_BUCKET
+from shared.app_s3 import write_to_s3
 
 
 def process_record(sqs_record):

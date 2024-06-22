@@ -62,6 +62,7 @@ resource "aws_codepipeline" "codepipeline" {
         EnvironmentVariables = jsonencode([
           { "name" : "RSS_READER_IMAGE_URI", "value" : "#{CreateImages.RSS_READER_IMAGE_URI}" },
           { "name" : "LINK_READER_IMAGE_URI", "value" : "#{CreateImages.LINK_READER_IMAGE_URI}" },
+          { "name" : "EMAIL_READER_IMAGE_URI", "value" : "#{CreateImages.EMAIL_READER_IMAGE_URI}" },
           { "name" : "SCRAPER_IMAGE_URI", "value" : "#{CreateImages.SCRAPER_IMAGE_URI}" },
           { "name" : "SUMMARIZER_IMAGE_URI", "value" : "#{CreateImages.SUMMARIZER_IMAGE_URI}" },
           { "name" : "DIGEST_IMAGE_URI", "value" : "#{CreateImages.DIGEST_IMAGE_URI}" },
