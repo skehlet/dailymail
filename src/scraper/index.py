@@ -7,8 +7,18 @@ from app import process_record
 def handler(event, context):  # pylint: disable=unused-argument,redefined-outer-name
     try:
         show_settings()
+        failed = []
         for record in event["Records"]:
-            process_record(record)
+            # Handle timeout exceptions, e.g.:
+            # requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='www.emergentmind.com', port=443): Read timed out. (read timeout=20)
+            try:
+                process_record(record)
+            except Exception as e:
+                print(f"Read timeout: {e}")
+                failed.append(record["messageId"])
+
+        return { "batchItemFailures": [{"itemIdentifier": f} for f in failed] } if failed else {}
+
 
     except Exception as e:
         stack_trace = traceback.format_exc()
