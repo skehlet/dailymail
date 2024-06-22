@@ -1,4 +1,5 @@
 import re
+from app_settings import DIGEST_EMAIL_FROM
 from shared.my_email_lib import send_email
 
 def is_gmail_forwarding_confirmation(email_subject):
@@ -12,6 +13,7 @@ def send_gmail_forwarding_confirmation_back_to_originator(email_subject, body):
         raise Exception("Could not parse out originator")
     originator = matches.group(1)
     send_email(
+        DIGEST_EMAIL_FROM,
         originator,
         f"Fwd: {email_subject}",
         body,
