@@ -9,7 +9,12 @@
     {% for record in records %}
 
     <div style="padding-top: 10px">
-        <div><b><a href="{{ record['url']|e }}">{{ record['title']|e }}</a></b> [{{ record['domain']|e }}]</div>
+        <div>
+            <b><a href="{{ record['url']|e }}">{{ record['title']|e }}</a></b>
+            {% if 'domain' in record %}
+                [{{ record['domain']|e }}]
+            {% endif %}
+        </div>
         <div>{{ record['published']|e }}</div>
     </div>
     <span>

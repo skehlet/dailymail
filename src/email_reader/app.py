@@ -10,12 +10,12 @@ from gmail_forwarding_confirmation import (
 from shared.app_s3 import write_to_s3
 
 
-def process_record(record):
-    print(json.dumps(record))
-    if record["EventSource"] != "aws:sns":
+def process_record(sns_record):
+    # print(json.dumps(sns_record))
+    if sns_record["EventSource"] != "aws:sns":
         raise Exception("Not an SNS event")
 
-    message = record["Sns"]["Message"]
+    message = sns_record["Sns"]["Message"]
 
     (email_sender, email_to, email_date, email_subject, body) = parse_sns_message(
         message
@@ -24,6 +24,12 @@ def process_record(record):
     print(f"To: {email_to}")
     print(f"Date: {email_date}")
     print(f"Subject: {email_subject}")
+    print(f"Body: {body}")
+
+    # If it's a Gmail forwarding confirmation, parse out the originator and send it back
+    if is_gmail_forwarding_confirmation(email_subject):
+        send_gmail_forwarding_confirmation_back_to_originator(email_subject, body)
+        return
 
     # Confirm the email_sender is on the list of SES verified identities.
     # Drop the email if it's not.
@@ -31,10 +37,17 @@ def process_record(record):
         print(f"Sender {email_sender} is not verified. Dropping email.")
         return
 
-    # If it's a Gmail forwarding confirmation, parse out the originator and send it back
-    if is_gmail_forwarding_confirmation(email_subject):
-        send_gmail_forwarding_confirmation_back_to_originator(email_subject, body)
-        return
+    # construct a record and store it in the summarizer bucket
+    record = {
+        "type": "email",
+        "feed_title": email_sender,
+        "feed_description": "",
+        "title": email_subject,
+        "content": body,
+        "url": "",
+        "description": "",
+        "published": email_date,
+    }
 
     write_to_summarizer_bucket(record)
 

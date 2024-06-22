@@ -43,8 +43,9 @@ def process_messages(messages):
         print(f"Published: {record['published']}")
         print(f"Summary: {record['summary']}")
 
-        # parse out domain from the url
-        record["domain"] = urlparse(record["url"]).netloc
+        # parse out domain from the url, if provided
+        if record["url"]:
+            record["domain"] = urlparse(record["url"]).netloc
 
         # Group records by feed_title
         if record["feed_title"] not in records_by_feed:
