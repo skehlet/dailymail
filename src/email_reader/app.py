@@ -11,7 +11,7 @@ from shared.app_s3 import write_to_s3
 
 
 def process_record(record):
-    print(record)
+    print(json.dumps(record))
     if record["EventSource"] != "aws:sns":
         raise Exception("Not an SNS event")
 
@@ -44,3 +44,8 @@ def process_record(record):
 def write_to_summarizer_bucket(record):
     key = f"incoming/{uuid.uuid4()}"
     write_to_s3(SUMMARIZER_BUCKET, key, json.dumps(record))
+
+
+if __name__ == "__main__":
+    with open("misc/sample-email-over-sns.json", encoding="utf-8") as f:
+        process_record(json.load(f))
