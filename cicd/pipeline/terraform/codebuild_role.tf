@@ -129,7 +129,11 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
   }
   statement {
     actions = ["events:*"]
-    resources = ["arn:aws:events:us-west-2:519765885403:rule/DailyMail-*"]
+    resources = ["arn:aws:events:*:*:rule/DailyMail-*"]
+  }
+  statement {
+    actions = ["sns:*"]
+    resources = ["arn:aws:sns:*:*:DailyMail-*"]
   }
 }
 
