@@ -1,7 +1,7 @@
 // Read https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html#events-sqs-queueconfig
 resource "aws_sqs_queue" "scraper_queue" {
-  name                       = "${local.app_id}-ScraperQueue"
-  message_retention_seconds  = 86400 * 2
+  name                      = "${local.app_id}-ScraperQueue"
+  message_retention_seconds = 86400 * 2
   // We recommend setting your queue's visibility timeout to six times your
   // function timeout, plus the value of MaximumBatchingWindowInSeconds
   visibility_timeout_seconds = (6 * aws_lambda_function.scraper.timeout) + var.scraper_trigger_maximum_batching_window_in_seconds
@@ -13,7 +13,8 @@ resource "aws_sqs_queue" "scraper_queue" {
 }
 
 resource "aws_sqs_queue" "scraper_queue_dlq" {
-  name = "${local.app_id}-ScraperQueue-dlq"
+  name                      = "${local.app_id}-ScraperQueue-dlq"
+  message_retention_seconds = 86400 * 7
 }
 
 resource "aws_sqs_queue_redrive_allow_policy" "scraper_queue_redrive_allow_policy" {
@@ -30,10 +31,7 @@ resource "aws_lambda_event_source_mapping" "scraper_trigger" {
   event_source_arn                   = aws_sqs_queue.scraper_queue.arn
   function_name                      = aws_lambda_function.scraper.arn
   scaling_config {
-    maximum_concurrency = 10
+    maximum_concurrency = 2 // I had this at 10, but set to the minimum (2) to reduce long-polling costs
   }
-  // TODO: handle partial batch failures
-  // https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping#function_response_types
-  // https://stackoverflow.com/a/70725725/296829
-  # function_response_types = ["ReportBatchItemFailures"]
+  function_response_types = ["ReportBatchItemFailures"]
 }

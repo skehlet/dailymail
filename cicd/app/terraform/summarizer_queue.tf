@@ -35,7 +35,8 @@ data "aws_iam_policy_document" "summarizer_queue_policy" {
 }
 
 resource "aws_sqs_queue" "summarizer_queue_dlq" {
-  name = "${local.app_id}-SummarizerQueue-dlq"
+  name                      = "${local.app_id}-SummarizerQueue-dlq"
+  message_retention_seconds = 86400 * 7
 }
 
 resource "aws_sqs_queue_redrive_allow_policy" "summarizer_queue_redrive_allow_policy" {
@@ -52,7 +53,8 @@ resource "aws_lambda_event_source_mapping" "summarizer_queue_trigger" {
   event_source_arn                   = aws_sqs_queue.summarizer_queue.arn
   function_name                      = aws_lambda_function.summarizer.arn
   scaling_config {
-    # only invoke two instances (the minimum) of the summarizer at a time due to OpenAI rate limits
+    # Only invoke two instances (the minimum) of the summarizer at a time due to OpenAI rate limits
+    # Keeping it at 2 (the minimum) also reduces the long-polling related costs
     maximum_concurrency = 2
   }
 }

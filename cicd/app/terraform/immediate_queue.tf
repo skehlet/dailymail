@@ -11,7 +11,8 @@ resource "aws_sqs_queue" "immediate_queue" {
 }
 
 resource "aws_sqs_queue" "immediate_queue_dlq" {
-  name = "${local.app_id}-ImmediateQueue-dlq"
+  name                      = "${local.app_id}-ImmediateQueue-dlq"
+  message_retention_seconds = 86400 * 7
 }
 
 resource "aws_sqs_queue_redrive_allow_policy" "immediate_queue_redrive_allow_policy" {
@@ -28,6 +29,6 @@ resource "aws_lambda_event_source_mapping" "immediate_trigger" {
   event_source_arn                   = aws_sqs_queue.immediate_queue.arn
   function_name                      = aws_lambda_function.immediate.arn
   scaling_config {
-    maximum_concurrency = 3
+    maximum_concurrency = 2 // I had this at 3, but set to the minimum (2) to reduce long-polling costs
   }
 }

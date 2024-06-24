@@ -11,7 +11,8 @@ resource "aws_sqs_queue" "digest_queue" {
 }
 
 resource "aws_sqs_queue" "digest_queue_dlq" {
-  name = "${local.app_id}-DigestQueue-dlq"
+  name                      = "${local.app_id}-DigestQueue-dlq"
+  message_retention_seconds = 86400 * 7
 }
 
 resource "aws_sqs_queue_redrive_allow_policy" "digest_queue_redrive_allow_policy" {
