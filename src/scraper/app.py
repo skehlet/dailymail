@@ -57,5 +57,6 @@ def write_to_summarizer_bucket(record):
 
 if __name__ == "__main__":
     scrape_url({
+        "type": "url",
         "url": "https://www.platformer.news/riaa-ai-lawsuit-suno-udio/", # paywalled
     })
