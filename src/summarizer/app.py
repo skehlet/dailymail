@@ -92,12 +92,12 @@ def process_s3_record(s3_record):
     # print(record)
 
     # STOP if there is no content
-    if record["content"] == "":
+    if "content" not in record or record["content"] == "":
         print(f"No content for {key}")
         return
 
     # if type=rss_entry and the feed_title is a Google Alert, extract the topic
-    if record["type"] == "rss_entry" and is_google_alert(record["feed_title"]):
+    if "type" in record and record["type"] == "rss_entry" and is_google_alert(record["feed_title"]):
         topic = get_topic_from_google_alert_title(record["feed_title"])
         print(f"Google Alert Topic: {topic}")
     else:
