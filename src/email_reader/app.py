@@ -24,7 +24,7 @@ def process_record(sns_record):
     print(f"To: {email_to}")
     print(f"Date: {email_date}")
     print(f"Subject: {email_subject}")
-    print(f"Body: {body}")
+    print(f"Body: {body[:100]}")
 
     # If it's a Gmail forwarding confirmation, parse out the originator and send it back
     if is_gmail_forwarding_confirmation(email_subject):

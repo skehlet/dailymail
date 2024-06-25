@@ -17,21 +17,29 @@ def process_record(sqs_record):
     # Records with type=rss_entry have fields: feed_title, feed_description, title, url, description, published
     # Records with type=url have fields: url
     print(f"URL: {record['url']}")
+    scrape_url(record)
 
+
+def scrape_url(record):
+    """
+    Given a record with a url, scrape the content and write it to the summarizer bucket
+    """
     # Now that we have the url, we can scrape it
-    (fetched_title, fetched_content) = fetch_site_content(record["url"])
+    (fetched_title, fetched_content, is_paywalled) = fetch_site_content(record["url"])
     print(f"Title: {fetched_title}")
     content_brief = fetched_content.replace("\n", " ")[:100]
     print(f"Content (first 100 chars): {content_brief}")
+    print(f"Is paywalled: {is_paywalled}")
 
     # STOP if there is no content
     if not fetched_content:
         print("No content found, skipping")
         return
 
-    # TODO: STOP if it says:
-    # paying subscribers only
-    # This post is for paid subscribers
+    # STOP if the content appears to be paywalled
+    if is_paywalled:
+        print("Content appears to be paywalled, skipping")
+        return
 
     # Now update the record and write it to the summarizer bucket
     record["title"] = fetched_title
@@ -45,3 +53,9 @@ def process_record(sqs_record):
 def write_to_summarizer_bucket(record):
     key = f"incoming/{uuid.uuid4()}"
     write_to_s3(SUMMARIZER_BUCKET, key, json.dumps(record))
+
+
+if __name__ == "__main__":
+    scrape_url({
+        "url": "https://www.platformer.news/riaa-ai-lawsuit-suno-udio/", # paywalled
+    })
