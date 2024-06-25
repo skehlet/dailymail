@@ -68,6 +68,9 @@ def id_already_processed(url, id) -> bool:
         raise e
 
 
+# TODO: need to clean up old entries somehow.
+# Maybe, add a created_date to the records. Then whenever we mark an id as processed, we purge old entries (> 1 month? How long do rss feeds keep their entries?).
+# That will hit the db a lot, maybe a single cleanup action at the end of every rss_reader run.
 def mark_id_as_processed(url, id):
     try:
         processed_ids_table.put_item(Item={"url": url, "id": id})
