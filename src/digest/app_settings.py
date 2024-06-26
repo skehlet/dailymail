@@ -12,3 +12,4 @@ def show_settings():
     print(f"{DIGEST_QUEUE=}")
     print(f"{MY_TIMEZONE=}")
     print(f"{DIGEST_EMAIL_FROM=}")
+    print(f"{DIGEST_EMAIL_TO=}")
