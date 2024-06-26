@@ -31,7 +31,30 @@ def process_messages(messages):
         print(json.dumps(message))
         record = json.loads(message["Body"])
 
-        if parsed_published := parse(record["published"], fuzzy=True):
+        # TODO: quick fix, just get this working, maybe do something better
+        # All these fields must exist on the record:
+        # feed_title
+        # feed_description
+        # title
+        # url
+        # published
+        # summary
+        if "feed_title" not in record:
+            record["feed_title"] = "Miscellaneous"
+        if "feed_description" not in record:
+            record["feed_description"] = ""
+        if "title" not in record:
+            record["title"] = "(No title)"
+        if "url" not in record:
+            record["url"] = ""
+        if "published" not in record:
+            record["published"] = "(No publish date)"
+        if "summary" not in record:
+            record["summary"] = "(No summary)"
+
+        # parse and reformat dates
+        if "published" in record:
+            parsed_published = parse(record["published"], fuzzy=True)
             parsed_published = utc_to_local(parsed_published, MY_TIMEZONE)
             record["published"] = parsed_published.strftime("%Y-%m-%d %H:%M:%S %Z")
 

@@ -10,7 +10,15 @@
 
     <div style="padding-top: 10px">
         <div>
-            <b><a href="{{ record['url']|e }}">{{ record['title']|e }}</a></b>
+            <b>
+                {% if 'url' in record %}
+                    <a href="{{ record['url']|e }}">
+                {% endif %}
+                    {{ record['title']|e }}
+                {% if 'url' in record %}
+                    </a>
+                {% endif %}
+            </b>
             {% if 'domain' in record %}
                 [{{ record['domain']|e }}]
             {% endif %}
