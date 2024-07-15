@@ -24,7 +24,10 @@ data "aws_iam_policy_document" "summarizer_policy" {
   }
   statement {
     actions = ["secretsmanager:GetSecretValue"]
-    resources = ["arn:aws:secretsmanager:*:*:secret:OPENAI_API_KEY-*"]
+    resources = [
+      "arn:aws:secretsmanager:*:*:secret:OPENAI_API_KEY-*",
+      "arn:aws:secretsmanager:*:*:secret:ANTHROPIC_API_KEY-*",
+    ]
   }
   statement {
     actions = [
