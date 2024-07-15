@@ -3,20 +3,26 @@ import json
 
 from langchain_aws import ChatBedrock
 from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain.globals import set_debug
 from app_settings import LLM, CONTEXT_WINDOW_SIZE, BEDROCK_REGION
 
 set_debug(True)
 
 
-def get_openai_api_key():
-    secret_name = "OPENAI_API_KEY"
+
+def get_key_from_secrets_manager(secret_name):
     region_name = "us-west-2"
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
     get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-    return json.loads(get_secret_value_response["SecretString"]).get("OPENAI_API_KEY")
+    return json.loads(get_secret_value_response["SecretString"]).get(secret_name)
 
+def get_openai_api_key():
+    return get_key_from_secrets_manager("OPENAI_API_KEY")
+
+def get_anthropic_api_key():
+    return get_key_from_secrets_manager("ANTHROPIC_API_KEY")
 
 def get_llm():
     """
@@ -30,7 +36,13 @@ def get_llm():
             model_kwargs=model_kwargs,
             openai_api_key=get_openai_api_key(),
         )
-    if LLM.startswith("amazon.titan"):
+    elif LLM.startswith("claude"):
+        return ChatAnthropic(
+            model_name=LLM,
+            model_kwargs=model_kwargs,
+            anthropic_api_key=get_anthropic_api_key(),
+        )
+    elif LLM.startswith("amazon.titan"):
         model_kwargs["maxTokenCount"] = 1500
     elif LLM.startswith("meta.llama2"):
         model_kwargs["max_gen_len"] = 1500

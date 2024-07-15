@@ -7,7 +7,9 @@ resource "aws_lambda_function" "summarizer" {
   memory_size = 512
   environment {
     variables = {
-      BUILD_ID = var.build_id
+      BUILD_ID            = var.build_id
+      LLM                 = "claude-3-5-sonnet-20240620"
+      CONTEXT_WINDOW_SIZE = "50000"
     }
   }
   depends_on = [

@@ -3,3 +3,4 @@ __pycache__
 *.tfplan
 .terraform
 .env
+.DS_Store
