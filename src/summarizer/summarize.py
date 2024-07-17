@@ -70,20 +70,17 @@ def get_summarization_and_topic_relevancy_prompt(topic):
     from langchain.prompts import ChatPromptTemplate
 
     prompt_template = f"""\
-Please provide a concise summary of the following text, limiting it to three or four sentences.
+Determine whether the following text is 'RELEVANT' or 'NOT RELEVANT' to the topic at hand ('{topic.strip()}').
 
-In a new paragraph, determine and state whether the text is 'RELEVANT' or 'NOT RELEVANT' to the topic at hand ('{topic.strip()}'). Please provide a one-sentence justification explaining the relevance or lack thereof.
-
-If and only if the text is deemed 'RELEVANT', please include an additional paragraph titled 'Of interest'. In this paragraph, highlight one or two interesting aspects about the text in a separate sentence or two.
+If and only if the text is deemed 'RELEVANT', provide a concise summary of the text, limiting it to three or four sentences. Also, include an additional paragraph titled 'Of interest'. In this paragraph, highlight one or two interesting aspects about the text in a separate sentence or two.
 
 Ensure that your response is formatted as follows:
 
-Summary: <summary here>
+Summary: <summary here> (Only if RELEVANT)
 
 <RELEVANT or NOT RELEVANT>: <one-sentence justification explaining the relevance or lack thereof>
 
-(Only if RELEVANT)
-Of interest: <one or two interesting aspects about the text in a separate sentence or two>
+Of interest: <one or two interesting aspects about the text in a separate sentence or two> (Only if RELEVANT)
 
 {{text}}""".strip()
     return ChatPromptTemplate.from_template(prompt_template)
@@ -110,6 +107,43 @@ def llm_summarize_text(text, topic=None):
 
 
 if __name__ == "__main__":
+# =======
+# gpt-4o:
+# =======
+#
+# Summary: Volkswagen plans to replace the GTX badge, used for its
+# high-performance electric cars, with the traditional GTI and R variants. This
+# transition will occur over the next few years, according to Volkswagen brand CEO
+# Thomas Schäfer.
+#
+# RELEVANT: The text is relevant because it discusses Volkswagen's future plans
+# for the GTI, which is closely related to the topic of 'vw id.gti'.
+#
+# Of interest: It is noteworthy that Volkswagen is reviving the GTI badge for its
+# electric vehicles, signaling a return to its iconic branding. This shift
+# indicates a strategic move to maintain brand continuity even as the company
+# transitions to electric mobility.
+#
+# ==========================
+# claude-3-5-sonnet-20240620
+# ==========================
+#
+# Summary: Volkswagen plans to phase out the GTX badge for its high-performance
+# electric vehicles and replace it with the more familiar GTI and R variants. This
+# change, announced by Volkswagen brand CEO Thomas Schäfer, will be implemented
+# gradually in future products. The current MEB-based electric vehicles will
+# retain the GTX badge for now.
+#
+# RELEVANT: This text is directly relevant to the topic of 'vw id.gti' as it
+# discusses Volkswagen's plans to introduce GTI branding to their electric vehicle
+# lineup.
+#
+# Of interest: The resurrection and subsequent phasing out of the GTX badge
+# demonstrates Volkswagen's evolving strategy for branding their performance
+# electric vehicles. This change suggests that Volkswagen is aiming to leverage
+# the strong brand recognition of their GTI and R badges in the electric vehicle
+# market.
+# 
     llm_summarize_text(
         """\
 Volkswagen resurrected the GTX badge to denote its heated up electric cars, but
@@ -136,3 +170,4 @@ future products will go back to a clear portfolio [of GTI and R]”.
 # """.strip(),
 #         "\"thievery corporation\"",
 #     )
+#

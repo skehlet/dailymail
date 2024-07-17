@@ -83,7 +83,8 @@ if __name__ == "__main__":
         # "https://www.klbjfm.com/blogs/chillville-spotify-playlist-may-19-2024/"
         # "https://yourlocalepidemiologist.substack.com/p/time100"
         # "https://fandomwire.com/it-was-money-we-didnt-spend-but-money-we-had-to-make-one-game-saving-take-two-from-a-100m-debt-is-how-you-got-gta-v-red-dead-redemption-2/"
-        "https://yourlocalepidemiologist.substack.com/p/h5n1-update"
+        # "https://yourlocalepidemiologist.substack.com/p/h5n1-update"
+        "https://europe.autonews.com/paris-auto-show/2024-paris-auto-show-adds-vw-group-brands"
     )
     print(f"Title: {my_page_title}")
     print(f"Content: {my_content}")
