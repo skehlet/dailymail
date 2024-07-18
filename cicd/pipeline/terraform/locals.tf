@@ -1,6 +1,6 @@
 locals {
   pipeline_name = "DailyMailPipeline"
-  ecr_repos     = [
+  ecr_repos = [
     "dailymail-rss-reader",
     "dailymail-link-reader",
     "dailymail-email-reader",

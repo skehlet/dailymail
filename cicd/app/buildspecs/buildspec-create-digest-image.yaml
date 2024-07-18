@@ -1,0 +1,31 @@
+version: 0.2
+
+env:
+  # AWS_ACCOUNT_ID
+  exported-variables:
+    - DIGEST_IMAGE_URI
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} |
+        docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+
+  build:
+    commands:
+      - cd src
+      - for symlink in */shared; do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
+      - cd digest
+      - docker build -f Dockerfile -t dailymail-digest .
+
+  post_build:
+    commands:
+      - BUILD_ID=${CODEBUILD_BUILD_ID##*:}
+      - DIGEST_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-digest:$BUILD_ID
+      - echo $DIGEST_IMAGE_URI
+      - docker tag dailymail-digest $DIGEST_IMAGE_URI
+      - docker push $DIGEST_IMAGE_URI

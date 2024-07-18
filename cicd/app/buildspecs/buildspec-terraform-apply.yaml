@@ -8,7 +8,6 @@ env:
   # SUMMARIZER_IMAGE_URI
   # DIGEST_IMAGE_URI
   # IMMEDIATE_IMAGE_URI
-  # BUILD_ID
   exported-variables:
     - CODEBUILD_BUILD_ID
 
@@ -22,7 +21,6 @@ phases:
       - echo SUMMARIZER_IMAGE_URI=${SUMMARIZER_IMAGE_URI}
       - echo DIGEST_IMAGE_URI=${DIGEST_IMAGE_URI}
       - echo IMMEDIATE_IMAGE_URI=${IMMEDIATE_IMAGE_URI}
-      - echo BUILD_ID=${BUILD_ID}
       - terraform --version
 
   pre_build:
@@ -33,6 +31,8 @@ phases:
 
   build:
     commands:
+      - BUILD_ID=${CODEBUILD_BUILD_ID##*:}
+      - echo BUILD_ID=${BUILD_ID}
       - ls -la
       - terraform apply
         -var=rss_reader_image_uri=${RSS_READER_IMAGE_URI}

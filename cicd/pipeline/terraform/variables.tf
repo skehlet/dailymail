@@ -9,7 +9,7 @@ variable "slack_channel_id" {
 }
 
 variable "codebuild_terraform_image_tag" {
-  type = string
+  type        = string
   description = "Tag of the codebuild-terraform-image in ECR"
-  default = "6"
+  default     = "6"
 }

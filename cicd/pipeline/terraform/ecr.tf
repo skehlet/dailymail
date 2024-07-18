@@ -44,7 +44,15 @@ data "aws_iam_policy_document" "policy" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [aws_codebuild_project.create_images.arn]
+      values   = [
+        aws_codebuild_project.create_digest_image.arn,
+        aws_codebuild_project.create_emailreader_image.arn,
+        aws_codebuild_project.create_immediate_image.arn,
+        aws_codebuild_project.create_linkreader_image.arn,
+        aws_codebuild_project.create_rssreader_image.arn,
+        aws_codebuild_project.create_scraper_image.arn,
+        aws_codebuild_project.create_summarizer_image.arn,
+      ]
     }
     condition {
       test     = "StringEquals"

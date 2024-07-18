@@ -1,0 +1,31 @@
+version: 0.2
+
+env:
+  # AWS_ACCOUNT_ID
+  exported-variables:
+    - RSS_READER_IMAGE_URI
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} |
+        docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+
+  build:
+    commands:
+      - cd src
+      - for symlink in */shared; do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
+      - cd rss_reader
+      - docker build -f Dockerfile -t dailymail-rss-reader .
+
+  post_build:
+    commands:
+      - BUILD_ID=${CODEBUILD_BUILD_ID##*:}
+      - RSS_READER_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-rss-reader:$BUILD_ID
+      - echo $RSS_READER_IMAGE_URI
+      - docker tag dailymail-rss-reader $RSS_READER_IMAGE_URI
+      - docker push $RSS_READER_IMAGE_URI
