@@ -11,6 +11,7 @@ LLM = os.environ.get(
     # "mistral.mistral-large-2402-v1:0",
     "gpt-4o",
     # "claude-3-5-sonnet-20240620",
+    # "gpt-4o-mini",
 )
 CONTEXT_WINDOW_SIZE = int(os.environ.get(
     "CONTEXT_WINDOW_SIZE",

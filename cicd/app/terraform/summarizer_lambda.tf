@@ -8,7 +8,7 @@ resource "aws_lambda_function" "summarizer" {
   environment {
     variables = {
       BUILD_ID            = var.build_id
-      LLM                 = "claude-3-5-sonnet-20240620"
+      LLM                 = "gpt-4o-mini"
       CONTEXT_WINDOW_SIZE = "50000"
     }
   }

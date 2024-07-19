@@ -2,6 +2,4 @@
 
 # TODOs
 
-* CreateImages takes too long:
-    * Consider merging down to one image, since they're all nearly identical. Use an env var to change its behavior.
-    * Or maybe look into CodePipeline v2's parallel builds
+* Clean up dynamodb entries in the DailyMail-RssReaderProcessedIds, they just stay there forever. Remove after 30/60/90 days?
