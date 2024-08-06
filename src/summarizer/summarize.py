@@ -178,7 +178,7 @@ The change will likely take a few years to sweep through the Volkswagen EV
 range, with Mr Schäfer clarifying “the current products, this is what it is, but
 future products will go back to a clear portfolio [of GTI and R]”.
 """.strip(),
-        "vw id.gti ",
+        "vw id.gti",
     )
 #     llm_summarize_text(
 #         """\
