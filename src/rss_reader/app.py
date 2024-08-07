@@ -7,6 +7,7 @@ from db import (
     store_feed_metadata,
     id_already_processed,
     mark_id_as_processed,
+    cleanup_processed_ids,
 )
 from app_queue import enqueue
 import boto3
@@ -15,6 +16,7 @@ import boto3
 def read_rss_feeds():
     for url in get_rss_feeds():
         read_feed(url)
+    cleanup_processed_ids()
 
 
 def get_rss_feeds():
@@ -123,3 +125,10 @@ def write_to_queue(entry):
 
 if __name__ == "__main__":
     read_rss_feeds()
+    # from db import (
+    #     add_updated_at_field_where_missing,
+    #     clear_updated_at_fields,
+    # )
+    # # clear_updated_at_fields()
+    # # add_updated_at_field_where_missing()
+    # cleanup_processed_ids()

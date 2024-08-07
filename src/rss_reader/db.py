@@ -1,9 +1,13 @@
+import time
 import boto3
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Attr
 
 dynamodb = boto3.resource("dynamodb")
 feed_metadata_table = dynamodb.Table("DailyMail-RssReaderFeedMetadata")
 processed_ids_table = dynamodb.Table("DailyMail-RssReaderProcessedIds")
+
+CLEANUP_AFTER_SECS = 90 * 24 * 60 * 60 # 90 days
 
 
 def get_feed_metadata(url):
@@ -30,13 +34,15 @@ def get_feed_metadata(url):
 
 
 def store_feed_metadata(url, etag, last_modified):
+    now = int(time.time())
     try:
         feed_metadata_table.update_item(
             Key={"url": url},
-            UpdateExpression="SET etag = :etag, last_modified = :last_modified",
+            UpdateExpression="SET etag = :etag, last_modified = :last_modified, updated_at = :updated_at",
             ExpressionAttributeValues={
                 ":etag": {"S": etag},
                 ":last_modified": {"S": last_modified},
+                ":updated_at": now,
             },
         )
         # print(
@@ -68,17 +74,88 @@ def id_already_processed(url, id) -> bool:
         raise e
 
 
-# TODO: need to clean up old entries somehow.
-# Maybe, add a created_date to the records. Then whenever we mark an id as processed, we purge old entries (> 1 month? How long do rss feeds keep their entries?).
-# That will hit the db a lot, maybe a single cleanup action at the end of every rss_reader run.
 def mark_id_as_processed(url, id):
+    now = int(time.time())
     try:
-        processed_ids_table.put_item(Item={"url": url, "id": id})
+        processed_ids_table.put_item(Item={
+            "url": url,
+            "id": id,
+            "updated_at": now,
+        })
         # print(f"Successfully recorded we have seen {url}+{id}")
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
         error_message = e.response["Error"]["Message"]
         print(
             f"DynamoDB error marking {url}+{id} as processed: {error_code} - {error_message}"
+        )
+        raise e
+
+
+def cleanup_processed_ids():
+    now = int(time.time())
+    try:
+        response = processed_ids_table.scan(
+            FilterExpression=Attr('updated_at').exists()
+        )
+        print(f"cleanup_processed_ids: reviewing {len(response["Items"])} records")
+        for item in response["Items"]:
+            updated_at = int(item["updated_at"])
+            if updated_at < (now - CLEANUP_AFTER_SECS):
+                processed_ids_table.delete_item(Key={"url": item["url"], "id": item["id"]})
+                print(f"Deleted old processed id {item['url']}+{item['id']}")
+            # else:
+            #     print(f"Record {item["url"]}+{item["id"]} safe from deletion ({updated_at})")
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        error_message = e.response["Error"]["Message"]
+        print(
+            f"DynamoDB error cleaning up processed ids: {error_code} - {error_message}"
+        )
+        raise e
+
+
+def add_updated_at_field_where_missing():
+    now = int(time.time())
+    try:
+        response = processed_ids_table.scan(
+            FilterExpression=Attr('updated_at').not_exists()
+        )
+        print(f"add_updated_at_field_where_missing: reviewing {len(response["Items"])} records")
+        for item in response["Items"]:
+            processed_ids_table.update_item(
+                Key={"url": item["url"], "id": item["id"]},
+                UpdateExpression="SET updated_at = :updated_at",
+                ExpressionAttributeValues={
+                    ":updated_at": now,
+                },
+            )
+            print(f"Added updated_at field to {item['url']}+{item['id']}")
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        error_message = e.response["Error"]["Message"]
+        print(
+            f"DynamoDB error adding updated_at field: {error_code} - {error_message}"
+        )
+        raise e
+
+
+def clear_updated_at_fields():
+    try:
+        response = processed_ids_table.scan(
+            FilterExpression=Attr('updated_at').exists()
+        )
+        print(f"clear_updated_at_fields: reviewing {len(response["Items"])} records")
+        for item in response["Items"]:
+            processed_ids_table.update_item(
+                Key={"url": item["url"], "id": item["id"]},
+                UpdateExpression="REMOVE updated_at",
+            )
+            print(f"Cleared updated_at field from {item['url']}+{item['id']}")
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        error_message = e.response["Error"]["Message"]
+        print(
+            f"DynamoDB error clearing updated_at fields: {error_code} - {error_message}"
         )
         raise e

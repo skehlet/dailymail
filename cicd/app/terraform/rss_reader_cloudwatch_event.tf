@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "twice_daily_prior_to_digest" {
   name                = "${local.app_id}-twice-daily-prior-to-digest"
-  description         = "Fires twice daily, just prior to the Digest lambda running"
+  description         = "Fires twice daily, a short while before the Digest lambda runs"
   schedule_expression = "cron(30 13,20 * * ? *)" # times are in UTC
 }
 
