@@ -18,8 +18,10 @@ data "aws_iam_policy_document" "link_reader_assume_policy" {
 
 data "aws_iam_policy_document" "link_reader_policy" {
   statement {
-    actions   = ["secretsmanager:GetSecretValue"]
-    resources = ["arn:aws:secretsmanager:*:*:secret:DAILYMAIL_LINK_READER_CREDS-*"]
+    actions = ["ssm:GetParameter"]
+    resources = [
+      "arn:aws:ssm:*:*:parameter/DAILYMAIL_LINK_READER_CREDS",
+    ]
   }
   statement {
     actions = [

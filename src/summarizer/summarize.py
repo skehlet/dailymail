@@ -6,23 +6,16 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain.globals import set_debug
 from app_settings import LLM, CONTEXT_WINDOW_SIZE, BEDROCK_REGION
+from shared.my_parameter_store import get_value_from_parameter_store
 
 set_debug(True)
 
 
-
-def get_key_from_secrets_manager(secret_name):
-    region_name = "us-west-2"
-    session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
-    get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-    return json.loads(get_secret_value_response["SecretString"]).get(secret_name)
-
 def get_openai_api_key():
-    return get_key_from_secrets_manager("OPENAI_API_KEY")
+    return get_value_from_parameter_store("OPENAI_API_KEY")
 
 def get_anthropic_api_key():
-    return get_key_from_secrets_manager("ANTHROPIC_API_KEY")
+    return get_value_from_parameter_store("ANTHROPIC_API_KEY")
 
 def get_llm():
     """

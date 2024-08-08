@@ -1,7 +1,8 @@
 import base64
 import json
 import boto3
-from app_settings import LINK_READER_CREDS_SECRET_NAME, LINK_READER_SECRETS_REGION
+from app_settings import LINK_READER_CREDS_PARAMETER_NAME
+from shared import get_value_from_parameter_store
 
 
 def create_basic_auth_header_value(username, password):
@@ -38,12 +39,8 @@ def authenticate(event) -> bool:
 
 
 def get_link_reader_creds():
-    secret_name = LINK_READER_CREDS_SECRET_NAME
-    region_name = LINK_READER_SECRETS_REGION
-    session = boto3.session.Session()
-    client = session.client(service_name="secretsmanager", region_name=region_name)
-    get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-    secret_data = json.loads(get_secret_value_response["SecretString"])
-    username = secret_data.get("USERNAME")
-    password = secret_data.get("PASSWORD")
+    creds = get_value_from_parameter_store(LINK_READER_CREDS_PARAMETER_NAME)
+    creds_json = json.loads(creds)
+    username = creds_json.get("USERNAME")
+    password = creds_json.get("PASSWORD")
     return (username, password)

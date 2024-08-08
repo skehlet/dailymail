@@ -23,10 +23,10 @@ data "aws_iam_policy_document" "summarizer_policy" {
     ]
   }
   statement {
-    actions = ["secretsmanager:GetSecretValue"]
+    actions = ["ssm:GetParameter"]
     resources = [
-      "arn:aws:secretsmanager:*:*:secret:OPENAI_API_KEY-*",
-      "arn:aws:secretsmanager:*:*:secret:ANTHROPIC_API_KEY-*",
+      "arn:aws:ssm:*:*:parameter/ANTHROPIC_API_KEY",
+      "arn:aws:ssm:*:*:parameter/OPENAI_API_KEY",
     ]
   }
   statement {
