@@ -23,6 +23,7 @@ data "aws_iam_policy_document" "rss_reader_policy" {
       "dynamodb:DescribeTable",
       "dynamodb:GetItem",
       "dynamodb:PutItem",
+      "dynamodb:Scan",
       "dynamodb:UpdateItem",
     ]
     resources = [
