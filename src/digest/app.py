@@ -1,8 +1,8 @@
 import json
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 import boto3
 from dateutil.parser import parse
-from urllib.parse import urlparse
 from jinja2 import Template
 from app_settings import (
     DIGEST_QUEUE,
@@ -25,13 +25,29 @@ def read_from_digest_queue():
     process_messages(messages)
 
 
+def read_all_from_queue():
+    messages = []
+    while True:
+        response = sqs.receive_message(QueueUrl=queue_url, WaitTimeSeconds=0)
+        if "Messages" not in response:
+            return messages
+        messages.extend(response["Messages"])
+
+
 def process_messages(messages):
+    feeds = cleanup_group_and_sort_messages(messages)
+    feeds = review_and_cleanup_feeds(feeds)
+    create_html_email_and_send_it(feeds)
+    delete_messages_from_queue(messages)
+
+
+def cleanup_group_and_sort_messages(messages):
     records_by_feed = {}
     for message in messages:
         print(json.dumps(message))
         record = json.loads(message["Body"])
 
-        # TODO: quick fix, just get this working, maybe do something better
+        # This felt like quick hack at the time, just get this working, but it's been working for a while now.
         # Set default values for fields on the record
         default_values = {
             "feed_title": "Miscellaneous",
@@ -71,18 +87,14 @@ def process_messages(messages):
             records_by_feed[record["feed_title"]] = []
         records_by_feed[record["feed_title"]].append(record)
 
-    # Produce HTML message
     feeds = sorted(records_by_feed.items())
     for _, records in feeds:
         # sort records (this is done in place) by date, descending
         records.sort(key=lambda x: x["published"], reverse=True)
+    return feeds
 
-    with open("digest.html.jinja", encoding="utf8") as f:
-        email = Template(f.read()).render(
-            EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
-            feeds=feeds,
-        )
 
+def review_and_cleanup_feeds(feeds):
     # TODO: send to the LLM asking for it to pick the top articles
 
     # Review the following email, which is list of topics I find interesting with accompanying summaries of recent articles, and extract out the one or two most interesting articles. Your output should look like:
@@ -95,6 +107,23 @@ def process_messages(messages):
 
     # TODO: store summaries in a vector store. On new summaries, check for high similarity to previous articles. Hopefully this will filter only "new" news.
 
+    for feed_title, records in feeds:
+        for record in records:
+            print(f"{feed_title}: {record['title']} - {record['published']}")
+
+    # TODO: actually do something here
+
+    return feeds
+
+
+
+def create_html_email_and_send_it(feeds):
+    # Produce HTML message
+    with open("digest.html.jinja", encoding="utf8") as f:
+        email = Template(f.read()).render(
+            EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
+            feeds=feeds,
+        )
     # Email it using SES
     subject = f"Your Daily Digest — {utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%Y-%m-%d %H:%M %Z')}"
     print("-" * 80)
@@ -102,17 +131,6 @@ def process_messages(messages):
     print("Body:")
     print(email)
     send_email(DIGEST_EMAIL_FROM, DIGEST_EMAIL_TO, subject, html=email)
-
-    delete_messages_from_queue(messages)
-
-
-def read_all_from_queue():
-    messages = []
-    while True:
-        response = sqs.receive_message(QueueUrl=queue_url, WaitTimeSeconds=0)
-        if "Messages" not in response:
-            return messages
-        messages.extend(response["Messages"])
 
 
 def delete_messages_from_queue(messages):

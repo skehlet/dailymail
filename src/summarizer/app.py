@@ -103,12 +103,21 @@ def process_s3_record(s3_record):
     else:
         topic = None
 
+    # should not be needed, all upstream sources to this point provide url and title
+    default_values = {
+        "url": "Unknown URL",
+        "title": "Unknown title",
+    }
+    for field, default in default_values.items():
+        if field not in record:
+            record[field] = default
+
     # Now, summarize the content. Retry on rate limit errors.
     # TODO: retry logic should be moved into the llm/summarize module
     tries_left = 3
     while tries_left > 0:
         try:
-            summary = llm_summarize_text(record["content"], topic)
+            summary = llm_summarize_text(record["url"], record["title"], record["content"], topic)
             break
         except openai.RateLimitError:
             sleep_time = random.randint(10, 30)

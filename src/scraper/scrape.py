@@ -85,7 +85,8 @@ if __name__ == "__main__":
         # "https://fandomwire.com/it-was-money-we-didnt-spend-but-money-we-had-to-make-one-game-saving-take-two-from-a-100m-debt-is-how-you-got-gta-v-red-dead-redemption-2/"
         # "https://yourlocalepidemiologist.substack.com/p/h5n1-update"
         # "https://europe.autonews.com/paris-auto-show/2024-paris-auto-show-adds-vw-group-brands"
-        "https://www.rli.uk.com/pret-a-manger-lands-in-los-angeles/"
+        # "https://www.rli.uk.com/pret-a-manger-lands-in-los-angeles/"
+        "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles"
     )
     print(f"Title: {my_page_title}")
     print(f"Content: {my_content}")
