@@ -35,23 +35,16 @@ def process_s3_record(s3_record):
         # if type=rss_entry and the feed_title is a Google Alert, extract the topic and summarize
         topic = get_topic_from_google_alert_title(record["feed_title"])
         print(f"Google Alert Topic: {topic}")
-        summary_obj = summarize_google_alert(topic, record["url"], record["title"], record["content"])
+        summary_dict = summarize_google_alert(topic, record["url"], record["title"], record["content"])
     else:
         # else just summarize the text
-        summary_obj = summarize_text(record["url"], record["title"], record["content"])
+        summary_dict = summarize_text(record["url"], record["title"], record["content"])
+
+    # copy all fields from summary_dict to record
+    for field in summary_dict:
+        record[field] = summary_dict[field]
 
     del record["content"]
-
-    for field in [
-        "summary",
-        "notable_aspects",
-        "quality_score",
-        "quality_score_explanation",
-        "relevance",
-        "relevance_explanation",
-    ]:
-        if field in summary_obj:
-            record[field] = summary_obj[field]
 
     if "immediate" in record:
         # Send to immediate queue
@@ -60,7 +53,7 @@ def process_s3_record(s3_record):
     else:
         # Send to digest queue
         # But skip if it's a Google Alert summary and NOT RELEVANT
-        if "relevance" in summary_obj and summary_obj.relevance == "NOT_RELEVANT":
+        if "relevance" in summary_dict and summary_dict.relevance == "NOT RELEVANT":
             print("The content is NOT RELEVANT to the topic, so discarding")
         else:
             enqueue(DIGEST_QUEUE, json.dumps(record))

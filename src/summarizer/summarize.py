@@ -9,7 +9,6 @@ from shared.my_openai import get_openai_client
 
 SYSTEM_PROMPT = """\
 You are an analytical AI focused on evaluating and summarizing text content with a strong emphasis on writing quality. Your primary objectives are:
-
 1. Clarity and Coherence: Prioritize generating clear, concise, and logically structured summaries and evaluations.
 2. Objective Assessment: Maintain objectivity in evaluating text quality, scoring content based on grammar, coherence, readability, and engagement while penalizing sensationalist or low-quality content.
 3. Substance over Sensation: Detect and deprioritize clickbait, attention-grabbing tactics, and sensationalism, emphasizing accuracy and substantive content instead.
@@ -105,7 +104,7 @@ def call_openai_with_structured_outputs(system_prompt, prompt, text, output_clas
                 raise Exception(summary_response.refusal)
             summary = completion.choices[0].message.parsed
             print(summary.model_dump_json(indent=2))
-            return summary
+            return summary.dict()
 
         except openai.RateLimitError:
             sleep_time = random.randint(10, 30)
