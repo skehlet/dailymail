@@ -31,6 +31,13 @@ data "aws_iam_policy_document" "digest_policy" {
     ]
     resources = ["*"]
   }
+  statement {
+    actions = ["ssm:GetParameter"]
+    resources = [
+      "arn:aws:ssm:*:*:parameter/ANTHROPIC_API_KEY",
+      "arn:aws:ssm:*:*:parameter/OPENAI_API_KEY",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "digest_policy" {

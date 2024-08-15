@@ -36,7 +36,7 @@ insights that emerge from the collection of articles.
             summaries = []
             for record in records:
                 # print(f"{feed_title}: {record['title']} - {record['published']}")
-                summaries.extend(
+                summaries.append(
                     f"""\
 Title: {record["title"]}
                                  
