@@ -1,7 +1,7 @@
 import shutil
 import tempfile
 import requests
-from unstructured.partition.auto import partition_html
+from unstructured.partition.html import partition_html
 from unstructured.documents.elements import NarrativeText
 from bs4 import BeautifulSoup
 from app_settings import PAYWALL_TEXTS
