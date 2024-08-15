@@ -9,7 +9,8 @@ LLM = os.environ.get(
     # If you change this, update CONTEXT_WINDOW_SIZE below as needed
     # "mistral.mixtral-8x7b-instruct-v0:1",
     # "mistral.mistral-large-2402-v1:0",
-    "gpt-4o",
+    # "gpt-4o",
+    "gpt-4o-2024-08-06", # temp until they make this the choice for gpt-4o (it may already be?)
     # "claude-3-5-sonnet-20240620",
     # "gpt-4o-mini",
 )

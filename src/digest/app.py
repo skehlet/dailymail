@@ -49,13 +49,19 @@ def cleanup_group_and_sort_messages(messages):
 
         # This felt like quick hack at the time, just get this working, but it's been working for a while now.
         # Set default values for fields on the record
+        # This lets us handle records from the rss_reader and the link_reader
         default_values = {
             "feed_title": "Miscellaneous",
             "feed_description": "",
             "title": "(No title)",
             "url": "",
             "published": "(No publish date)",
-            "summary": "(No summary)"
+            "summary": "(No summary)",
+            "notable_aspects": "",
+            "quality_score": "",
+            "quality_score_explanation": "",
+            "relevance": "",
+            "relevance_explanation": "",
         }
         for field, default in default_values.items():
             if field not in record:
@@ -77,6 +83,11 @@ def cleanup_group_and_sort_messages(messages):
         print(f"URL: {record['url']}")
         print(f"Published: {record['published']}")
         print(f"Summary: {record['summary']}")
+        print(f"Notable Aspects: {record['notable_aspects']}")
+        print(f"Quality Score: {record['quality_score']}")
+        print(f"Quality Score Explanation: {record['quality_score_explanation']}")
+        print(f"Relevance: {record['relevance']}")
+        print(f"Relevance Explanation: {record['relevance_explanation']}")
 
         # parse out domain from the url, if provided
         if "url" in record and record["url"]:

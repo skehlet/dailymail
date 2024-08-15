@@ -4,11 +4,28 @@
         <div><b><a href="{{ record['url']|e }}">{{ record['title']|e }}</a></b></div>
     </div>
 
-    {% set paragraphs = record['summary'].strip().split("\n\n") %}
-    {% for paragraph in paragraphs %}
+    <p>{{ record['summary']|wordwrap|e }}</p>
+
+    {% if record["notable_aspects"] %}
+    <p>Of Interest: {{ record["notable_aspects"]|wordwrap|e }}</p>
+    {% endif %}
+
+    {% if record["relevance"] %}
     <p>
-        {{ paragraph|wordwrap|e }}
+        Relevance: {{ record["relevance"]|wordwrap|e }}
+        {% if record["relevance_explanation"] %}
+        — {{ record["relevance_explanation"]|wordwrap|e }}
+        {% endif %}
     </p>
-    {% endfor %}
+    {% endif %}
+
+    {% if record["quality_score"] %}
+    <p>
+        Quality Score: {{ record["quality_score"]|wordwrap|e }}
+        {% if record["quality_score_explanation"] %}
+        — {{ record["quality_score_explanation"]|wordwrap|e }}
+        {% endif %}
+    </p>
+    {% endif %}
 
 </span>

@@ -7,7 +7,7 @@ from gmail_forwarding_confirmation import (
     is_gmail_forwarding_confirmation,
     send_gmail_forwarding_confirmation_back_to_originator,
 )
-from shared.app_s3 import write_to_s3
+from shared.my_s3 import write_to_s3
 
 
 def process_record(sns_record):
