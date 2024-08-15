@@ -4,23 +4,10 @@ BUILD_ID = os.environ.get("BUILD_ID", "Unknown")
 SUMMARIZER_BUCKET = os.environ.get("SUMMARIZER_BUCKET", "skehlet-dailymail-summarizer")
 DIGEST_QUEUE = "DailyMail-DigestQueue"
 IMMEDIATE_QUEUE = "DailyMail-ImmediateQueue"
-LLM = os.environ.get(
-    "LLM",
-    # If you change this, update CONTEXT_WINDOW_SIZE below as needed
-    # "mistral.mixtral-8x7b-instruct-v0:1",
-    # "mistral.mistral-large-2402-v1:0",
-    # "gpt-4o",
-    "gpt-4o-2024-08-06", # temp until they make this the choice for gpt-4o (it may already be?)
-    # "claude-3-5-sonnet-20240620",
-    # "gpt-4o-mini",
-)
-CONTEXT_WINDOW_SIZE = int(os.environ.get(
-    "CONTEXT_WINDOW_SIZE",
-    # "32000", # mistral
-    "128000", # gpt-4o
-    # "50000", # claude-3-5-sonnet-20240620. It's 200k but let's keep this down so I don't get unexpected charges
-))
+LLM = os.environ["LLM"] # set in lambda terraform
+CONTEXT_WINDOW_SIZE = int(os.environ["CONTEXT_WINDOW_SIZE"]) # set in lambda terraform
 BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "us-west-2")
+
 
 def show_settings():
     print(f"{BUILD_ID=}")
