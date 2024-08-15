@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# delete all messages in the DailyMail-ScraperQueue-dlq queue
+# move all messages from the DailyMail-ScraperQueue-dlq queue to the DailyMail-ScraperQueue queue
 
 import boto3
+import sys
 
 source_queue = "DailyMail-ScraperQueue-dlq"
+dest_queue = "DailyMail-ScraperQueue"
 
 sqs = boto3.client("sqs")
 
@@ -13,5 +15,5 @@ while True:
     if "Messages" not in resp:
         break
     for message in resp["Messages"]:
-        print(message["Body"])
+        sqs.send_message(QueueUrl=dest_queue, MessageBody=message["Body"])
         sqs.delete_message(QueueUrl=source_queue, ReceiptHandle=message["ReceiptHandle"])

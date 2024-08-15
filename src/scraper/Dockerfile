@@ -1,5 +1,11 @@
 FROM public.ecr.aws/lambda/python:3.12
 COPY . ${LAMBDA_TASK_ROOT}
+
+# TODO: remove this once https://github.com/nltk/nltk/issues/3301 is resolved. See requirements.txt.
+RUN dnf install -y git \
+  	&& dnf clean all \
+  	&& rm -rf /var/cache/yum
+
 RUN pip install -r ${LAMBDA_TASK_ROOT}/requirements.txt
 
 # Pre-install the NLTK packages for the unstructured library:
