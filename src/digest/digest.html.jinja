@@ -11,11 +11,7 @@
     {% if "overall_summary" in record %}
 
         <span>
-            <p>{{ record['overall_summary']|wordwrap|e }}</p>
-
-            {% if record["notable_trends"] %}
-            <p>Notable Trends: {{ record["notable_trends"]|wordwrap|e }}</p>
-            {% endif %}
+            <p><b>Overall Summary:</b> {{ record['overall_summary']|wordwrap|e }}</p>
         </span>
 
     {% else %}
@@ -49,15 +45,6 @@
                 Relevance: {{ record["relevance"]|wordwrap|e }}
                 {% if record["relevance_explanation"] %}
                 — {{ record["relevance_explanation"]|wordwrap|e }}
-                {% endif %}
-            </p>
-            {% endif %}
-
-            {% if record["quality_score"] %}
-            <p>
-                Quality Score: {{ record["quality_score"]|e }}
-                {% if record["quality_score_explanation"] %}
-                — {{ record["quality_score_explanation"]|wordwrap|e }}
                 {% endif %}
             </p>
             {% endif %}

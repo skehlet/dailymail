@@ -19,13 +19,4 @@
     </p>
     {% endif %}
 
-    {% if record["quality_score"] %}
-    <p>
-        Quality Score: {{ record["quality_score"]|wordwrap|e }}
-        {% if record["quality_score_explanation"] %}
-        — {{ record["quality_score_explanation"]|wordwrap|e }}
-        {% endif %}
-    </p>
-    {% endif %}
-
 </span>

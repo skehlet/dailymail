@@ -3,7 +3,7 @@ resource "aws_lambda_function" "digest" {
   package_type  = "Image"
   image_uri     = var.digest_image_uri
   role          = aws_iam_role.digest.arn
-  timeout       = 30
+  timeout       = 180
   memory_size   = 512
   environment {
     variables = {

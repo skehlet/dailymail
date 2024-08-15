@@ -59,8 +59,6 @@ def cleanup_group_and_sort_messages(messages):
             "published": "(No publish date)",
             "summary": "(No summary)",
             "notable_aspects": "",
-            "quality_score": "",
-            "quality_score_explanation": "",
             "relevance": "",
             "relevance_explanation": "",
         }
@@ -85,8 +83,6 @@ def cleanup_group_and_sort_messages(messages):
         print(f"Published: {record['published']}")
         print(f"Summary: {record['summary']}")
         print(f"Notable Aspects: {record['notable_aspects']}")
-        print(f"Quality Score: {record['quality_score']}")
-        print(f"Quality Score Explanation: {record['quality_score_explanation']}")
         print(f"Relevance: {record['relevance']}")
         print(f"Relevance Explanation: {record['relevance_explanation']}")
 
