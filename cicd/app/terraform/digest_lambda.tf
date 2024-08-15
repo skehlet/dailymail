@@ -4,10 +4,12 @@ resource "aws_lambda_function" "digest" {
   image_uri     = var.digest_image_uri
   role          = aws_iam_role.digest.arn
   timeout       = 30
-  memory_size = 512
+  memory_size   = 512
   environment {
     variables = {
-      BUILD_ID = var.build_id
+      BUILD_ID            = var.build_id
+      LLM                 = "gpt-4o-mini"
+      CONTEXT_WINDOW_SIZE = "50000"
     }
   }
   depends_on = [

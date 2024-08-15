@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from app_settings import LLM, CONTEXT_WINDOW_SIZE
-from shared.my_openai import call_openai_with_structured_outputs
+from shared.my_openai import call_openai_with_structured_outputs, CONTEXT_WINDOW_SIZE
 
 # use OPENAI_LOG=debug to debug
 
@@ -56,7 +55,7 @@ Finally, provide a brief, one or two sentence explanation for the score, focusin
         {"role": "user", "content": prompt},
         {"role": "user", "content": text},
     ]
-    return call_openai_with_structured_outputs(LLM, messages, TextSummary)
+    return call_openai_with_structured_outputs(messages, TextSummary)
 
 
 def summarize_google_alert(topic, url, title, text):
@@ -94,7 +93,7 @@ Text: {text}
         {"role": "user", "content": prompt},
         {"role": "user", "content": text},
     ]
-    return call_openai_with_structured_outputs(LLM, messages, GoogleAlertSummary)
+    return call_openai_with_structured_outputs(messages, GoogleAlertSummary)
 
 
 if __name__ == "__main__":

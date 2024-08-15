@@ -10,6 +10,7 @@ from app_settings import (
     DIGEST_EMAIL_FROM,
     DIGEST_EMAIL_TO,
 )
+from overall_summary import create_overall_summary_for_feeds_with_multiple_records
 from shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
 from shared.my_datetime import utc_to_local
 
@@ -36,7 +37,7 @@ def read_all_from_queue():
 
 def process_messages(messages):
     feeds = cleanup_group_and_sort_messages(messages)
-    feeds = review_and_cleanup_feeds(feeds)
+    feeds = create_overall_summary_for_feeds_with_multiple_records(feeds)
     create_html_email_and_send_it(feeds)
     delete_messages_from_queue(messages)
 
@@ -103,29 +104,6 @@ def cleanup_group_and_sort_messages(messages):
         # sort records (this is done in place) by date, descending
         records.sort(key=lambda x: x["published"], reverse=True)
     return feeds
-
-
-def review_and_cleanup_feeds(feeds):
-    # TODO: send to the LLM asking for it to pick the top articles
-
-    # Review the following email, which is list of topics I find interesting with accompanying summaries of recent articles, and extract out the one or two most interesting articles. Your output should look like:
-    #
-    # TOP ARTICLES
-    # 1. <First most interesting Article Name and HTML LINK>
-    # 2. <Second most interesting Article Name and HTML LINK>
-    #
-    # <One or two sentence explanation of why those two articles were chosen as the most interesting>
-
-    # TODO: store summaries in a vector store. On new summaries, check for high similarity to previous articles. Hopefully this will filter only "new" news.
-
-    for feed_title, records in feeds:
-        for record in records:
-            print(f"{feed_title}: {record['title']} - {record['published']}")
-
-    # TODO: actually do something here
-
-    return feeds
-
 
 
 def create_html_email_and_send_it(feeds):

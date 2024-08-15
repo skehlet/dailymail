@@ -8,48 +8,62 @@
 
     {% for record in records %}
 
-    <div style="padding-top: 10px">
-        <div>
-            <b>
-                {% if 'url' in record %}
-                    <a href="{{ record['url']|e }}">
-                {% endif %}
-                    {{ record['title']|e }}
-                {% if 'url' in record %}
-                    </a>
-                {% endif %}
-            </b>
-            {% if 'domain' in record %}
-                [{{ record['domain']|e }}]
+    {% if "overall_summary" in record %}
+
+        <span>
+            <p>{{ record['overall_summary']|wordwrap|e }}</p>
+
+            {% if record["notable_trends"] %}
+            <p>Notable Trends: {{ record["notable_trends"]|wordwrap|e }}</p>
             {% endif %}
+        </span>
+
+    {% else %}
+
+        <div style="padding-top: 10px">
+            <div>
+                <b>
+                    {% if 'url' in record %}
+                        <a href="{{ record['url']|e }}">
+                    {% endif %}
+                        {{ record['title']|e }}
+                    {% if 'url' in record %}
+                        </a>
+                    {% endif %}
+                </b>
+                {% if 'domain' in record %}
+                    [{{ record['domain']|e }}]
+                {% endif %}
+            </div>
+            <div>{{ record['published']|e }}</div>
         </div>
-        <div>{{ record['published']|e }}</div>
-    </div>
-    <span>
-        <p>{{ record['summary']|wordwrap|e }}</p>
+        <span>
+            <p>{{ record['summary']|wordwrap|e }}</p>
 
-        {% if record["notable_aspects"] %}
-        <p>Of Interest: {{ record["notable_aspects"]|wordwrap|e }}</p>
-        {% endif %}
-
-        {% if record["relevance"] %}
-        <p>
-            Relevance: {{ record["relevance"]|wordwrap|e }}
-            {% if record["relevance_explanation"] %}
-            — {{ record["relevance_explanation"]|wordwrap|e }}
+            {% if record["notable_aspects"] %}
+            <p>Of Interest: {{ record["notable_aspects"]|wordwrap|e }}</p>
             {% endif %}
-        </p>
-        {% endif %}
 
-        {% if record["quality_score"] %}
-        <p>
-            Quality Score: {{ record["quality_score"]|e }}
-            {% if record["quality_score_explanation"] %}
-            — {{ record["quality_score_explanation"]|wordwrap|e }}
+            {% if record["relevance"] %}
+            <p>
+                Relevance: {{ record["relevance"]|wordwrap|e }}
+                {% if record["relevance_explanation"] %}
+                — {{ record["relevance_explanation"]|wordwrap|e }}
+                {% endif %}
+            </p>
             {% endif %}
-        </p>
-        {% endif %}
-    </span>
+
+            {% if record["quality_score"] %}
+            <p>
+                Quality Score: {{ record["quality_score"]|e }}
+                {% if record["quality_score_explanation"] %}
+                — {{ record["quality_score_explanation"]|wordwrap|e }}
+                {% endif %}
+            </p>
+            {% endif %}
+        </span>
+
+    {% endif %}
 
     {% endfor %}
 

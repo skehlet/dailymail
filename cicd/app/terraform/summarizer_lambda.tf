@@ -4,7 +4,7 @@ resource "aws_lambda_function" "summarizer" {
   image_uri     = var.summarizer_image_uri
   role          = aws_iam_role.summarizer.arn
   timeout       = var.summarizer_trigger_batch_size * 20 // enough time to process an entire batch of items
-  memory_size = 512
+  memory_size   = 512
   environment {
     variables = {
       BUILD_ID            = var.build_id

@@ -1,7 +1,12 @@
+import os
 import random
 import time
 import openai
 from shared.my_parameter_store import get_value_from_parameter_store
+
+
+LLM = os.environ["LLM"]  # set in lambda terraform
+CONTEXT_WINDOW_SIZE = int(os.environ["CONTEXT_WINDOW_SIZE"])  # set in lambda terraform
 
 
 def get_openai_api_key():
@@ -15,13 +20,13 @@ def get_openai_client():
     )
 
 
-def call_openai_with_structured_outputs(llm, messages, output_class):
+def call_openai_with_structured_outputs(messages, output_class):
     client = get_openai_client()
     tries_left = 3
     while tries_left > 0:
         try:
             completion = client.beta.chat.completions.parse(
-                model=llm,
+                model=LLM,
                 messages=messages,
                 temperature=0,
                 response_format=output_class,
