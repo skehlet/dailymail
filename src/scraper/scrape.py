@@ -40,9 +40,8 @@ def fetch_site_content(url):
     # create a temporary file using a context manager
     # close the file, use the name to open the file again
     # https://docs.python.org/3/library/tempfile.html#examples
-    print(f"Copying response to a temp file in: {tempfile.gettempdir()}")
     with tempfile.NamedTemporaryFile(delete_on_close=False) as fp:
-        print(f"Temp file: {fp.name}")
+        print(f"Streaming HTML to temp file: {fp.name}")
         shutil.copyfileobj(response.raw, fp)
         fp.close()
         # the file is closed, but not removed

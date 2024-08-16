@@ -14,18 +14,24 @@ def handler(event, context):  # pylint: disable=unused-argument,redefined-outer-
             try:
                 process_record(record)
             except Exception as e:
-                print(f"Read timeout: {e}")
+                print(f"Exception processing record: {e}")
+                dump_stack_trace()
                 failed.append(record["messageId"])
 
         return { "batchItemFailures": [{"itemIdentifier": f} for f in failed] } if failed else {}
 
 
     except Exception as e:
-        stack_trace = traceback.format_exc()
-        print("=== BEGIN stack trace ===")
-        print(stack_trace)
-        print("=== END stack trace ===")
+        print(f"Exception: {e}")
+        dump_stack_trace()
         raise e
+
+
+def dump_stack_trace():
+    stack_trace = traceback.format_exc()
+    print("=== BEGIN stack trace ===")
+    print(stack_trace)
+    print("=== END stack trace ===")
 
 
 if __name__ == "__main__":
