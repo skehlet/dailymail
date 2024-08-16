@@ -3,7 +3,7 @@ resource "aws_lambda_function" "scraper" {
   package_type  = "Image"
   image_uri     = var.scraper_image_uri
   role          = aws_iam_role.scraper.arn
-  timeout       = var.scraper_trigger_batch_size * 15 // enough time to process an entire batch of items
+  timeout       = var.scraper_trigger_batch_size * 30 // enough time to process an entire batch of items
   memory_size   = 512
   environment {
     variables = {

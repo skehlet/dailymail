@@ -1,6 +1,7 @@
 import shutil
 import tempfile
 import requests
+import time
 from unstructured.partition.html import partition_html
 from unstructured.documents.elements import NarrativeText
 from bs4 import BeautifulSoup
@@ -47,11 +48,17 @@ def fetch_site_content(url):
         # the file is closed, but not removed
         # open the file again by using its name
         with open(fp.name, mode="rb") as f:
+            start_time = time.time()
             elements = partition_html(file=f)
+            end_time = time.time()
+            print(f"Unstructured partitioning took {end_time - start_time} seconds")
         with open(fp.name, mode="rb") as f:
             # I cannot figure out how to get the HTML title using unstructured.
             # So just use BeautifulSoup.
+            start_time = time.time()
             page_title = extract_title_from_html(f.read())
+            end_time = time.time()
+            print(f"Extracting title took {end_time - start_time} seconds")
     # file is now removed
 
     is_paywalled = False
