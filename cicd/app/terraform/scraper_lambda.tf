@@ -4,7 +4,7 @@ resource "aws_lambda_function" "scraper" {
   image_uri     = var.scraper_image_uri
   role          = aws_iam_role.scraper.arn
   timeout       = var.scraper_trigger_batch_size * 30 // enough time to process an entire batch of items
-  memory_size   = 512
+  memory_size   = 1024 # max memory used ~ 345, was 512, try 1024 to speed it up (unstructured partitioning is slow)
   environment {
     variables = {
       BUILD_ID = var.build_id
