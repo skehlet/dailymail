@@ -13,6 +13,7 @@ do
         cd $dir
         cp -p requirements.txt requirements.orig.txt
         gsed -i -e 's/==.*//' requirements.txt
+        rm -rf .venv
         python3 -m venv .venv
         source .venv/bin/activate
         pip install -r requirements.txt
