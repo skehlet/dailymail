@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from shared.my_openai import call_openai_with_structured_outputs, CONTEXT_WINDOW_SIZE, SUMMARIZER_SYSTEM_PROMPT
+from shared.my_openai import call_openai_with_structured_outputs, CONTEXT_WINDOW_SIZE
 
 
 class OverallSummary(BaseModel):
@@ -16,7 +16,7 @@ Review the following article summaries and generate an overall summary in three
 to four sentences. Present the key developments and themes directly, focusing on
 what’s most significant today.
 """
-    max_text_length = CONTEXT_WINDOW_SIZE - len(SUMMARIZER_SYSTEM_PROMPT) - len(prompt) - 100
+    max_text_length = CONTEXT_WINDOW_SIZE - len(prompt) - 100
 
     for feed_title, records in feeds:
         if len(records) >= 2:
@@ -40,7 +40,6 @@ Topic: {feed_title}
             text = text[:max_text_length]
             print(f"Combined summaries to summarize: {text}")
             messages = [
-                {"role": "system", "content": SUMMARIZER_SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
                 {"role": "user", "content": text},
             ]
