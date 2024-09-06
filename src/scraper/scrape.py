@@ -98,7 +98,8 @@ if __name__ == "__main__":
         # "https://europe.autonews.com/paris-auto-show/2024-paris-auto-show-adds-vw-group-brands"
         # "https://www.rli.uk.com/pret-a-manger-lands-in-los-angeles/"
         # "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles"
-        "https://www.carsales.com.au/editorial/details/spy-pics-2025-volkswagen-id-2-spotted-147136/"
+        # "https://www.carsales.com.au/editorial/details/spy-pics-2025-volkswagen-id-2-spotted-147136/"
+        "https://www.tweaktown.com/news/100351/cooler-masters-shark-concept-pc-available-for-pre-order-7000-an-rtx-4070-ti-super/index.html"
     )
     print(f"Title: {my_page_title}")
     print(f"Content: {my_content}")
