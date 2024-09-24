@@ -38,6 +38,11 @@ def read_feed(feed_url):
         modified=previous_last_modified,
     )
 
+    # I've had AttributeErrors where status is missing (network issue? unknown network problem?). Check and handle. 
+    if not hasattr(d, "status"):
+        print("No status attribute in feedparser response, not sure why, just skipping this feed for now")
+        return
+
     print(f"Status: {d.status}")
     if "etag" in d:
         etag = d.etag

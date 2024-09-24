@@ -20,11 +20,9 @@
             <div>
                 <b>
                     {% if 'url' in record %}
-                        <a href="{{ record['url']|e }}">
-                    {% endif %}
+                        <a href="{{ record['url']|e }}">{{ record['title']|e }}</a>
+                    {% else %}
                         {{ record['title']|e }}
-                    {% if 'url' in record %}
-                        </a>
                     {% endif %}
                 </b>
                 {% if 'domain' in record %}
