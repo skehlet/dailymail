@@ -28,17 +28,13 @@ phases:
       - unzip -d /usr/local/bin terraform_1.9.7_linux_amd64.zip
       - terraform --version
 
-  pre_build:
-    commands:
-      - cd ${CODEBUILD_SRC_DIR}/cicd/app/terraform
-      - ls -la
-      - terraform init --plugin-dir /tf-plugins -reconfigure
-
   build:
     commands:
+      - cd ${CODEBUILD_SRC_DIR}/cicd/app/terraform
       - BUILD_ID=${CODEBUILD_BUILD_ID##*:}
       - echo BUILD_ID=${BUILD_ID}
       - ls -la
+      - terraform init
       - terraform apply
         -var=rss_reader_image_uri=${RSS_READER_IMAGE_URI}
         -var=link_reader_image_uri=${LINK_READER_IMAGE_URI}
