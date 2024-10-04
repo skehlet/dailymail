@@ -360,10 +360,9 @@ resource "aws_codebuild_project" "dev_terraform_apply" {
   }
 
   environment {
-    compute_type                = "BUILD_GENERAL1_SMALL"
-    type                        = "LINUX_CONTAINER"
-    image                       = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/codebuild-terraform-image:${var.codebuild_terraform_image_tag}"
-    image_pull_credentials_type = "SERVICE_ROLE"
+    compute_type = "BUILD_GENERAL1_SMALL"
+    type         = "LINUX_CONTAINER"
+    image        = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
   }
 }
 

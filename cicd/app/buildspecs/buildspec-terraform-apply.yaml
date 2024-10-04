@@ -21,11 +21,16 @@ phases:
       - echo SUMMARIZER_IMAGE_URI=${SUMMARIZER_IMAGE_URI}
       - echo DIGEST_IMAGE_URI=${DIGEST_IMAGE_URI}
       - echo IMMEDIATE_IMAGE_URI=${IMMEDIATE_IMAGE_URI}
+      - aws --version
+      - aws sts get-caller-identity
+      - echo "Installing Terraform"
+      - curl -LO https://releases.hashicorp.com/terraform/1.9.7/terraform_1.9.7_linux_amd64.zip
+      - unzip -d /usr/local/bin terraform_1.9.7_linux_amd64.zip
       - terraform --version
 
   pre_build:
     commands:
-      - cd cicd/app/terraform
+      - cd ${CODEBUILD_SRC_DIR}/cicd/app/terraform
       - ls -la
       - terraform init --plugin-dir /tf-plugins -reconfigure
 
