@@ -2,12 +2,13 @@ resource "aws_lambda_function" "email_reader" {
   function_name = "${local.app_id}-EmailReader"
   package_type  = "Image"
   image_uri     = var.email_reader_image_uri
+  architectures = ["arm64"]
   role          = aws_iam_role.email_reader.arn
   timeout       = 30
   memory_size   = 256
   environment {
     variables = {
-      BUILD_ID = var.build_id
+      PIPELINE_EXECUTION_ID = var.pipeline_execution_id
     }
   }
   depends_on = [

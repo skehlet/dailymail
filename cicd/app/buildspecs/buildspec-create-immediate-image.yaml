@@ -1,7 +1,9 @@
 version: 0.2
 
+# env vars provided by the pipeline:
+# PIPELINE_EXECUTION_ID
+
 env:
-  # AWS_ACCOUNT_ID
   exported-variables:
     - IMMEDIATE_IMAGE_URI
 
@@ -9,6 +11,10 @@ phases:
   install:
     runtime-versions:
       python: 3.12
+    commands:
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - echo AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+      - echo PIPELINE_EXECUTION_ID=${PIPELINE_EXECUTION_ID}
 
   pre_build:
     commands:
@@ -24,8 +30,7 @@ phases:
 
   post_build:
     commands:
-      - BUILD_ID=${CODEBUILD_BUILD_ID##*:}
-      - IMMEDIATE_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-immediate:$BUILD_ID
+      - IMMEDIATE_IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail-immediate:$PIPELINE_EXECUTION_ID
       - echo $IMMEDIATE_IMAGE_URI
       - docker tag dailymail-immediate $IMMEDIATE_IMAGE_URI
       - docker push $IMMEDIATE_IMAGE_URI

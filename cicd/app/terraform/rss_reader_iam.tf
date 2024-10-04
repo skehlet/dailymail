@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "rss_reader_policy" {
     resources = ["arn:aws:sqs:*:*:DailyMail-ScraperQueue"]
   }
   statement {
-    actions = ["ssm:GetParameter"]
+    actions   = ["ssm:GetParameter"]
     resources = ["arn:aws:ssm:*:*:parameter/DAILY_MAIL_*"]
   }
 }

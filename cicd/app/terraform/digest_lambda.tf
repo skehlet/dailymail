@@ -2,14 +2,15 @@ resource "aws_lambda_function" "digest" {
   function_name = "${local.app_id}-Digest"
   package_type  = "Image"
   image_uri     = var.digest_image_uri
+  architectures = ["arm64"]
   role          = aws_iam_role.digest.arn
   timeout       = 180
   memory_size   = 512
   environment {
     variables = {
-      BUILD_ID            = var.build_id
-      LLM                 = "gpt-4o-mini"
-      CONTEXT_WINDOW_SIZE = "50000"
+      PIPELINE_EXECUTION_ID = var.pipeline_execution_id
+      LLM                   = "gpt-4o-mini"
+      CONTEXT_WINDOW_SIZE   = "50000"
     }
   }
   depends_on = [

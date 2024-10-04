@@ -1,7 +1,7 @@
 resource "aws_codepipeline" "codepipeline" {
-  name           = local.pipeline_name
-  pipeline_type  = "V2"
-  role_arn       = aws_iam_role.codepipeline_role.arn
+  name          = local.pipeline_name
+  pipeline_type = "V2"
+  role_arn      = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
     location = aws_s3_bucket.artifacts.bucket
@@ -41,7 +41,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.create_rssreader_image.name
         EnvironmentVariables = jsonencode([
-          { "name" : "AWS_ACCOUNT_ID", "value" : data.aws_caller_identity.current.account_id },
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
       }
       run_order = 2
@@ -57,7 +57,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.create_linkreader_image.name
         EnvironmentVariables = jsonencode([
-          { "name" : "AWS_ACCOUNT_ID", "value" : data.aws_caller_identity.current.account_id },
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
       }
       run_order = 2
@@ -73,7 +73,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.create_emailreader_image.name
         EnvironmentVariables = jsonencode([
-          { "name" : "AWS_ACCOUNT_ID", "value" : data.aws_caller_identity.current.account_id },
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
       }
       run_order = 2
@@ -89,7 +89,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.create_scraper_image.name
         EnvironmentVariables = jsonencode([
-          { "name" : "AWS_ACCOUNT_ID", "value" : data.aws_caller_identity.current.account_id },
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
       }
       run_order = 2
@@ -105,7 +105,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.create_summarizer_image.name
         EnvironmentVariables = jsonencode([
-          { "name" : "AWS_ACCOUNT_ID", "value" : data.aws_caller_identity.current.account_id },
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
       }
       run_order = 2
@@ -121,7 +121,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.create_digest_image.name
         EnvironmentVariables = jsonencode([
-          { "name" : "AWS_ACCOUNT_ID", "value" : data.aws_caller_identity.current.account_id },
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
       }
       run_order = 2
@@ -137,7 +137,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.create_immediate_image.name
         EnvironmentVariables = jsonencode([
-          { "name" : "AWS_ACCOUNT_ID", "value" : data.aws_caller_identity.current.account_id },
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
       }
       run_order = 2
@@ -159,6 +159,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ProjectName = aws_codebuild_project.dev_terraform_apply.name
         EnvironmentVariables = jsonencode([
+          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
           { "name" : "RSS_READER_IMAGE_URI", "value" : "#{CreateRssReaderImage.RSS_READER_IMAGE_URI}" },
           { "name" : "LINK_READER_IMAGE_URI", "value" : "#{CreateLinkReaderImage.LINK_READER_IMAGE_URI}" },
           { "name" : "EMAIL_READER_IMAGE_URI", "value" : "#{CreateEmailReaderImage.EMAIL_READER_IMAGE_URI}" },
@@ -193,8 +194,7 @@ resource "aws_codebuild_project" "create_rssreader_image" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     type            = "LINUX_CONTAINER"
-    # consider switching all (except scraper, because of NLTK problems on arm64) to aws/codebuild/amazonlinux2-aarch64-standard:3.0
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
 }
@@ -217,7 +217,7 @@ resource "aws_codebuild_project" "create_linkreader_image" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     type            = "LINUX_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
 }
@@ -240,7 +240,7 @@ resource "aws_codebuild_project" "create_emailreader_image" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     type            = "LINUX_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
 }
@@ -261,8 +261,9 @@ resource "aws_codebuild_project" "create_scraper_image" {
   }
 
   environment {
-    compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "LINUX_CONTAINER"
+    compute_type = "BUILD_GENERAL1_SMALL"
+    type         = "LINUX_CONTAINER"
+    # NLTK has issues with arm64, so for now, just stick with x86_64
     image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
     privileged_mode = true # to allow running docker commands
   }
@@ -286,7 +287,7 @@ resource "aws_codebuild_project" "create_summarizer_image" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     type            = "LINUX_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
 }
@@ -309,7 +310,7 @@ resource "aws_codebuild_project" "create_digest_image" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     type            = "LINUX_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
 }
@@ -332,7 +333,7 @@ resource "aws_codebuild_project" "create_immediate_image" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     type            = "LINUX_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
 }
@@ -362,7 +363,7 @@ resource "aws_codebuild_project" "dev_terraform_apply" {
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
     type         = "LINUX_CONTAINER"
-    image        = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    image        = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
   }
 }
 

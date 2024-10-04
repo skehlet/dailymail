@@ -1,19 +1,19 @@
 version: 0.2
 
-env:
-  # RSS_READER_IMAGE_URI
-  # LINK_READER_IMAGE_URI
-  # EMAIL_READER_IMAGE_URI
-  # SCRAPER_IMAGE_URI
-  # SUMMARIZER_IMAGE_URI
-  # DIGEST_IMAGE_URI
-  # IMMEDIATE_IMAGE_URI
-  exported-variables:
-    - CODEBUILD_BUILD_ID
+# env vars provided by the pipeline:
+# PIPELINE_EXECUTION_ID
+# RSS_READER_IMAGE_URI
+# LINK_READER_IMAGE_URI
+# EMAIL_READER_IMAGE_URI
+# SCRAPER_IMAGE_URI
+# SUMMARIZER_IMAGE_URI
+# DIGEST_IMAGE_URI
+# IMMEDIATE_IMAGE_URI
 
 phases:
   install:
     commands:
+      - echo PIPELINE_EXECUTION_ID=${PIPELINE_EXECUTION_ID}
       - echo RSS_READER_IMAGE_URI=${RSS_READER_IMAGE_URI}
       - echo LINK_READER_IMAGE_URI=${LINK_READER_IMAGE_URI}
       - echo EMAIL_READER_IMAGE_URI=${EMAIL_READER_IMAGE_URI}
@@ -24,15 +24,13 @@ phases:
       - aws --version
       - aws sts get-caller-identity
       - echo "Installing Terraform"
-      - curl -LO https://releases.hashicorp.com/terraform/1.9.7/terraform_1.9.7_linux_amd64.zip
-      - unzip -d /usr/local/bin terraform_1.9.7_linux_amd64.zip
+      - curl -LO https://releases.hashicorp.com/terraform/1.9.7/terraform_1.9.7_linux_arm64.zip
+      - unzip -d /usr/local/bin terraform_1.9.7_linux_arm64.zip
       - terraform --version
 
   build:
     commands:
       - cd ${CODEBUILD_SRC_DIR}/cicd/app/terraform
-      - BUILD_ID=${CODEBUILD_BUILD_ID##*:}
-      - echo BUILD_ID=${BUILD_ID}
       - ls -la
       - terraform init
       - terraform apply
@@ -43,5 +41,5 @@ phases:
         -var=summarizer_image_uri=${SUMMARIZER_IMAGE_URI}
         -var=digest_image_uri=${DIGEST_IMAGE_URI}
         -var=immediate_image_uri=${IMMEDIATE_IMAGE_URI}
-        -var=build_id=${BUILD_ID}
+        -var=pipeline_execution_id=${PIPELINE_EXECUTION_ID}
         -auto-approve

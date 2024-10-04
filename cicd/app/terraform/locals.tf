@@ -1,3 +1,3 @@
 locals {
-    app_id = "DailyMail"
+  app_id = "DailyMail"
 }

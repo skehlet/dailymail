@@ -2,12 +2,13 @@ resource "aws_lambda_function" "link_reader" {
   function_name = "${local.app_id}-LinkReader"
   package_type  = "Image"
   image_uri     = var.link_reader_image_uri
+  architectures = ["arm64"]
   role          = aws_iam_role.link_reader.arn
   timeout       = 30
   memory_size   = 128
   environment {
     variables = {
-      BUILD_ID = var.build_id
+      PIPELINE_EXECUTION_ID = var.pipeline_execution_id
     }
   }
   depends_on = [
