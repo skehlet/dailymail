@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "policy" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [
+      values = [
         aws_codebuild_project.create_digest_image.arn,
         aws_codebuild_project.create_emailreader_image.arn,
         aws_codebuild_project.create_immediate_image.arn,

@@ -193,7 +193,7 @@ resource "aws_codebuild_project" "create_rssreader_image" {
 
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "LINUX_CONTAINER"
+    type            = "ARM_CONTAINER"
     image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
@@ -216,7 +216,7 @@ resource "aws_codebuild_project" "create_linkreader_image" {
 
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "LINUX_CONTAINER"
+    type            = "ARM_CONTAINER"
     image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
@@ -239,7 +239,7 @@ resource "aws_codebuild_project" "create_emailreader_image" {
 
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "LINUX_CONTAINER"
+    type            = "ARM_CONTAINER"
     image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
@@ -286,7 +286,7 @@ resource "aws_codebuild_project" "create_summarizer_image" {
 
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "LINUX_CONTAINER"
+    type            = "ARM_CONTAINER"
     image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
@@ -309,7 +309,7 @@ resource "aws_codebuild_project" "create_digest_image" {
 
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "LINUX_CONTAINER"
+    type            = "ARM_CONTAINER"
     image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
@@ -332,7 +332,7 @@ resource "aws_codebuild_project" "create_immediate_image" {
 
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "LINUX_CONTAINER"
+    type            = "ARM_CONTAINER"
     image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
     privileged_mode = true # to allow running docker commands
   }
@@ -362,7 +362,7 @@ resource "aws_codebuild_project" "dev_terraform_apply" {
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-    type         = "LINUX_CONTAINER"
+    type         = "ARM_CONTAINER"
     image        = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
   }
 }
