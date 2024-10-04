@@ -1,7 +1,6 @@
 resource "aws_codepipeline" "codepipeline" {
   name           = local.pipeline_name
   pipeline_type  = "V2"
-  execution_mode = "PARALLEL"
   role_arn       = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
@@ -194,6 +193,7 @@ resource "aws_codebuild_project" "create_rssreader_image" {
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     type            = "LINUX_CONTAINER"
+    # consider switching all (except scraper, because of NLTK problems on arm64) to aws/codebuild/amazonlinux2-aarch64-standard:3.0
     image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
     privileged_mode = true # to allow running docker commands
   }
