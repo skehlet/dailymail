@@ -7,7 +7,7 @@ dynamodb = boto3.resource("dynamodb")
 feed_metadata_table = dynamodb.Table("DailyMail-RssReaderFeedMetadata")
 processed_ids_table = dynamodb.Table("DailyMail-RssReaderProcessedIds")
 
-CLEANUP_AFTER_SECS = 90 * 24 * 60 * 60 # 90 days
+CLEANUP_AFTER_SECS = 365 * 24 * 60 * 60 # 365 days
 
 
 def get_feed_metadata(url):
