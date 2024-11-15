@@ -143,6 +143,10 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     resources = ["*"]
   }
   statement {
+    actions   = ["chatbot:*"]
+    resources = ["*"]
+  }
+  statement {
     actions   = ["cloudwatch:*"] # Needed for alarms
     resources = ["*"]
   }
