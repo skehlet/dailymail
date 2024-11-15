@@ -138,6 +138,14 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     actions   = ["ses:*"]
     resources = ["*"]
   }
+  statement {
+    actions   = ["cloudformation:*"] # Needed for ChatBot/Slack
+    resources = ["*"]
+  }
+  statement {
+    actions   = ["cloudwatch:*"] # Needed for alarms
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "codebuild_role_policy" {
