@@ -22,3 +22,48 @@ resource "aws_sqs_queue_redrive_allow_policy" "digest_queue_redrive_allow_policy
     sourceQueueArns   = [aws_sqs_queue.digest_queue.arn]
   })
 }
+
+resource "aws_cloudwatch_metric_alarm" "digest_queue_dlq_alarm" {
+  alarm_name                = "${local.app_id}-DigestQueue-dlq-alarm"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "1"
+  threshold                 = "0"
+  alarm_description         = "Trigger an alarm whenever messages are added to the DQL. Note the alarm will immediately resolve itself and trigger again for future message adds."
+  insufficient_data_actions = []
+  alarm_actions             = [aws_sns_topic.error_notifications.arn]
+
+  metric_query {
+    id          = "e1"
+    expression  = "RATE(m2+m1)"
+    label       = "Error Rate"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+    metric {
+      metric_name = "ApproximateNumberOfMessagesVisible"
+      namespace   = "AWS/SQS"
+      period      = "60"
+      stat        = "Sum"
+      unit        = "Count"
+      dimensions = {
+        QueueName = aws_sqs_queue.digest_queue_dlq.name
+      }
+    }
+  }
+
+  metric_query {
+    id = "m2"
+    metric {
+      metric_name = "ApproximateNumberOfMessagesNotVisible"
+      namespace   = "AWS/SQS"
+      period      = "60"
+      stat        = "Sum"
+      unit        = "Count"
+      dimensions = {
+        QueueName = aws_sqs_queue.digest_queue_dlq.name
+      }
+    }
+  }
+}
