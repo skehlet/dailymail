@@ -86,29 +86,29 @@ Text: {text}
 
 
 if __name__ == "__main__":
-    summarize_google_alert(
-            "vw id.gti",
-            "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles",
-            "Volkswagen to dump GTX badge for hot electric vehicles | CarExpert",
-            """\
-    Goodbye GTX, we hardly knew thee! But Volkswagen fans needn't fret, the company is planning GTI and R versions of its next-gen electric cars.
-    CommentsJoin the Convo
-    Volkswagen resurrected the GTX badge to denote its heated-up electric cars, but it looks set to replace it with GTI and R variants.
-    Thomas Schäfer, CEO of the Volkswagen brand, told Autocar, “GTX is the performance brand of the MEB [EV architecture], but we’ll work our way back to GTI and R in the next products going forward”.
-    The change will likely take a few years to sweep through the Volkswagen EV range, with Mr Schäfer clarifying “the current products, this is what it is, but future products will go back to a clear portfolio [of GTI and R]”.
-    Volkswagen gave an indication this was going to be the way forward when it unveiled the ID.GTI concept in September 2023, which is based on the earlier ID. 2all concept.
-    The production version of the ID. 2all, sized between the Polo and Golf, is expected to go into production from 2025, while the front-wheel drive GTI variant should start trundling down the factory line from 2027.
-    According to the Volkswagen brand’s CEO, there’s still some debate within the company about how to use the GTI and R sub-brands, principally centring on the question: “How do we position GTI?”
-    According to Mr Schäfer, “GTI is traditionally performance and front-wheel drive” with the R reserved for “for four-wheel-drive performance”. He said both sub-brands would have “clear genes going forward”.
-    The picture with the current selection of GTX models is a little more muddied. There are GTX versions of the ID.3 tall hatch, ID.4 crossover, ID.5 crossover coupe, and ID.Buzz people mover.
-    While the ID.3 GTX is rear-wheel drive, the ID.4 GTX, ID.5 GTX and ID.Buzz GTX are all all-wheel drive.
-    All GTX models have more power and torque than their lesser siblings. They also have sportier styling and retuned handling, but the changes are not as clear a leap over other models compared to GTI and R cars.
-    At the time of writing, the only Volkswagen models with GTI versions are the Polo and Golf. There’s a much broader selection of R vehicles, including the Golf, T-Roc, Tiguan, and Touareg.
-    Derek Fung would love to tell you about his multiple degrees, but he's too busy writing up some news right now. In his spare time Derek loves chasing automotive rabbits down the hole. Based in New York, New York, Derek loves to travel and is very much a window not an aisle person.
-    Learn about CarExpert or
-    17 hours agoThis V12 manual hypercar proves electric isn't the only way
-    22 hours agoWhat should you buy instead of a Tesla Model Y?""".strip(),
-        )
+    # summarize_google_alert(
+    #         "vw id.gti",
+    #         "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles",
+    #         "Volkswagen to dump GTX badge for hot electric vehicles | CarExpert",
+    #         """\
+    # Goodbye GTX, we hardly knew thee! But Volkswagen fans needn't fret, the company is planning GTI and R versions of its next-gen electric cars.
+    # CommentsJoin the Convo
+    # Volkswagen resurrected the GTX badge to denote its heated-up electric cars, but it looks set to replace it with GTI and R variants.
+    # Thomas Schäfer, CEO of the Volkswagen brand, told Autocar, “GTX is the performance brand of the MEB [EV architecture], but we’ll work our way back to GTI and R in the next products going forward”.
+    # The change will likely take a few years to sweep through the Volkswagen EV range, with Mr Schäfer clarifying “the current products, this is what it is, but future products will go back to a clear portfolio [of GTI and R]”.
+    # Volkswagen gave an indication this was going to be the way forward when it unveiled the ID.GTI concept in September 2023, which is based on the earlier ID. 2all concept.
+    # The production version of the ID. 2all, sized between the Polo and Golf, is expected to go into production from 2025, while the front-wheel drive GTI variant should start trundling down the factory line from 2027.
+    # According to the Volkswagen brand’s CEO, there’s still some debate within the company about how to use the GTI and R sub-brands, principally centring on the question: “How do we position GTI?”
+    # According to Mr Schäfer, “GTI is traditionally performance and front-wheel drive” with the R reserved for “for four-wheel-drive performance”. He said both sub-brands would have “clear genes going forward”.
+    # The picture with the current selection of GTX models is a little more muddied. There are GTX versions of the ID.3 tall hatch, ID.4 crossover, ID.5 crossover coupe, and ID.Buzz people mover.
+    # While the ID.3 GTX is rear-wheel drive, the ID.4 GTX, ID.5 GTX and ID.Buzz GTX are all all-wheel drive.
+    # All GTX models have more power and torque than their lesser siblings. They also have sportier styling and retuned handling, but the changes are not as clear a leap over other models compared to GTI and R cars.
+    # At the time of writing, the only Volkswagen models with GTI versions are the Polo and Golf. There’s a much broader selection of R vehicles, including the Golf, T-Roc, Tiguan, and Touareg.
+    # Derek Fung would love to tell you about his multiple degrees, but he's too busy writing up some news right now. In his spare time Derek loves chasing automotive rabbits down the hole. Based in New York, New York, Derek loves to travel and is very much a window not an aisle person.
+    # Learn about CarExpert or
+    # 17 hours agoThis V12 manual hypercar proves electric isn't the only way
+    # 22 hours agoWhat should you buy instead of a Tesla Model Y?""".strip(),
+    #     )
 
     #     summarize_text(
     #         "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles",
@@ -170,3 +170,20 @@ if __name__ == "__main__":
 # NVIDIA GeForce RTX 4080 SUPER rumored to have same 320W power as RTX 4080
 # """.strip()
 #     )
+
+    summarize_google_alert(
+            "Golf Mk9",
+            "https://www.roadandtrack.com/news/a63081162/volkswagen-rivian-mk9-golf/",
+            "Volkswagen Says Rivian Will Help Develop Electric Mk9 Golf",
+            """\
+American software will meet Volkswagen hardware in the next-generation version of the iconic hatchback.
+Volkswagen and Rivian are joining forces as part of a $5.8 billion dollar deal, one that will see the two companies co-develop architectures and software for future electric vehicles. Now, one VW exec has confirmed where we'll first see the fruits of this joint development between the legacy German automaker and the U.S. startup: the next-generation Volkswagen Golf.
+According to reporting from CarSales, development of the electrified hatchback is set to start soon, and Volkswagen is seemingly excited to leverage the engineering prowess and zonal architecture of Illinois's premier electric pickup truck manufacturer. Currently in its eighth generation, the Volkswagen Golf just received a facelift for the 2025 model year, meaning the ninth-generation version of this iconic compact isn't set to arrive until 2029.
+Even so, Thomas Schaefer, Volkswagen’s passenger cars chief executive, confirmed earlier this week that the joint partnership between Rivian and Wolfsburg will be used first on the hatchback whose roots date back to the 1970s.
+"We decided on how to do the software-defined vehicle. It will happen with Rivian, the joint venture, where we put the new electric electronics architecture together," Schafer said to the media. "But we have also decided that we want to start this journey with a more iconic product. So, we’ll start with the Golf."
+Details remain sparse, but reports from CarSales indicate that the same shared electronic package will eventually make its way into Audi and Porsche products as well. Before that crossover, however, Volkswagen will first test the Rivian-designed software on its Scalable System Platform (SSP). Currently in development, the SSP will replace the MEB platform, which currently holds the ID-series of electric VWs. Notably, CarSales says the MK9 Golf Electric will replace the current ID.3 as VW's compact electric model.
+Rivian leadership has previously spoken out against the use of 800- and 900-volt architecture, indicating that this compact hatch may be a lower-voltage build. However, as consumers have voiced complaints about slower charging speeds on current ID-series models, we wouldn't be surprised to see VW push for the more powerful setup.
+Volkswagen previously offered the original E-Golf in the U.S. from 2015 through 2020 before culling the electrified Mk7 chassis. It's not immediately clear which markets the Mk9 Golf will be available in, seeing as the North American market has been void of a traditional Golf offering since 2021. We've retained the performance-forward GTI and Golf R, but the reintroduction of the Golf as an electric model for 2029 would be a big deal for the U.S. market.
+A New York transplant hailing from the Pacific Northwest, Emmet White has a passion for anything that goes: cars, bicycles, planes, and motorcycles. After learning to ride at 17, Emmet worked in the motorcycle industry before joining Autoweek in 2022 and Road & Track in 2024. The woes of alternate side parking have kept his fleet moderate, with a 2014 Volkswagen Jetta GLI and a BMW 318i E30 street parked in his Queens community.
+""".strip(),
+        )
