@@ -54,7 +54,7 @@ def process_s3_record(s3_record):
         # Send to digest queue
         # But skip if it's a Google Alert summary and NOT RELEVANT
         if "relevance" in summary_dict and summary_dict["relevance"] == "NOT RELEVANT":
-            print("The content is NOT RELEVANT to the topic, so discarding")
+            print("The content is NOT RELEVANT, so discarding")
         else:
             enqueue(DIGEST_QUEUE, json.dumps(record))
 
