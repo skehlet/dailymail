@@ -149,43 +149,34 @@ Here is the news content to organize into a newsletter:
         }
     ]
     
-    try:
-        # Make API call to Bedrock
-        response = client.converse(
-            modelId=BEDROCK_MODEL_ID,
-            messages=messages,
-            inferenceConfig={
-                "maxTokens": 4000,
-                "temperature": 0.2
-            },
-            toolConfig={
-                "tools": tool_list,
-                "toolChoice": {"tool": {"name": "create_newsletter"}}
-            }
-        )
-        
-        # Extract the tool use from the response
-        content_blocks = response["output"]["message"]["content"]
-        tool_use_block = None
-        
-        for block in content_blocks:
-            if "toolUse" in block:
-                tool_use_block = block["toolUse"]
-                break
-        
-        if not tool_use_block:
-            raise Exception("No tool use found in the response")
-        
-        # Extract the result from the tool use
-        result = tool_use_block["input"]
-        
-        # Return the newsletter content
-        return result
-        
-    except Exception as e:
-        print(f"Error generating newsletter: {str(e)}")
-        # Provide fallback content in case of error
-        return {
-            "opening_paragraph": f"Here are today's news highlights for {datetime.now().strftime('%A, %B %d, %Y')}.",
-            "categorized_content": {}
+    # Make API call to Bedrock
+    response = client.converse(
+        modelId=BEDROCK_MODEL_ID,
+        messages=messages,
+        inferenceConfig={
+            "maxTokens": 4000,
+            "temperature": 0.2
+        },
+        toolConfig={
+            "tools": tool_list,
+            "toolChoice": {"tool": {"name": "create_newsletter"}}
         }
+    )
+    
+    # Extract the tool use from the response
+    content_blocks = response["output"]["message"]["content"]
+    tool_use_block = None
+    
+    for block in content_blocks:
+        if "toolUse" in block:
+            tool_use_block = block["toolUse"]
+            break
+    
+    if not tool_use_block:
+        raise Exception("No tool use found in the response")
+    
+    # Extract the result from the tool use
+    result = tool_use_block["input"]
+    
+    # Return the newsletter content
+    return result

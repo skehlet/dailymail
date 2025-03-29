@@ -44,8 +44,8 @@ data "aws_iam_policy_document" "digest_policy" {
       "bedrock-runtime:Converse"
     ]
     resources = [
-      "arn:aws:bedrock:*:*:model/us.anthropic.claude-3-5-haiku-20241022-v1:0",
-      "arn:aws:bedrock:*:*:model/us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+      "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0",
+      "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
     ]
   }
 }
