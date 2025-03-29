@@ -104,6 +104,9 @@ def cleanup_group_and_sort_messages(messages):
 def create_claude_email_and_send_it(feeds):
     # Generate the newsletter using Claude
     newsletter = generate_newsletter_digest(feeds)
+    if not newsletter:
+        print("No news today, nothing to send.")
+        return
     
     # Get current date formatted for display
     today_date = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%A, %B %d, %Y')
