@@ -4,3 +4,4 @@ __pycache__
 .terraform
 .env
 .DS_Store
+project_code.txt
