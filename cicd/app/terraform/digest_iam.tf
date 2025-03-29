@@ -34,8 +34,18 @@ data "aws_iam_policy_document" "digest_policy" {
   statement {
     actions = ["ssm:GetParameter"]
     resources = [
-      "arn:aws:ssm:*:*:parameter/ANTHROPIC_API_KEY",
       "arn:aws:ssm:*:*:parameter/OPENAI_API_KEY",
+    ]
+  }
+  statement {
+    actions = [
+      "bedrock:InvokeModel",
+      "bedrock-runtime:InvokeModel",
+      "bedrock-runtime:Converse"
+    ]
+    resources = [
+      "arn:aws:bedrock:*:*:model/us.anthropic.claude-3-5-haiku-20241022-v1:0",
+      "arn:aws:bedrock:*:*:model/us.anthropic.claude-3-7-sonnet-20250219-v1:0"
     ]
   }
 }

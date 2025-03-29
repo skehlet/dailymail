@@ -10,9 +10,9 @@ from app_settings import (
     DIGEST_EMAIL_FROM,
     DIGEST_EMAIL_TO,
 )
-from overall_summary import create_overall_summary_for_feeds_with_multiple_records
 from shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
 from shared.my_datetime import utc_to_local
+from digest_claude import generate_newsletter_digest
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -37,8 +37,7 @@ def read_all_from_queue():
 
 def process_messages(messages):
     feeds = cleanup_group_and_sort_messages(messages)
-    feeds = create_overall_summary_for_feeds_with_multiple_records(feeds)
-    create_html_email_and_send_it(feeds)
+    create_claude_email_and_send_it(feeds)
     delete_messages_from_queue(messages)
 
 
@@ -102,15 +101,23 @@ def cleanup_group_and_sort_messages(messages):
     return feeds
 
 
-def create_html_email_and_send_it(feeds):
-    # Produce HTML message
-    with open("digest.html.jinja", encoding="utf8") as f:
+def create_claude_email_and_send_it(feeds):
+    # Generate the newsletter using Claude
+    newsletter = generate_newsletter_digest(feeds)
+    
+    # Get current date formatted for display
+    today_date = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%A, %B %d, %Y')
+    
+    # Produce HTML message using Claude template
+    with open("digest_claude.html.jinja", encoding="utf8") as f:
         email = Template(f.read()).render(
             EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
-            feeds=feeds,
+            newsletter=newsletter,
+            today_date=today_date,
         )
+    
     # Email it using SES
-    subject = f"Your Daily Digest — {utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%Y-%m-%d %H:%M %Z')}"
+    subject = f"Today's News Digest — {today_date}"
     print("-" * 80)
     print(f"Subject: {subject}")
     print("Body:")
