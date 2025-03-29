@@ -20,7 +20,6 @@ data "aws_iam_policy_document" "digest_policy" {
       "sqs:GetQueueUrl",
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
-      "sqs:DeleteMessageBatch",
     ]
     resources = ["arn:aws:sqs:*:*:DailyMail-DigestQueue"]
   }
@@ -40,12 +39,10 @@ data "aws_iam_policy_document" "digest_policy" {
   statement {
     actions = [
       "bedrock:InvokeModel",
-      "bedrock-runtime:InvokeModel",
-      "bedrock-runtime:Converse"
     ]
     resources = [
       "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0",
-      "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+      "arn:aws:bedrock:*::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0",
     ]
   }
 }
