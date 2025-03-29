@@ -56,3 +56,4 @@ done < <(find -P . -type f \
   2>/dev/null | sort)
 
 echo "All files have been collected in $OUTPUT_FILE"
+ls -lah "$OUTPUT_FILE"
