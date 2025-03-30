@@ -129,14 +129,15 @@ def create_email_and_send_it(feeds):
 
 
 def delete_messages_from_queue(messages):
-    # process messages in batches of 10
-    for i in range(0, len(messages), 10):
-        batch = messages[i : i + 10]
-        entries = [
-            {"Id": message["MessageId"], "ReceiptHandle": message["ReceiptHandle"]}
-            for message in batch
-        ]
-        sqs.delete_message_batch(QueueUrl=queue_url, Entries=entries)
+    # # process messages in batches of 10
+    # for i in range(0, len(messages), 10):
+    #     batch = messages[i : i + 10]
+    #     entries = [
+    #         {"Id": message["MessageId"], "ReceiptHandle": message["ReceiptHandle"]}
+    #         for message in batch
+    #     ]
+    #     sqs.delete_message_batch(QueueUrl=queue_url, Entries=entries)
+    pass
 
 
 def local_test():
@@ -146,5 +147,5 @@ def local_test():
 
 
 if __name__ == "__main__":
-    # read_from_digest_queue()
-    local_test()
+    read_from_digest_queue()
+    # local_test()
