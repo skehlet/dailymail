@@ -22,6 +22,7 @@ class MultiArticleSummary(BaseModel):
     """Model for validating the summary response for multiple articles in a feed."""
     summary: str = Field(..., description="Overall summary of the feed's key developments (3-4 sentences).")
     sources: List[NewsletterSource] = Field(..., description="A list of source articles with highlights.")
+    notable_aspects: str = Field(..., description="1-2 notable or unexpected aspects about this set of articles as complete sentences, not as a list.")
 
 class OpeningParagraph(BaseModel):
     """Model for validating the opening paragraph response."""
@@ -51,10 +52,14 @@ def generate_multi_article_summary(feed_title: str, articles: list) -> MultiArti
 You are summarizing multiple articles from the feed: "{feed_title}".
 
 Create a concise summary that captures the key themes across these articles (3-4 sentences).
-Then, for each source article, provide a brief 1-2 sentence highlight that captures what's most notable or interesting.
+Then, identify 1-2 notable aspects about the collection of articles as a whole, and provide a brief highlight for each source article.
 
 Your output should follow this exact structure:
 - A "summary" field with 3-4 sentences summarizing key developments across all articles
+- A "notable_aspects" field with 1-2 complete sentences highlighting unexpected information, unique perspectives, or important implications from these articles as a group
+  - Write these as flowing prose sentences, not as a bulleted or numbered list
+  - Focus on elements that add depth beyond the main summary
+  - Identify potential consequences, historical context, or statistical outliers worth attention
 - A "sources" list where each item has:
   - "title": The article title
   - "url": The article URL 
@@ -224,6 +229,7 @@ def generate_newsletter_digest(feeds: list) -> Optional[NewsletterContent]:
                 categorized_content[feed_title] = CategoryContent(
                     summary=multi_summary.summary,
                     sources=multi_summary.sources,
+                    notable_aspects=multi_summary.notable_aspects,
                     is_single_article=False
                 )
                 
@@ -300,10 +306,10 @@ if __name__ == "__main__":
         for category, content in newsletter.categorized_content.items():
             print(f"\n{category}:")
             print(f"Summary: {content.summary}")
-            if hasattr(content, "is_single_article") and content.is_single_article:
+            if content.notable_aspects:
                 print(f"Notable Aspects: {content.notable_aspects}")
             print("Sources:")
             for source in content.sources:
                 print(f"- {source.title} ({source.url})")
-                if not (hasattr(content, "is_single_article") and content.is_single_article):
+                if not content.is_single_article:
                     print(f"  Highlight: {source.highlight}")

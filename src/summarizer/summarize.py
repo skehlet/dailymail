@@ -42,10 +42,11 @@ Summary (3-4 sentences):
 - Present complete thoughts without referencing the article itself
 - Preserve accuracy without editorializing
 
-Notable Aspects (1-2 points):
-- Highlight unexpected information, unique perspectives, or important implications
-- Focus on elements that add depth beyond the main summary
-- Identify potential consequences, historical context, or statistical outliers worth attention
+Notable Aspects: Write 1-2 complete sentences that highlight unexpected
+information, unique perspectives, or important implications from the article.
+Present these as flowing prose rather than a list. Focus on elements that add
+depth beyond the main summary, such as potential consequences, historical
+context, or statistical outliers worth attention.
 """
     max_text_length = CONTEXT_WINDOW_SIZE - len(prompt) - 100
     text = text[:max_text_length]
@@ -83,11 +84,12 @@ Summary (3-4 sentences):
 - Focus only on information directly related to the TOPIC, omitting tangential details
 - Present complete thoughts without referencing the article itself
 
-Notable Aspects (1-2 points):
-- Highlight information that would be most actionable or decision-relevant
-- Focus on new developments, changes from previous information, or unexpected elements
-- For topics about products/services: Include pricing, availability, or competitive positioning when available
-- For topics about events/people: Include timeline information, context, or implications
+Notable Aspects: Write 1-2 complete sentences highlighting information that
+would be most actionable or decision-relevant. Present this as flowing prose
+rather than a list. Focus on new developments, changes from previous
+information, or unexpected elements. For topics about products/services, include
+pricing, availability, or competitive positioning when available. For topics
+about events/people, include timeline information, context, or implications.
 """
     text = f"""\
 Source: {url}

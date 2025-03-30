@@ -14,30 +14,28 @@
 
 <div style="margin-bottom: 15px;">{{ content.summary }}</div>
 
-{% if content.is_single_article %}
-    {# Display for a single article feed #}
-    {% if content.notable_aspects %}
-    <div style="margin-bottom: 15px;"><b>Notable Aspects:</b> {{ content.notable_aspects }}</div>
-    {% endif %}
-    
-    <div style="margin-bottom: 10px;"><b>Source:</b></div>
-    <ul style="margin-top: 5px; padding-left: 20px;">
-        <li style="margin-bottom: 12px;">
-            <div><a href="{{ content.sources[0].url }}">{{ content.sources[0].title }}</a> [{{ content.sources[0].url.split('//')[1].split('/')[0] }}]</div>
-        </li>
-    </ul>
-{% else %}
-    {# Display for a multi-article feed #}
-    <div style="margin-bottom: 10px;"><b>Sources:</b></div>
-    <ul style="margin-top: 5px; padding-left: 20px;">
-        {% for source in content.sources %}
-        <li style="margin-bottom: 12px;">
-            <div><a href="{{ source.url }}">{{ source.title }}</a> [{{ source.url.split('//')[1].split('/')[0] }}]</div>
-            <div style="margin-top: 3px; color: #555; font-size: 14px;">{{ source.highlight }}</div>
-        </li>
-        {% endfor %}
-    </ul>
+{% if content.notable_aspects %}
+<div style="margin-bottom: 15px;"><b>Notable Aspects:</b> {{ content.notable_aspects }}</div>
 {% endif %}
+
+{% if content.sources|length == 1 %}
+<div style="margin-bottom: 10px;"><b>Source:</b></div>
+{% else %}
+<div style="margin-bottom: 10px;"><b>Sources:</b></div>
+{% endif %}
+<ul style="margin-top: 5px; padding-left: 20px;">
+    {% for source in content.sources %}
+    <li style="margin-bottom: 12px;">
+        <div>
+            <a href="{{ source.url }}">{{ source.title }}</a> 
+            <span style="color: #888; font-size: 14px;">[{{ source.url.split('//')[1].split('/')[0] }}]</span>
+        </div>
+        {% if not content.is_single_article %}
+        <div style="margin-top: 3px; color: #555; font-size: 14px;">{{ source.highlight }}</div>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
 
 {% if not loop.last %}
 <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
