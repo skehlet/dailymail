@@ -19,10 +19,13 @@
 {% endif %}
 
 {% if content.sources|length == 1 %}
-<div style="margin-bottom: 10px;"><b>Source:</b></div>
+<div style="margin-bottom: 10px;">
+  <b>Source:</b> 
+  <a href="{{ content.sources[0].url }}">{{ content.sources[0].title }}</a> 
+  <span style="color: #888; font-size: 14px;">[{{ content.sources[0].url.split('//')[1].split('/')[0] }}]</span>
+</div>
 {% else %}
 <div style="margin-bottom: 10px;"><b>Sources:</b></div>
-{% endif %}
 <ul style="margin-top: 5px; padding-left: 20px;">
     {% for source in content.sources %}
     <li style="margin-bottom: 12px;">
@@ -36,6 +39,7 @@
     </li>
     {% endfor %}
 </ul>
+{% endif %}
 
 {% if not loop.last %}
 <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
