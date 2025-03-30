@@ -46,17 +46,12 @@ def _prepare_feed_data(feeds):
             "articles": []
         }
         for record in records:
-            # Skip potential summary records if they exist
-            if "overall_summary" in record:
-                continue
-
             article = {
                 "title": record.get("title", "(No Title)"),
                 "url": record.get("url", ""),
                 "published": record.get("published", "(No Date)"),
                 "summary": record.get("summary", "(No Summary)"),
                 "notable_aspects": record.get("notable_aspects", ""),
-                "domain": record.get("domain", "")
             }
             category_data["articles"].append(article)
 
@@ -123,6 +118,7 @@ into a well-structured, informative newsletter. Follow these guidelines:
    - Mentions specific, eye-catching details or statistics.
    - Avoids greetings like "welcome" or unnecessary pleasantries.
    - Maintains a professional, informative tone.
+   - Example: "Today, the tech world saw a major breakthrough in AI with XYZ Corp's new model, while the finance sector reacted to unexpected inflation data."
 2. Organize stories alphabetically by the topic/category name in the `categorized_content` JSON object.
 3. For each category, provide:
    - An overall summary of key developments (3-4 sentences).
@@ -135,6 +131,7 @@ DO NOT:
 - Include filler content, greetings, or casual phrases.
 - Make up additional stories not in the source material.
 - Use clickbait language or sensationalism.
+- Say sensational things like "In a week of high-stakes developments" 
 - Return `categorized_content` as a JSON *string*; it MUST be a proper JSON object.
 
 {example_categorized_content}

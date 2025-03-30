@@ -85,10 +85,6 @@ def cleanup_group_and_sort_messages(messages):
         print(f"Relevance: {record['relevance']}")
         print(f"Relevance Explanation: {record['relevance_explanation']}")
 
-        # parse out domain from the url, if provided
-        if "url" in record and record["url"]:
-            record["domain"] = urlparse(record["url"]).netloc
-
         # Group records by feed_title
         if record["feed_title"] not in records_by_feed:
             records_by_feed[record["feed_title"]] = []
@@ -146,5 +142,5 @@ def local_test():
 
 
 if __name__ == "__main__":
-    # read_from_digest_queue()
+    # read_from_digest_queue() # if you use this, you might want to comment out delete_messages_from_queue as well 
     local_test()

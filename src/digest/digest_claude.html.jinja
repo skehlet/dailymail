@@ -18,7 +18,7 @@
 <ul style="margin-top: 5px; padding-left: 20px;">
     {% for source in content.sources %}
     <li style="margin-bottom: 12px;">
-        <div><a href="{{ source.url }}">{{ source.title }}</a></div>
+        <div><a href="{{ source.url }}">{{ source.title }}</a> [{{ source.url.split('//')[1].split('/')[0] }}]</div>
         <div style="margin-top: 3px; color: #555; font-size: 14px;">{{ source.highlight }}</div>
     </li>
     {% endfor %}
