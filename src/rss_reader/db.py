@@ -94,26 +94,57 @@ def mark_id_as_processed(url, id):
 
 def cleanup_processed_ids():
     now = int(time.time())
+    cutoff_time = now - CLEANUP_AFTER_SECS
+    total_deleted = 0
+    items_processed = 0
+    batch_size = 25  # Maximum items per batch
+    
     try:
-        response = processed_ids_table.scan(
-            FilterExpression=Attr('updated_at').exists()
-        )
-        print(f"cleanup_processed_ids: reviewing {len(response["Items"])} records")
-        for item in response["Items"]:
-            updated_at = int(item["updated_at"])
-            if updated_at < (now - CLEANUP_AFTER_SECS):
-                processed_ids_table.delete_item(Key={"url": item["url"], "id": item["id"]})
-                print(f"Deleted old processed id {item['url']}+{item['id']}")
-            # else:
-            #     print(f"Record {item["url"]}+{item["id"]} safe from deletion ({updated_at})")
+        # Scan parameters for pagination
+        scan_params = {
+            'FilterExpression': Attr('updated_at').exists() & Attr('updated_at').lt(cutoff_time)
+        }
+        
+        done = False
+        start_key = None
+        
+        while not done:
+            if start_key:
+                scan_params['ExclusiveStartKey'] = start_key
+                
+            response = processed_ids_table.scan(**scan_params)
+            items = response.get('Items', [])
+            items_processed += len(items)
+            
+            # Process in smaller batches
+            for i in range(0, len(items), batch_size):
+                batch_items = items[i:i+batch_size]
+                
+                # Batch delete for efficiency
+                with processed_ids_table.batch_writer() as batch:
+                    for item in batch_items:
+                        batch.delete_item(Key={"url": item["url"], "id": item["id"]})
+                        total_deleted += 1
+                
+                # Add a small delay between batches to avoid throttling
+                if i + batch_size < len(items):
+                    time.sleep(0.5)  # 500ms delay between batches
+            
+            # Add a larger delay between scan pages
+            if response.get('LastEvaluatedKey'):
+                time.sleep(1)  # 1 second delay between scan pages
+            
+            # Check if we need to continue scanning
+            start_key = response.get('LastEvaluatedKey')
+            done = start_key is None
+        
+        print(f"cleanup_processed_ids: Processed {items_processed} records. Deleted {total_deleted} old records (older than {CLEANUP_AFTER_SECS/86400:.1f} days).")
+        
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
         error_message = e.response["Error"]["Message"]
-        print(
-            f"DynamoDB error cleaning up processed ids: {error_code} - {error_message}"
-        )
+        print(f"DynamoDB error cleaning up processed ids: {error_code} - {error_message}")
         raise e
-
 
 def add_updated_at_field_where_missing():
     now = int(time.time())

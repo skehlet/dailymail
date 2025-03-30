@@ -24,6 +24,7 @@ def read_from_digest_queue():
         print("No messages in queue")
         return
     process_messages(messages)
+    delete_messages_from_queue(messages)
 
 
 def read_all_from_queue():
@@ -37,8 +38,7 @@ def read_all_from_queue():
 
 def process_messages(messages):
     feeds = cleanup_group_and_sort_messages(messages)
-    create_claude_email_and_send_it(feeds)
-    delete_messages_from_queue(messages)
+    create_email_and_send_it(feeds)
 
 
 def cleanup_group_and_sort_messages(messages):
@@ -97,8 +97,8 @@ def cleanup_group_and_sort_messages(messages):
     return feeds
 
 
-def create_claude_email_and_send_it(feeds):
-    # Generate the newsletter using Claude
+def create_email_and_send_it(feeds):
+    # Generate the newsletter using our improved approach
     newsletter = generate_newsletter_digest(feeds)
     if not newsletter:
         print("No news today, nothing to send.")
@@ -107,7 +107,7 @@ def create_claude_email_and_send_it(feeds):
     # Get current date formatted for display
     today_date = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%A, %B %d, %Y')
     
-    # Produce HTML message using Claude template
+    # Produce HTML message using the updated template
     with open("digest_claude.html.jinja", encoding="utf8") as f:
         email = Template(f.read()).render(
             EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
