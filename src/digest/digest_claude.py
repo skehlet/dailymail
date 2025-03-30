@@ -1,18 +1,7 @@
 import json
-import boto3
-from pydantic import BaseModel, ValidationError, Field
+from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
-from app_settings import BEDROCK_MODEL_ID, BEDROCK_REGION
-
-# --- Configuration ---
-MAX_RETRIES = 1  # Number of retries if validation fails
-
-# --- Initialize Bedrock Client ---
-client = boto3.client(
-    "bedrock-runtime",
-    region_name=BEDROCK_REGION
-)
-print(f"Bedrock client initialized for region: {BEDROCK_REGION}")
+from shared.my_openai import call_openai_with_structured_outputs
 
 # --- Pydantic Models for Validation ---
 
@@ -33,6 +22,10 @@ class MultiArticleSummary(BaseModel):
     """Model for validating the summary response for multiple articles in a feed."""
     summary: str = Field(..., description="Overall summary of the feed's key developments (3-4 sentences).")
     sources: List[NewsletterSource] = Field(..., description="A list of source articles with highlights.")
+
+class OpeningParagraph(BaseModel):
+    """Model for validating the opening paragraph response."""
+    text: str = Field(..., description="The opening paragraph text")
 
 class NewsletterContent(BaseModel):
     """Final newsletter content structure assembled by Python."""
@@ -73,125 +66,18 @@ pleasantries, or notes about your task. Just the requested content.
 
     articles_info = f"Here are the articles to summarize:\n\n{articles_json}"
     
-    # Define tool schema
-    tool_list = [
-        {
-            "toolSpec": {
-                "name": "create_multi_article_summary",
-                "description": "Create a summary for multiple articles from the same feed.",
-                "inputSchema": {
-                    "json": MultiArticleSummary.model_json_schema()
-                }
-            }
-        }
-    ]
-    
-    # Prepare messages
     messages = [
-        {
-            "role": "user",
-            "content": [
-                {"text": prompt},
-                {"text": articles_info}
-            ]
-        }
+        {"role": "user", "content": prompt},
+        {"role": "user", "content": articles_info}
     ]
     
-    # Make the API call to Bedrock
-    attempts = 0
-    last_error = None
-    
-    # Save initial messages for potential reset
-    initial_messages = messages[:]
-    
-    while attempts <= MAX_RETRIES:
-        attempts += 1
-        try:
-            response = client.converse(
-                modelId=BEDROCK_MODEL_ID,
-                messages=messages,
-                inferenceConfig={
-                    "maxTokens": 2048,
-                    "temperature": 0.1
-                },
-                toolConfig={
-                    "tools": tool_list,
-                    "toolChoice": {"tool": {"name": "create_multi_article_summary"}}
-                }
-            )
-            
-            # Extract the tool use block
-            content_blocks = response["output"]["message"]["content"]
-            tool_use_block = None
-            
-            for block in content_blocks:
-                if "toolUse" in block:
-                    tool_use_block = block["toolUse"]
-                    break
-            
-            if not tool_use_block:
-                raise Exception(f"No tool use block found in response (attempt {attempts})")
-            
-            # Extract the result
-            raw_result = tool_use_block.get("input", {})
-            
-            # Create a working copy to manipulate
-            processed_result = dict(raw_result)
-            
-            # Check if sources is a string and try to parse it
-            if "sources" in processed_result and isinstance(processed_result["sources"], str):
-                print(f"Sources is a string, attempting to parse: {processed_result['sources'][:100]}...")
-                try:
-                    parsed_sources = json.loads(processed_result["sources"])
-                    processed_result["sources"] = parsed_sources
-                    print(f"Successfully parsed sources as JSON")
-                except json.JSONDecodeError as e:
-                    print(f"Failed to parse sources as JSON: {e}")
-                    # Fall back to creating a simpler structure
-                    raise ValueError(f"Could not parse sources string as JSON: {e}")
-            
-            # Validate the result
-            try:
-                validated_result = MultiArticleSummary.model_validate(processed_result)
-                return validated_result
-            except ValidationError as e:
-                print(f"Validation error: {e}")
-                print(f"Raw result that failed validation: {raw_result}")
-                raise
-            
-        except Exception as e:
-            print(f"Error on attempt {attempts}: {e}")
-            last_error = e
-            
-            # For "Messages following `toolUse` blocks" errors, we need to start with a fresh conversation
-            if "Messages following `toolUse` blocks" in str(e):
-                print("Detected Bedrock conversation state error. Restarting with fresh conversation...")
-                # Reset to initial messages
-                messages = initial_messages[:]
-                if attempts <= MAX_RETRIES:
-                    continue
-                else:
-                    break
-                
-            if attempts <= MAX_RETRIES:
-                # For other errors, add feedback and retry
-                try:
-                    if "output" in response and "message" in response["output"]:
-                        messages.append(response["output"]["message"])
-                except:
-                    # If we can't access the response or there's an issue adding the message,
-                    # just restart with the initial messages
-                    messages = initial_messages[:]
-                
-                messages.append({
-                    "role": "user",
-                    "content": [{"text": f"The previous response had an error: {e}. Please provide a complete and properly formatted JSON response with a 'summary' field and 'sources' array."}]
-                })
-            else:
-                break
-    
-    # If we got here, all attempts failed
-    raise Exception(f"Failed to generate multi-article summary after {attempts} attempts: {last_error}")
+    # Make the API call using the OpenAI structured outputs method
+    try:
+        result = call_openai_with_structured_outputs(messages, MultiArticleSummary)
+        return MultiArticleSummary.model_validate(result)
+    except Exception as e:
+        print(f"Error generating multi-article summary: {e}")
+        raise
 
 def generate_opening_paragraph(feed_data: List[dict]) -> str:
     """
@@ -206,10 +92,17 @@ def generate_opening_paragraph(feed_data: List[dict]) -> str:
     # Extract key information for the opening paragraph
     feed_info = []
     for feed in feed_data:
+        # Use full summaries for better content representation
+        sample_summaries = []
+        for article in feed["articles"][:2]:  # Include up to 2 sample articles
+            summary = article.get("summary", "")
+            if summary:
+                sample_summaries.append(summary)
+        
         feed_info.append({
             "category": feed["category"],
             "article_count": len(feed["articles"]),
-            "sample_titles": [a["title"] for a in feed["articles"][:2]]  # Include up to 2 sample titles
+            "sample_summaries": sample_summaries
         })
     
     feed_info_json = json.dumps(feed_info, indent=2)
@@ -218,46 +111,33 @@ def generate_opening_paragraph(feed_data: List[dict]) -> str:
 Create a concise opening paragraph (2-3 sentences) for a newsletter that highlights 3-5 key stories 
 across different categories. The paragraph should:
 
-- Directly mention specific, interesting details from key stories
+- Directly mention specific, interesting details from the article summaries provided
+- Focus on the substantive content from the summaries, not just category names
 - Maintain a professional, informative tone
 - Avoid greetings or pleasantries
-- Focus on substantive content
+- Prioritize facts and developments over clickbait or sensational claims
 
-For example: "Today, the tech world saw a major breakthrough in AI with XYZ Corp's new model, 
-while the finance sector reacted to unexpected inflation data."
+For example: "Today, the tech world saw a major breakthrough in AI that exceeds human performance on cognitive tasks, 
+while the finance sector showed resilience despite ongoing inflation concerns."
 
 Your response should be ONLY the paragraph text with no additional explanations or notes.
 """
 
     info_text = f"Here is information about the feeds to highlight:\n\n{feed_info_json}"
     
-    # Make the API call to Bedrock
-    response = client.converse(
-        modelId=BEDROCK_MODEL_ID,
-        messages=[
-            {
-                "role": "user", 
-                "content": [
-                    {"text": prompt},
-                    {"text": info_text}
-                ]
-            }
-        ],
-        inferenceConfig={
-            "maxTokens": 512,
-            "temperature": 0.2
-        }
-    )
+    # Make the API call to OpenAI
+    messages = [
+        {"role": "user", "content": prompt},
+        {"role": "user", "content": info_text}
+    ]
     
-    # Extract the text response
-    message_content = response["output"]["message"]["content"]
-    paragraph_text = ""
-    
-    for content_block in message_content:
-        if "text" in content_block:
-            paragraph_text += content_block["text"]
-    
-    return paragraph_text.strip()
+    try:
+        result = call_openai_with_structured_outputs(messages, OpeningParagraph)
+        return result["text"]
+    except Exception as e:
+        print(f"Error generating opening paragraph: {e}")
+        # Fallback to a generic opening
+        return "Today's news digest covers a variety of important topics from multiple sources."
 
 # --- Main Function to Generate Newsletter ---
 

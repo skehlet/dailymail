@@ -36,15 +36,6 @@ data "aws_iam_policy_document" "digest_policy" {
       "arn:aws:ssm:*:*:parameter/OPENAI_API_KEY",
     ]
   }
-  statement {
-    actions = [
-      "bedrock:InvokeModel",
-    ]
-    resources = [
-      "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0",
-      "arn:aws:bedrock:*::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0",
-    ]
-  }
 }
 
 resource "aws_iam_role_policy" "digest_policy" {
