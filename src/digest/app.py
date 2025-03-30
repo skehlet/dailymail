@@ -12,7 +12,7 @@ from app_settings import (
 )
 from shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
 from shared.my_datetime import utc_to_local
-from ai import generate_newsletter_digest
+from digest_claude import generate_newsletter_digest
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -37,7 +37,7 @@ def read_all_from_queue():
 
 def process_messages(messages):
     feeds = cleanup_group_and_sort_messages(messages)
-    create_email_and_send_it(feeds)
+    create_claude_email_and_send_it(feeds)
     delete_messages_from_queue(messages)
 
 
@@ -101,8 +101,8 @@ def cleanup_group_and_sort_messages(messages):
     return feeds
 
 
-def create_email_and_send_it(feeds):
-    # Generate the newsletter using AI
+def create_claude_email_and_send_it(feeds):
+    # Generate the newsletter using Claude
     newsletter = generate_newsletter_digest(feeds)
     if not newsletter:
         print("No news today, nothing to send.")
@@ -111,8 +111,8 @@ def create_email_and_send_it(feeds):
     # Get current date formatted for display
     today_date = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%A, %B %d, %Y')
     
-    # Produce HTML message using Jinja template
-    with open("digest.html.jinja", encoding="utf8") as f:
+    # Produce HTML message using Claude template
+    with open("digest_claude.html.jinja", encoding="utf8") as f:
         email = Template(f.read()).render(
             EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
             newsletter=newsletter,
@@ -129,15 +129,14 @@ def create_email_and_send_it(feeds):
 
 
 def delete_messages_from_queue(messages):
-    # # process messages in batches of 10
-    # for i in range(0, len(messages), 10):
-    #     batch = messages[i : i + 10]
-    #     entries = [
-    #         {"Id": message["MessageId"], "ReceiptHandle": message["ReceiptHandle"]}
-    #         for message in batch
-    #     ]
-    #     sqs.delete_message_batch(QueueUrl=queue_url, Entries=entries)
-    pass
+    # process messages in batches of 10
+    for i in range(0, len(messages), 10):
+        batch = messages[i : i + 10]
+        entries = [
+            {"Id": message["MessageId"], "ReceiptHandle": message["ReceiptHandle"]}
+            for message in batch
+        ]
+        sqs.delete_message_batch(QueueUrl=queue_url, Entries=entries)
 
 
 def local_test():
@@ -147,5 +146,5 @@ def local_test():
 
 
 if __name__ == "__main__":
-    read_from_digest_queue()
-    # local_test()
+    # read_from_digest_queue()
+    local_test()

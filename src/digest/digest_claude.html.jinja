@@ -7,16 +7,16 @@
 
 <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
 
-{% for category in newsletter.categories %}
+{% for category, content in newsletter.categorized_content.items() %}
 <div style="font-size: 24px; font-weight: bold; margin-top: 25px; margin-bottom: 15px;">
-    {{ category.category_name }}
+    {{ category }}
 </div>
 
-<div style="margin-bottom: 15px;">{{ category.summary }}</div>
+<div style="margin-bottom: 15px;">{{ content.summary }}</div>
 
 <div style="margin-bottom: 10px;"><b>Sources:</b></div>
 <ul style="margin-top: 5px; padding-left: 20px;">
-    {% for source in category.sources %}
+    {% for source in content.sources %}
     <li style="margin-bottom: 12px;">
         <div><a href="{{ source.url }}">{{ source.title }}</a></div>
         <div style="margin-top: 3px; color: #555; font-size: 14px;">{{ source.highlight }}</div>

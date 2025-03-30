@@ -9,8 +9,8 @@ resource "aws_lambda_function" "digest" {
   environment {
     variables = {
       PIPELINE_EXECUTION_ID = var.pipeline_execution_id
-      LLM                   = "gpt-4o-mini"
-      CONTEXT_WINDOW_SIZE   = "50000"
+      BEDROCK_MODEL_ID      = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+      BEDROCK_REGION_ID     = "us-west-2"
     }
   }
   depends_on = [
