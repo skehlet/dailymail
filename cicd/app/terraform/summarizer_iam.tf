@@ -36,7 +36,6 @@ data "aws_iam_policy_document" "summarizer_policy" {
     ]
     resources = [
       "arn:aws:sqs:*:*:DailyMail-DigestQueue",
-      "arn:aws:sqs:*:*:DailyMail-ImmediateQueue",
     ]
   }
 }

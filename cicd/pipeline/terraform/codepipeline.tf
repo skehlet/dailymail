@@ -47,38 +47,6 @@ resource "aws_codepipeline" "codepipeline" {
       run_order = 2
     }
     action {
-      name            = "CreateLinkReaderImage"
-      namespace       = "CreateLinkReaderImage"
-      input_artifacts = ["SourceArtifact"]
-      category        = "Build"
-      provider        = "CodeBuild"
-      owner           = "AWS"
-      version         = "1"
-      configuration = {
-        ProjectName = aws_codebuild_project.create_linkreader_image.name
-        EnvironmentVariables = jsonencode([
-          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
-        ])
-      }
-      run_order = 2
-    }
-    action {
-      name            = "CreateEmailReaderImage"
-      namespace       = "CreateEmailReaderImage"
-      input_artifacts = ["SourceArtifact"]
-      category        = "Build"
-      provider        = "CodeBuild"
-      owner           = "AWS"
-      version         = "1"
-      configuration = {
-        ProjectName = aws_codebuild_project.create_emailreader_image.name
-        EnvironmentVariables = jsonencode([
-          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
-        ])
-      }
-      run_order = 2
-    }
-    action {
       name            = "CreateScraperImage"
       namespace       = "CreateScraperImage"
       input_artifacts = ["SourceArtifact"]
@@ -126,22 +94,6 @@ resource "aws_codepipeline" "codepipeline" {
       }
       run_order = 2
     }
-    action {
-      name            = "CreateImmediateImage"
-      namespace       = "CreateImmediateImage"
-      input_artifacts = ["SourceArtifact"]
-      category        = "Build"
-      provider        = "CodeBuild"
-      owner           = "AWS"
-      version         = "1"
-      configuration = {
-        ProjectName = aws_codebuild_project.create_immediate_image.name
-        EnvironmentVariables = jsonencode([
-          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
-        ])
-      }
-      run_order = 2
-    }
   }
 
 
@@ -161,12 +113,9 @@ resource "aws_codepipeline" "codepipeline" {
         EnvironmentVariables = jsonencode([
           { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
           { "name" : "RSS_READER_IMAGE_URI", "value" : "#{CreateRssReaderImage.RSS_READER_IMAGE_URI}" },
-          { "name" : "LINK_READER_IMAGE_URI", "value" : "#{CreateLinkReaderImage.LINK_READER_IMAGE_URI}" },
-          { "name" : "EMAIL_READER_IMAGE_URI", "value" : "#{CreateEmailReaderImage.EMAIL_READER_IMAGE_URI}" },
           { "name" : "SCRAPER_IMAGE_URI", "value" : "#{CreateScraperImage.SCRAPER_IMAGE_URI}" },
           { "name" : "SUMMARIZER_IMAGE_URI", "value" : "#{CreateSummarizerImage.SUMMARIZER_IMAGE_URI}" },
           { "name" : "DIGEST_IMAGE_URI", "value" : "#{CreateDigestImage.DIGEST_IMAGE_URI}" },
-          { "name" : "IMMEDIATE_IMAGE_URI", "value" : "#{CreateImmediateImage.IMMEDIATE_IMAGE_URI}" },
         ])
       }
       run_order = 3
@@ -189,52 +138,6 @@ resource "aws_codebuild_project" "create_rssreader_image" {
   source {
     type      = "CODEPIPELINE"
     buildspec = "cicd/app/buildspecs/buildspec-create-rssreader-image.yaml"
-  }
-
-  environment {
-    compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "ARM_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
-    privileged_mode = true # to allow running docker commands
-  }
-}
-
-resource "aws_codebuild_project" "create_linkreader_image" {
-  name          = "${local.pipeline_name}-CreateLinkReaderImage"
-  description   = "Create LinkReader Image"
-  build_timeout = 5
-  service_role  = aws_iam_role.codebuild_role.arn
-
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = "cicd/app/buildspecs/buildspec-create-linkreader-image.yaml"
-  }
-
-  environment {
-    compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "ARM_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
-    privileged_mode = true # to allow running docker commands
-  }
-}
-
-resource "aws_codebuild_project" "create_emailreader_image" {
-  name          = "${local.pipeline_name}-CreateEmailReaderImage"
-  description   = "Create EmailReader Image"
-  build_timeout = 5
-  service_role  = aws_iam_role.codebuild_role.arn
-
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = "cicd/app/buildspecs/buildspec-create-emailreader-image.yaml"
   }
 
   environment {
@@ -305,29 +208,6 @@ resource "aws_codebuild_project" "create_digest_image" {
   source {
     type      = "CODEPIPELINE"
     buildspec = "cicd/app/buildspecs/buildspec-create-digest-image.yaml"
-  }
-
-  environment {
-    compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "ARM_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
-    privileged_mode = true # to allow running docker commands
-  }
-}
-
-resource "aws_codebuild_project" "create_immediate_image" {
-  name          = "${local.pipeline_name}-CreateImmediateImage"
-  description   = "Create Immediate Image"
-  build_timeout = 5
-  service_role  = aws_iam_role.codebuild_role.arn
-
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = "cicd/app/buildspecs/buildspec-create-immediate-image.yaml"
   }
 
   environment {

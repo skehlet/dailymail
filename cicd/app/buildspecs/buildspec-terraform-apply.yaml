@@ -3,24 +3,18 @@ version: 0.2
 # env vars provided by the pipeline:
 # PIPELINE_EXECUTION_ID
 # RSS_READER_IMAGE_URI
-# LINK_READER_IMAGE_URI
-# EMAIL_READER_IMAGE_URI
 # SCRAPER_IMAGE_URI
 # SUMMARIZER_IMAGE_URI
 # DIGEST_IMAGE_URI
-# IMMEDIATE_IMAGE_URI
 
 phases:
   install:
     commands:
       - echo PIPELINE_EXECUTION_ID=${PIPELINE_EXECUTION_ID}
       - echo RSS_READER_IMAGE_URI=${RSS_READER_IMAGE_URI}
-      - echo LINK_READER_IMAGE_URI=${LINK_READER_IMAGE_URI}
-      - echo EMAIL_READER_IMAGE_URI=${EMAIL_READER_IMAGE_URI}
       - echo SCRAPER_IMAGE_URI=${SCRAPER_IMAGE_URI}
       - echo SUMMARIZER_IMAGE_URI=${SUMMARIZER_IMAGE_URI}
       - echo DIGEST_IMAGE_URI=${DIGEST_IMAGE_URI}
-      - echo IMMEDIATE_IMAGE_URI=${IMMEDIATE_IMAGE_URI}
       - aws --version
       - aws sts get-caller-identity
       - echo "Installing Terraform"
@@ -35,11 +29,8 @@ phases:
       - terraform init
       - terraform apply
         -var=rss_reader_image_uri=${RSS_READER_IMAGE_URI}
-        -var=link_reader_image_uri=${LINK_READER_IMAGE_URI}
-        -var=email_reader_image_uri=${EMAIL_READER_IMAGE_URI}
         -var=scraper_image_uri=${SCRAPER_IMAGE_URI}
         -var=summarizer_image_uri=${SUMMARIZER_IMAGE_URI}
         -var=digest_image_uri=${DIGEST_IMAGE_URI}
-        -var=immediate_image_uri=${IMMEDIATE_IMAGE_URI}
         -var=pipeline_execution_id=${PIPELINE_EXECUTION_ID}
         -auto-approve

@@ -1,7 +1,7 @@
 import json
 from app_s3 import read_from_s3, delete_from_s3
 from app_queue import enqueue
-from app_settings import SUMMARIZER_BUCKET, DIGEST_QUEUE, IMMEDIATE_QUEUE
+from app_settings import SUMMARIZER_BUCKET, DIGEST_QUEUE
 from google_alerts import is_google_alert, get_topic_from_google_alert_title
 from summarize import summarize_text, summarize_google_alert
 
@@ -23,7 +23,6 @@ def process_s3_record(s3_record):
     key = s3_record["s3"]["object"]["key"]
     record = json.loads(read_from_s3(SUMMARIZER_BUCKET, key))
     # records with type=rss_entry have fields: feed_title, feed_description, url, published, title, content
-    # records with type=immediate have fields: url, title, content
     # print(record)
 
     # STOP if there is no content
@@ -46,17 +45,12 @@ def process_s3_record(s3_record):
 
     del record["content"]
 
-    if "immediate" in record:
-        # Send to immediate queue
-        enqueue(IMMEDIATE_QUEUE, json.dumps(record))
-
+    # Send to digest queue
+    # But skip if it's a Google Alert summary and NOT RELEVANT
+    if "relevance" in summary_dict and summary_dict["relevance"] == "NOT RELEVANT":
+        print("The content is NOT RELEVANT, so discarding")
     else:
-        # Send to digest queue
-        # But skip if it's a Google Alert summary and NOT RELEVANT
-        if "relevance" in summary_dict and summary_dict["relevance"] == "NOT RELEVANT":
-            print("The content is NOT RELEVANT, so discarding")
-        else:
-            enqueue(DIGEST_QUEUE, json.dumps(record))
+        enqueue(DIGEST_QUEUE, json.dumps(record))
 
     delete_from_s3(SUMMARIZER_BUCKET, key)
 
