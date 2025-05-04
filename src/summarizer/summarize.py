@@ -30,8 +30,13 @@ RELEVANT content:
 
 NOT RELEVANT content:
 - Platform announcements (e.g., "This article is hosted on Substack")
+- Anything about Substack itself (e.g., "Substack is a platform for independent writers" or "Substack is emerging as a vital platform for independent journalism")
 - Subscription solicitations or marketing content
-- Purely administrative text (e.g., "Thanks for reading," "Subscribe to our newsletter")
+- Audio/podcast introductions that only describe the format without substantive content (e.g., "Listen to this episode where we discuss...")
+- Content that merely promotes media hosting features (e.g., "This podcast is now available on Substack")
+- Pages that primarily contain audio players with minimal descriptive text
+- Content that mainly directs readers to subscribe for full audio access
+- Purely administrative text (e.g., "Thanks for listening," "Subscribe to our newsletter")
 - Website navigation information, user agreements, or generic platform descriptions
 - Example: "Support independent journalism by becoming a paid subscriber. Unlock exclusive content and join our community."
 
