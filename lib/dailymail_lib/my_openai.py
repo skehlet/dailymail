@@ -2,7 +2,7 @@ import os
 import random
 import time
 import openai
-from shared.my_parameter_store import get_value_from_parameter_store
+from my_parameter_store import get_value_from_parameter_store
 
 
 LLM = os.getenv("LLM", "gpt-4o-mini")

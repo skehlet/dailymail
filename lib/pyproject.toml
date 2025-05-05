@@ -1,0 +1,17 @@
+[project]
+name = "dailymail-lib"
+version = "0.1.1"
+description = ""
+authors = [
+    {name = "Steve Kehlet",email = "steve.kehlet@gmail.com"}
+]
+requires-python = ">=3.12"
+dependencies = [
+    "boto3 (>=1.38.8,<2.0.0)",
+    "openai (>=1.77.0,<2.0.0)"
+]
+dynamic = [ "dependencies" ]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

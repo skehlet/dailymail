@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"name": "dailymail",
+			"path": "."
+		},
+		{
+			"name": "digest",
+			"path": "digest"
+		},
+		{
+			"name": "lib",
+			"path": "lib"
+		},
+		{
+			"name": "rss_reader",
+			"path": "rss_reader"
+		},
+		{
+			"name": "scraper",
+			"path": "scraper"
+		},
+		{
+			"name": "summarizer",
+			"path": "summarizer"
+		}
+	],
+	"settings": {}
+}

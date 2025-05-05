@@ -1,0 +1,20 @@
+[project]
+name = "dailymail-digest"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Steve Kehlet", email = "steve.kehlet@gmail.com"}
+]
+requires-python = ">=3.12"
+dependencies = [
+    "boto3 (>=1.38.8,<2.0.0)",
+    "jinja2 (>=3.1.6,<4.0.0)",
+]
+dynamic = [ "dependencies" ]
+
+[tool.poetry.dependencies]
+dailymail-lib = {path = "../lib", develop = true}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,7 +1,7 @@
 import json
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
-from shared.my_openai import call_openai_with_structured_outputs
+from dailymail_lib.my_openai import call_openai_with_structured_outputs
 
 # --- Pydantic Models for Validation ---
 

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from shared.my_openai import call_openai_with_structured_outputs, CONTEXT_WINDOW_SIZE
+from lib.my_openai import call_openai_with_structured_outputs, CONTEXT_WINDOW_SIZE
 
 # use OPENAI_LOG=debug to debug
 

@@ -1,3 +1,4 @@
+# File: cicd/app/buildspecs/buildspec-create-digest-image.yaml
 version: 0.2
 
 # env vars provided by the pipeline:
@@ -23,10 +24,12 @@ phases:
 
   build:
     commands:
+      # Change directory to the 'src' folder to provide context for Docker build
       - cd src
-      - for symlink in */shared; do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
-      - cd digest
-      - docker build -f Dockerfile -t dailymail-digest .
+      # REMOVED: Shared code copying loop
+      # - for symlink in */shared; do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
+      # Build pointing to the specific Dockerfile, context is current dir ('src')
+      - docker build -f digest/Dockerfile -t dailymail-digest .
 
   post_build:
     commands:

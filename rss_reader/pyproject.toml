@@ -1,0 +1,18 @@
+[project]
+name = "dailymail-rss-reader"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Steve Kehlet",email = "steve.kehlet@gmail.com"}
+]
+requires-python = ">=3.12"
+dependencies = [
+]
+dynamic = [ "dependencies" ]
+
+[tool.poetry.dependencies]
+dailymail-lib = {path = "../lib", develop = true}
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -2,7 +2,7 @@ import uuid
 import json
 from scrape import fetch_site_content
 from app_settings import SUMMARIZER_BUCKET
-from shared.my_s3 import write_to_s3
+from dailymail_lib.my_s3 import write_to_s3
 
 
 def process_record(sqs_record):
