@@ -24,9 +24,7 @@ phases:
   build:
     commands:
       - cd src
-      - for symlink in */shared; do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
-      - cd summarizer
-      - docker build -f Dockerfile -t dailymail-summarizer .
+      - docker build -f summarizer/Dockerfile -t dailymail-summarizer .
 
   post_build:
     commands:

@@ -24,9 +24,7 @@ phases:
   build:
     commands:
       - cd src
-      - for symlink in */shared; do rm -f "$symlink"; cp -R shared $(dirname "$symlink"); done
-      - cd digest
-      - docker build -f Dockerfile -t dailymail-digest .
+      - docker build -f digest/Dockerfile -t dailymail-digest .
 
   post_build:
     commands:

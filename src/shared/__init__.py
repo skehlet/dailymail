@@ -1,0 +1,1 @@
+# DailyMail shared utilities package
