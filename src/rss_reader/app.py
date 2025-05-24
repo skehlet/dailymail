@@ -14,8 +14,14 @@ import boto3
 
 
 def read_rss_feeds():
-    for url in get_rss_feeds():
-        read_feed(url)
+    for feed_config in get_rss_feeds():
+        if isinstance(feed_config, str):
+            feed_url = feed_config
+            feed_context = None
+        else:
+            feed_url = feed_config["url"]
+            feed_context = feed_config.get("context")
+        read_feed(feed_url, feed_context)
     cleanup_processed_ids()
 
 
@@ -26,7 +32,7 @@ def get_rss_feeds():
     return json.loads(parameter["Parameter"]["Value"])
 
 
-def read_feed(feed_url):
+def read_feed(feed_url, feed_context=None):
     print(f"URL: {feed_url}")
     (previous_etag, previous_last_modified) = get_feed_metadata(feed_url)
     print(f"Previous Etag: {previous_etag}")
@@ -61,14 +67,14 @@ def read_feed(feed_url):
     print(f"Feed description: {feed_description}")
     print(f"Feed published: {d.feed.get('published', 'Unknown')}")
 
-    process_rss_entries(feed_url, feed_title, feed_description, d.entries)
+    process_rss_entries(feed_url, feed_title, feed_description, feed_context, d.entries)
 
     # Note Google Alerts does NOT provide either ETag nor Last-Modified
     if etag != previous_etag or last_modified != previous_last_modified:
         store_feed_metadata(feed_url, etag, last_modified)
 
 
-def process_rss_entries(url, feed_title, feed_description, entries):
+def process_rss_entries(url, feed_title, feed_description, feed_context, entries):
     for entry in entries:
         if "link" not in entry:
             print("Skipping entry without link")
@@ -102,6 +108,7 @@ def process_rss_entries(url, feed_title, feed_description, entries):
             "type": "rss_entry",
             "feed_title": feed_title,
             "feed_description": feed_description,
+            "feed_context": feed_context,
             "title": article_title,
             "url": article_url,
             "description": article_description,

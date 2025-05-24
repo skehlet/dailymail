@@ -30,14 +30,16 @@ def process_s3_record(s3_record):
         print(f"No content for {key}")
         return
 
+    feed_context = record.get("feed_context")
+    
     if "type" in record and record["type"] == "rss_entry" and is_google_alert(record["feed_title"]):
         # if type=rss_entry and the feed_title is a Google Alert, extract the topic and summarize
         topic = get_topic_from_google_alert_title(record["feed_title"])
         print(f"Google Alert Topic: {topic}")
-        summary_dict = summarize_google_alert(topic, record["url"], record["title"], record["content"])
+        summary_dict = summarize_google_alert(topic, record["url"], record["title"], record["content"], feed_context)
     else:
         # else just summarize the text
-        summary_dict = summarize_text(record["url"], record["title"], record["content"])
+        summary_dict = summarize_text(record["url"], record["title"], record["content"], feed_context)
 
     # copy all fields from summary_dict to record
     for field in summary_dict:

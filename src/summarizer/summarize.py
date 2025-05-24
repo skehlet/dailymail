@@ -15,9 +15,11 @@ class TextSummary(BaseModel):
     relevance_explanation: str
 
 
-def summarize_text(url, title, text):  # pylint: disable=W0613:unused-argument
-    prompt = """\
-Your task is to analyze news articles and provide concise, relevant summaries highlighting key information.
+def summarize_text(url, title, text, feed_context=None):  # pylint: disable=W0613:unused-argument
+    context_section = f"\n\nADDITIONAL CONTEXT: {feed_context}" if feed_context else ""
+    
+    prompt = f"""\
+Your task is to analyze news articles and provide concise, relevant summaries highlighting key information.{context_section}
 
 STEP 1: RELEVANCE DETERMINATION
 Determine if the article is 'RELEVANT' or 'NOT RELEVANT' based on these criteria:
@@ -26,6 +28,7 @@ RELEVANT content:
 - Contains substantive news, analysis, or information about current events, trends, or developments
 - Presents original reporting, research findings, or expert perspectives
 - Offers meaningful insights or data points that would inform a reader about the world
+- When ADDITIONAL CONTEXT is provided, aligns with the specific interests and focus areas described
 - Example: "Federal Reserve raises interest rates by 0.5%, citing persistent inflation concerns and strong labor market data."
 
 NOT RELEVANT content:
@@ -44,6 +47,7 @@ STEP 2: FOR RELEVANT CONTENT ONLY
 Summary (3-4 sentences):
 - Begin directly with the most important information
 - Include key facts, figures, and central claims
+- When ADDITIONAL CONTEXT is provided, emphasize information that aligns with the specified interests
 - Present complete thoughts without referencing the article itself
 - Preserve accuracy without editorializing
 
@@ -51,7 +55,8 @@ Notable Aspects: Write 1-2 complete sentences that highlight unexpected
 information, unique perspectives, or important implications from the article.
 Present these as flowing prose rather than a list. Focus on elements that add
 depth beyond the main summary, such as potential consequences, historical
-context, or statistical outliers worth attention.
+context, or statistical outliers worth attention. When ADDITIONAL CONTEXT is
+provided, prioritize aspects that directly relate to the specified interests.
 """
     max_text_length = CONTEXT_WINDOW_SIZE - len(prompt) - 100
     text = text[:max_text_length]
@@ -62,11 +67,13 @@ context, or statistical outliers worth attention.
     return call_openai_with_structured_outputs(messages, TextSummary)
 
 
-def summarize_google_alert(topic, url, title, text):
+def summarize_google_alert(topic, url, title, text, feed_context=None):
+    context_section = f"\n\nADDITIONAL CONTEXT: {feed_context}" if feed_context else ""
+    
     prompt = f"""\
 Your task is to analyze the provided text for relevance to the topic specified below and, if relevant, provide a concise, actionable summary.
 
-TOPIC: {topic}
+TOPIC: {topic}{context_section}
 
 STEP 1: RELEVANCE DETERMINATION
 Determine if the text is 'RELEVANT' or 'NOT RELEVANT' based on these criteria:
@@ -75,6 +82,7 @@ RELEVANT content must:
 - Directly address the full TOPIC with substantive information
 - Contain specific details related to ALL quoted terms within the TOPIC (e.g., if TOPIC contains "release date" and "PC", both elements must be addressed)
 - Provide actionable or informative content that would be valuable to someone tracking this specific TOPIC
+- When ADDITIONAL CONTEXT is provided, prioritize information that aligns with the specific interests and perspective described in that context
 
 NOT RELEVANT content includes:
 - Text that addresses only some quoted terms from the TOPIC but not others
@@ -87,14 +95,17 @@ Summary (3-4 sentences):
 - Begin with the most important information related specifically to the TOPIC
 - Include key dates, numbers, developments, or announcements
 - Focus only on information directly related to the TOPIC, omitting tangential details
+- When ADDITIONAL CONTEXT is provided, emphasize aspects that align with the specific interests described
 - Present complete thoughts without referencing the article itself
 
 Notable Aspects: Write 1-2 complete sentences highlighting information that
 would be most actionable or decision-relevant. Present this as flowing prose
 rather than a list. Focus on new developments, changes from previous
-information, or unexpected elements. For topics about products/services, include
-pricing, availability, or competitive positioning when available. For topics
-about events/people, include timeline information, context, or implications.
+information, or unexpected elements. When ADDITIONAL CONTEXT is provided,
+prioritize aspects that directly relate to the specific interests mentioned.
+For topics about products/services, include pricing, availability, or competitive
+positioning when available. For topics about events/people, include timeline
+information, context, or implications.
 """
     text = f"""\
 Source: {url}
