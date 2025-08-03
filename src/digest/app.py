@@ -10,8 +10,8 @@ from app_settings import (
     DIGEST_EMAIL_FROM,
     DIGEST_EMAIL_TO,
 )
-from shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
-from shared.my_datetime import utc_to_local
+from dailymail_shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
+from dailymail_shared.my_datetime import utc_to_local
 from digest_claude import generate_newsletter_digest
 
 sqs = boto3.client("sqs")

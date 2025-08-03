@@ -23,8 +23,7 @@ phases:
 
   build:
     commands:
-      - cd src
-      - docker build -f summarizer/Dockerfile -t dailymail-summarizer .
+      - docker build -f src/summarizer/Dockerfile -t dailymail-summarizer .
 
   post_build:
     commands:

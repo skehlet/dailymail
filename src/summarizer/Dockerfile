@@ -1,5 +1,9 @@
 FROM public.ecr.aws/lambda/python:3.12
-COPY summarizer/ ${LAMBDA_TASK_ROOT}
-COPY shared/ ${LAMBDA_TASK_ROOT}/shared
+
+COPY dailymail_shared_package /tmp/dailymail_shared_package
+RUN pip install /tmp/dailymail_shared_package
+
+COPY src/summarizer/ ${LAMBDA_TASK_ROOT}
 RUN pip install -r ${LAMBDA_TASK_ROOT}/requirements.txt
+
 CMD [ "index.handler" ]

@@ -23,8 +23,7 @@ phases:
 
   build:
     commands:
-      - cd src
-      - docker build -f rss_reader/Dockerfile -t dailymail-rss-reader .
+      - docker build -f src/rss_reader/Dockerfile -t dailymail-rss-reader .
 
   post_build:
     commands:

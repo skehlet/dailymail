@@ -10,14 +10,14 @@ image
 Before working on any service, install the shared utilities package in editable mode:
 
 ```bash
-cd src/shared
+cd dailymail_shared_package
 pip install -e .
 ```
 
 This allows all services to import shared modules directly:
 ```python
-from shared.my_s3 import upload_file
-from shared.my_parameter_store import get_parameter
+from dailymail_shared.my_s3 import upload_file
+from dailymail_shared.my_parameter_store import get_parameter
 ```
 
 ### Working on Services

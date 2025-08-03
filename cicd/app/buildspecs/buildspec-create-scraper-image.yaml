@@ -23,8 +23,7 @@ phases:
 
   build:
     commands:
-      - cd src
-      - docker build -f scraper/Dockerfile -t dailymail-scraper .
+      - docker build -f src/scraper/Dockerfile -t dailymail-scraper .
 
   post_build:
     commands:

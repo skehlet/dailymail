@@ -10,5 +10,5 @@ requires-python = ">=3.12"
 dependencies = []
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["*"]
+where = ["src"]
+include = ["dailymail_shared"]
