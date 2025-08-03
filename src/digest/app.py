@@ -12,7 +12,7 @@ from app_settings import (
 )
 from dailymail_shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
 from dailymail_shared.my_datetime import utc_to_local
-from digest_claude import generate_newsletter_digest
+from my_digest import generate_newsletter_digest
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -108,7 +108,7 @@ def create_email_and_send_it(feeds):
     today_date = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%A, %B %d, %Y')
     
     # Produce HTML message using the updated template
-    with open("digest_claude.html.jinja", encoding="utf8") as f:
+    with open("digest.html.jinja", encoding="utf8") as f:
         email = Template(f.read()).render(
             EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
             newsletter=newsletter,
