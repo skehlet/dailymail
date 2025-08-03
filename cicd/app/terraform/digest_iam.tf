@@ -34,6 +34,7 @@ data "aws_iam_policy_document" "digest_policy" {
     actions = ["ssm:GetParameter"]
     resources = [
       "arn:aws:ssm:*:*:parameter/OPENAI_API_KEY",
+      "arn:aws:ssm:*:*:parameter/GEMINI_API_KEY",
     ]
   }
 }
