@@ -1,7 +1,5 @@
 from pydantic import BaseModel
-from dailymail_shared.my_openai import call_openai_with_structured_outputs, CONTEXT_WINDOW_SIZE
-
-# use OPENAI_LOG=debug to debug
+from dailymail_shared.my_gemini import call_gemini_with_structured_outputs, GEMINI_CONTEXT_WINDOW_SIZE
 
 
 class TextSummary(BaseModel):
@@ -15,114 +13,140 @@ class TextSummary(BaseModel):
     relevance_explanation: str
 
 
-def summarize_text(url, title, text, feed_context=None):  # pylint: disable=W0613:unused-argument
-    context_section = f"\n\nADDITIONAL CONTEXT: {feed_context}" if feed_context else ""
+class GeminiTextSummary(BaseModel):
+    """
+    GeminiTextSummary object returned by the model, parsed from the response.
+    """
+
+    is_substantive: bool
+    reasoning: str
+    summary: str
+    key_takeaways: str
+
+class GeminiGoogleAlertSummary(BaseModel):
+    """
+    GeminiGoogleAlertSummary object returned by the model, parsed from the response.
+    """
+
+    relevance: bool
+    relevance_explanation: str
+    summary: str
+    key_takeaways: str
+
+
+
+def summarize_text(url, title, text, additional_context=None):  # pylint: disable=W0613:unused-argument
+    additional_context = f"\n\nADDITIONAL CONTEXT: {additional_context}" if additional_context else ""
     
-    prompt = f"""\
-Your task is to analyze news articles and provide concise, relevant summaries highlighting key information.{context_section}
+    contents = f"""\
+# ROLE
+You are an intelligent content screener. Your purpose is to analyze a provided piece of text to determine if it contains substantive, meaningful content or if it is merely a placeholder, paywall, or platform announcement.
 
-STEP 1: RELEVANCE DETERMINATION
-Determine if the article is 'RELEVANT' or 'NOT RELEVANT' based on these criteria:
+# TASK
+Evaluate if the ARTICLE_TEXT is substantive based on the criteria below. Your goal is to determine the correct values for the required output fields based on your finding. If—and only if—the text is substantive, you must also provide a summary and key takeaways.
 
-RELEVANT content:
-- Contains substantive news, analysis, or information about current events, trends, or developments
-- Presents original reporting, research findings, or expert perspectives
-- Offers meaningful insights or data points that would inform a reader about the world
-- When ADDITIONAL CONTEXT is provided, aligns with the specific interests and focus areas described
-- Example: "Federal Reserve raises interest rates by 0.5%, citing persistent inflation concerns and strong labor market data."
+# CRITERIA
 
-NOT RELEVANT content:
-- Platform announcements (e.g., "This article is hosted on Substack")
-- Anything about Substack itself (e.g., "Substack is a platform for independent writers" or "Substack is emerging as a vital platform for independent journalism")
-- Subscription solicitations or marketing content
-- Audio/podcast introductions that only describe the format without substantive content (e.g., "Listen to this episode where we discuss...")
-- Content that merely promotes media hosting features (e.g., "This podcast is now available on Substack")
-- Pages that primarily contain audio players with minimal descriptive text
-- Content that mainly directs readers to subscribe for full audio access
-- Purely administrative text (e.g., "Thanks for listening," "Subscribe to our newsletter")
-- Website navigation information, user agreements, or generic platform descriptions
-- Example: "Support independent journalism by becoming a paid subscriber. Unlock exclusive content and join our community."
+1. Substantive Content (is_substantive: true):
 
-STEP 2: FOR RELEVANT CONTENT ONLY
-Summary (3-4 sentences):
-- Begin directly with the most important information
-- Include key facts, figures, and central claims
-- When ADDITIONAL CONTEXT is provided, emphasize information that aligns with the specified interests
-- Present complete thoughts without referencing the article itself
-- Preserve accuracy without editorializing
+Must contain a complete, self-contained piece of news, analysis, original reporting, or expert opinion.
 
-Notable Aspects: Write 1-2 complete sentences that highlight unexpected
-information, unique perspectives, or important implications from the article.
-Present these as flowing prose rather than a list. Focus on elements that add
-depth beyond the main summary, such as potential consequences, historical
-context, or statistical outliers worth attention. When ADDITIONAL CONTEXT is
-provided, prioritize aspects that directly relate to the specified interests.
+Presents meaningful insights, data, or arguments.
+
+Example: "The report details a 15% year-over-year increase in renewable energy adoption, driven primarily by advancements in solar panel efficiency and government subsidies."
+
+2. Non-Substantive Content (is_substantive: false):
+This includes any text that falls into the following categories, which should be explained in the reasoning field.
+
+Paywall & Subscription Text: Any language that primarily serves to solicit subscriptions, ask for payment, or upsell the user.
+
+Example: "Support independent journalism by becoming a paid subscriber. Unlock exclusive content and join our community."
+
+Platform & Administrative Text: Generic text about the hosting platform or administrative boilerplate. This explicitly includes any text about Substack itself.
+
+Example: "This article is hosted on Substack, a platform for independent writers."
+
+Content Teasers & Placeholders: Text that only introduces or points to other content (especially audio/video) without containing the substance itself.
+
+Example: "Listen to this episode where we discuss the economy."
+
+3. Content Generation (For Substantive Articles Only):
+
+summary: A concise, 3-4 sentence summary of the key facts and claims.
+
+key_takeaways: 1-2 sentences of actionable insight, highlighting unique perspectives or important implications.
+
+If ADDITIONAL CONTEXT is provided, use it to refine the summary and key_takeaways for the user's specific interests.
+
+# ARTICLE TO ANALYZE
+
+ADDITIONAL CONTEXT: {additional_context}
+
+ARTICLE_TEXT: {text}
 """
-    max_text_length = CONTEXT_WINDOW_SIZE - len(prompt) - 100
-    text = text[:max_text_length]
-    messages = [
-        {"role": "user", "content": prompt},
-        {"role": "user", "content": text},
-    ]
-    return call_openai_with_structured_outputs(messages, TextSummary)
+    contents = contents[:GEMINI_CONTEXT_WINDOW_SIZE - 100]
+    summary: GeminiTextSummary = call_gemini_with_structured_outputs(contents, GeminiTextSummary)
+    # convert GeminiTextSummary to dict containing the same keys as TextSummary (this is what the caller expects)
+    return {
+        "summary": summary.summary,
+        "notable_aspects": summary.key_takeaways,
+        "relevance": "RELEVANT" if summary.is_substantive else "NOT RELEVANT",
+        "relevance_explanation": summary.reasoning,
+    }
 
 
-def summarize_google_alert(topic, url, title, text, feed_context=None):
-    context_section = f"\n\nADDITIONAL CONTEXT: {feed_context}" if feed_context else ""
+def summarize_google_alert(topic, url, title, text, additional_context=None):
+    additional_context = f"\n\nADDITIONAL CONTEXT: {additional_context}" if additional_context else ""
     
-    prompt = f"""\
-Your task is to analyze the provided text for relevance to the topic specified below and, if relevant, provide a concise, actionable summary.
+    contents = f"""\
+# ROLE
+You are an expert analyst tasked with reviewing news articles and providing a concise, actionable intelligence briefing for a user tracking specific topics.
 
-TOPIC: {topic}{context_section}
+# TASK
+Analyze the provided article based on the user's TOPIC. Your goal is to determine the correct values for the required output fields based on the following criteria. First, determine if the article is relevant. If it is, you must also provide a summary and key takeaways.
 
-STEP 1: RELEVANCE DETERMINATION
-Determine if the text is 'RELEVANT' or 'NOT RELEVANT' based on these criteria:
+# CRITERIA
 
-RELEVANT content must:
-- Directly address the full TOPIC with substantive information
-- Contain specific details related to ALL quoted terms within the TOPIC (e.g., if TOPIC contains "release date" and "PC", both elements must be addressed)
-- Provide actionable or informative content that would be valuable to someone tracking this specific TOPIC
-- When ADDITIONAL CONTEXT is provided, prioritize information that aligns with the specific interests and perspective described in that context
+1. Relevance Determination:
 
-NOT RELEVANT content includes:
-- Text that addresses only some quoted terms from the TOPIC but not others
-- Content that mentions keywords from the TOPIC without providing specific information about the quoted terms
-- Articles where the TOPIC appears only in metadata, tags, or peripheral sections
-- Content that discusses related themes but doesn't directly address the combination of terms in the TOPIC
+An article is relevant (true) only if it contains substantive, specific details directly addressing the entire TOPIC.
 
-STEP 2: FOR RELEVANT CONTENT ONLY
-Summary (3-4 sentences):
-- Begin with the most important information related specifically to the TOPIC
-- Include key dates, numbers, developments, or announcements
-- Focus only on information directly related to the TOPIC, omitting tangential details
-- When ADDITIONAL CONTEXT is provided, emphasize aspects that align with the specific interests described
-- Present complete thoughts without referencing the article itself
+If the TOPIC contains multiple quoted terms (e.g., "product" and "release date"), the article must provide meaningful information on all of them.
 
-Notable Aspects: Write 1-2 complete sentences highlighting information that
-would be most actionable or decision-relevant. Present this as flowing prose
-rather than a list. Focus on new developments, changes from previous
-information, or unexpected elements. When ADDITIONAL CONTEXT is provided,
-prioritize aspects that directly relate to the specific interests mentioned.
-For topics about products/services, include pricing, availability, or competitive
-positioning when available. For topics about events/people, include timeline
-information, context, or implications.
-"""
-    text = f"""\
+An article is not relevant (false) if it only mentions keywords from the TOPIC without detail, addresses only part of the TOPIC, or discusses related themes without focusing on the core TOPIC.
+
+Your reasoning for this choice should be captured in the relevance_explanation.
+
+2. Content Generation (For Relevant Articles Only):
+
+summary: A neutral, dense summary (3-4 sentences) of the key facts. Focus on the most important information like dates, figures, and official announcements directly related to the TOPIC. Do not reference the article (e.g., "The article states...").
+
+key_takeaways: 1-2 sentences of actionable insight. Highlight new developments, strategic implications, or decision-relevant information (e.g., pricing, availability, competitive shifts). Note the certainty of the information, distinguishing between confirmed facts and speculation or analysis.
+
+If ADDITIONAL CONTEXT is provided, tailor the summary and takeaways to that perspective.
+
+# ARTICLE TO ANALYZE
+
+TOPIC: {topic}
+ADDITIONAL CONTEXT: {additional_context}
+
 Source: {url}
 Title: {title}
 Text: {text}
 """
-    max_text_length = CONTEXT_WINDOW_SIZE - len(prompt) - 100
-    text = text[:max_text_length]
-    messages = [
-        {"role": "user", "content": prompt},
-        {"role": "user", "content": text},
-    ]
-    return call_openai_with_structured_outputs(messages, TextSummary)
+    contents = contents[:GEMINI_CONTEXT_WINDOW_SIZE - 100]
+    summary: GeminiGoogleAlertSummary = call_gemini_with_structured_outputs(contents, GeminiGoogleAlertSummary)
+    # convert GeminiGoogleAlertSummary to dict containing the same keys as TextSummary (this is what the caller expects)
+    return {
+        "summary": summary.summary,
+        "notable_aspects": summary.key_takeaways,
+        "relevance": "RELEVANT" if summary.relevance else "NOT RELEVANT",
+        "relevance_explanation": summary.relevance_explanation,
+    }
 
 
 if __name__ == "__main__":
-    # summarize_google_alert(
+    # summary = summarize_google_alert(
     #         "vw id.gti",
     #         "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles",
     #         "Volkswagen to dump GTX badge for hot electric vehicles | CarExpert",
@@ -146,7 +170,7 @@ if __name__ == "__main__":
     # 22 hours agoWhat should you buy instead of a Tesla Model Y?""".strip(),
     #     )
 
-    #     summarize_text(
+    #     summary = summarize_text(
     #         "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles",
     #         "Volkswagen to dump GTX badge for hot electric vehicles | CarExpert",
     #         """\
@@ -171,7 +195,7 @@ if __name__ == "__main__":
     # """.strip(),
     #     )
 
-#     summarize_google_alert(
+#     summary = summarize_google_alert(
 #         'thievery corporation "tour dates"',
 #         "https://www.klbjfm.com/blogs/chillville-spotify-playlist-may-19-2024/",
 #         "Chillville Spotify Playlist – May 19, 2024",
@@ -185,7 +209,7 @@ if __name__ == "__main__":
 # """.strip(),
 #     )
 
-#     summarize_google_alert(
+#     summary = summarize_google_alert(
 #         'gta 6 "pc"',
 #         "https://www.tweaktown.com/news/100351/cooler-masters-shark-concept-pc-available-for-pre-order-7000-an-rtx-4070-ti-super/index.html",
 #         "Cooler Master's Shark X concept PC available for pre-order, $7000 for an RTX 4070 Ti SUPER",
@@ -207,7 +231,7 @@ if __name__ == "__main__":
 # """.strip()
 #     )
 
-    summarize_google_alert(
+    summary = summarize_google_alert(
             "Golf Mk9",
             "https://www.roadandtrack.com/news/a63081162/volkswagen-rivian-mk9-golf/",
             "Volkswagen Says Rivian Will Help Develop Electric Mk9 Golf",
@@ -222,9 +246,9 @@ Rivian leadership has previously spoken out against the use of 800- and 900-volt
 Volkswagen previously offered the original E-Golf in the U.S. from 2015 through 2020 before culling the electrified Mk7 chassis. It's not immediately clear which markets the Mk9 Golf will be available in, seeing as the North American market has been void of a traditional Golf offering since 2021. We've retained the performance-forward GTI and Golf R, but the reintroduction of the Golf as an electric model for 2029 would be a big deal for the U.S. market.
 A New York transplant hailing from the Pacific Northwest, Emmet White has a passion for anything that goes: cars, bicycles, planes, and motorcycles. After learning to ride at 17, Emmet worked in the motorcycle industry before joining Autoweek in 2022 and Road & Track in 2024. The woes of alternate side parking have kept his fleet moderate, with a 2014 Volkswagen Jetta GLI and a BMW 318i E30 street parked in his Queens community.
 """.strip(),
-        )
-    
-#     summarize_text(
+    )
+
+#     summary = summarize_text(
 #         "https://heathercoxrichardson.substack.com/p/march-11-2025-fbc",
 #         "March 11, 2025",
 #         """\
@@ -233,3 +257,8 @@ A New York transplant hailing from the Pacific Northwest, Emmet White has a pass
 # Substack is the home for great culture"
 # """.strip(),
 #     )
+
+    print(f"Summary: {summary['summary']}")
+    print(f"Notable Aspects: {summary['notable_aspects']}")
+    print(f"Relevance: {summary['relevance']}")
+    print(f"Relevance Explanation: {summary['relevance_explanation']}")
