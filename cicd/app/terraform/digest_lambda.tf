@@ -9,7 +9,7 @@ resource "aws_lambda_function" "digest" {
   environment {
     variables = {
       PIPELINE_EXECUTION_ID = var.pipeline_execution_id
-      LLM                   = "gpt-4o-mini"
+      LLM                   = "gemini-2.5-flash"
       CONTEXT_WINDOW_SIZE   = "50000"
     }
   }
