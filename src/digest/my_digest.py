@@ -1,7 +1,7 @@
 import json
-from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
-from dailymail_shared.my_openai import call_openai_with_structured_outputs
+from pydantic import BaseModel, Field
+from dailymail_shared.my_gemini import call_gemini_with_structured_outputs
 
 # --- Pydantic Models for Validation ---
 
@@ -48,41 +48,51 @@ def generate_multi_article_summary(feed_title: str, articles: list) -> MultiArti
     """
     articles_json = json.dumps(articles, indent=2)
     
-    prompt = f"""
-You are summarizing multiple articles from the feed: "{feed_title}".
+    contents = f"""
+# ROLE
+You are an expert intelligence analyst and senior editor. Your task is to synthesize multiple articles from a single news feed into a single, consolidated briefing.
 
-Create a concise summary that captures the key themes across these articles (3-4 sentences).
-Then, identify 1-2 notable aspects about the collection of articles as a whole, and provide a brief highlight for each source article.
+# TASK
+You will be given a feed title and a list of articles. Your task is to analyze all articles to identify the overarching themes, notable collective insights, and key individual findings. Based on your synthesis, you will populate the fields of the required structured output.
 
-Your output should follow this exact structure:
-- A "summary" field with 3-4 sentences summarizing key developments across all articles
-- A "notable_aspects" field with 1-2 complete sentences highlighting unexpected information, unique perspectives, or important implications from these articles as a group
-  - Write these as flowing prose sentences, not as a bulleted or numbered list
-  - Focus on elements that add depth beyond the main summary
-  - Identify potential consequences, historical context, or statistical outliers worth attention
-- A "sources" list where each item has:
-  - "title": The article title
-  - "url": The article URL 
-  - "highlight": A 1-2 sentence highlight of what's most interesting about this specific article
+# INSTRUCTIONS FOR CONTENT
 
-Focus on delivering substantive information clearly and concisely. Do not include introductions, 
-pleasantries, or notes about your task. Just the requested content.
+Overall Summary (for the summary field):
+
+Write a 3-4 sentence narrative that synthesizes the most important developments and recurring themes from all articles combined.
+
+This should provide a high-level, integrated overview of the topic as presented in the feed, as if you were briefing a busy executive.
+
+Collective Insights (for the notable_aspects field):
+
+In 1-2 flowing prose sentences, describe what is most notable, unexpected, or important about this collection of articles when viewed as a group.
+
+Focus on new trends, contradictions between reports, surprising data points, or the broader implications of the combined information. Do not simply repeat points from the summary.
+
+Individual Source Highlights (for the sources list):
+
+For each article provided in the input, you must generate a corresponding item in the output list.
+
+Each item must include the original title and url.
+
+For the highlight of each source, write a unique 1-2 sentence summary that captures the single most important or interesting finding from that specific article, setting it apart from the others.
+
+# OUTPUT REQUIREMENTS
+
+Deliver only the requested content. Do not include any introductions, pleasantries, apologies, or notes about the process.
+
+# ARTICLES TO ANALYZE
+
+Feed Title: "{feed_title}"
+
+Articles:
+{articles_json}
 """
 
-    articles_info = f"Here are the articles to summarize:\n\n{articles_json}"
-    
-    messages = [
-        {"role": "user", "content": prompt},
-        {"role": "user", "content": articles_info}
-    ]
-    
     # Make the API call using the OpenAI structured outputs method
-    try:
-        result = call_openai_with_structured_outputs(messages, MultiArticleSummary)
-        return MultiArticleSummary.model_validate(result)
-    except Exception as e:
-        print(f"Error generating multi-article summary: {e}")
-        raise
+    result = call_gemini_with_structured_outputs(contents, MultiArticleSummary)
+    return result
+
 
 def generate_opening_paragraph(feed_data: List[dict]) -> str:
     """
@@ -112,37 +122,35 @@ def generate_opening_paragraph(feed_data: List[dict]) -> str:
     
     feed_info_json = json.dumps(feed_info, indent=2)
     
-    prompt = """
-Create a concise opening paragraph (2-3 sentences) for a newsletter that highlights 3-5 key stories 
-across different categories. The paragraph should:
+    contents = f"""
+# ROLE
+You are a senior editor writing the opening paragraph for a prestigious daily news briefing for informed professionals.
 
-- Directly mention specific, interesting details from the article summaries provided
-- Focus on the substantive content from the summaries, not just category names
-- Maintain a professional, informative tone
-- Avoid greetings or pleasantries
-- Prioritize facts and developments over clickbait or sensational claims
+# TASK
+Your task is to write a single, compelling introductory paragraph (2-3 sentences) that acts as a "hook" for the entire newsletter. You will achieve this by synthesizing the most significant details from the provided story summaries into a concise and cohesive narrative.
 
-For example: "Today, the tech world saw a major breakthrough in AI that exceeds human performance on cognitive tasks, 
-while the finance sector showed resilience despite ongoing inflation concerns."
+# GUIDELINES FOR THE PARAGRAPH
 
-Your response should be ONLY the paragraph text with no additional explanations or notes.
+Synthesize, Don't List: Instead of just listing categories (e.g., "In tech, finance, and politics..."), you must seamlessly weave specific, interesting details from 3-5 of the most important stories into your narrative.
+
+Hook with Substance: Grab the reader's attention with concrete facts and key developments from the provided summaries. Prioritize substance over sensationalism or vague, clickbait-style claims.
+
+Professional Tone: The tone must be professional, direct, and informative.
+
+# EXAMPLE OF TONE AND STYLE
+"Today, the tech world saw a major breakthrough in AI that exceeds human performance on cognitive tasks, while the finance sector showed resilience despite ongoing inflation concerns."
+
+# OUTPUT REQUIREMENTS
+Your response must be the paragraph text ONLY. Do not include any greetings ("Hello,"), closings, titles (like "Newsletter Opening:"), or any other conversational text or markdown formatting.
+
+# STORIES TO HIGHLIGHT
+Here is the information about the stories to highlight:
+
+{feed_info_json}
 """
 
-    info_text = f"Here is information about the feeds to highlight:\n\n{feed_info_json}"
-    
-    # Make the API call to OpenAI
-    messages = [
-        {"role": "user", "content": prompt},
-        {"role": "user", "content": info_text}
-    ]
-    
-    try:
-        result = call_openai_with_structured_outputs(messages, OpeningParagraph)
-        return result["text"]
-    except Exception as e:
-        print(f"Error generating opening paragraph: {e}")
-        # Fallback to a generic opening
-        return "Today's news digest covers a variety of important topics from multiple sources."
+    result = call_gemini_with_structured_outputs(contents, OpeningParagraph)
+    return result.text
 
 # --- Main Function to Generate Newsletter ---
 
