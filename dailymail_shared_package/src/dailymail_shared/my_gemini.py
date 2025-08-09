@@ -3,7 +3,7 @@ from google import genai
 from dailymail_shared.my_parameter_store import get_value_from_parameter_store
 
 
-LLM = os.getenv("LLM", "gemini-2.5-flash")
+LLM = os.getenv("LLM", "gemini-2.5-flash-lite")
 GEMINI_CONTEXT_WINDOW_SIZE = int(os.getenv("CONTEXT_WINDOW_SIZE", "50000"))
 
 
