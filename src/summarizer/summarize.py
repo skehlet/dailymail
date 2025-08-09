@@ -72,9 +72,16 @@ Example: "Listen to this episode where we discuss the economy."
 
 3. Content Generation (For Substantive Articles Only):
 
-summary: A concise, 3-4 sentence summary of the key facts and claims.
+**VOICE & TONE:** The goal of the summary is to capture the essence of the author's message directly, as if the author themself were stating their main point. The tone should be active and declarative, not passive or reportorial.
 
-key_takeaways: 1-2 sentences of actionable insight, highlighting unique perspectives or important implications.
+**summary:** A concise, 3-4 sentence summary of the article's core thesis.
+* **Crucially, you must NOT start with phrases like "The article details," "The author shares," "This text reviews," or any other third-person framing.**
+* Instead, state the primary argument directly. Present the key points as facts from the author's perspective.
+
+* **Example of what NOT to do:** "The article details President Trump's unconstitutional proposal to exclude undocumented immigrants from the U.S. Census, an action interpreted as an attempt to rig future elections alongside broader Republican gerrymandering efforts in various states."
+* **Example of the correct, direct style:** "President Trump's proposal to exclude undocumented immigrants from the census was an unconstitutional attempt to rig future elections. This move, combined with broader Republican gerrymandering, is part of a clear pattern of eroding democracy, which is also reflected in the administration's softening stance on human rights abuses abroad. However, growing public resistance offers a powerful pushback against these authoritarian tendencies."
+
+**key_takeaways:** 1-2 sentences that distill the single most important implication or the "so what?" of the article. This should also be written in a direct voice.
 
 If ADDITIONAL CONTEXT is provided, use it to refine the summary and key_takeaways for the user's specific interests.
 
@@ -119,9 +126,18 @@ Your reasoning for this choice should be captured in the relevance_explanation.
 
 2. Content Generation (For Relevant Articles Only):
 
-summary: A neutral, dense summary (3-4 sentences) of the key facts. Focus on the most important information like dates, figures, and official announcements directly related to the TOPIC. Do not reference the article (e.g., "The article states...").
+**VOICE & TONE:** Write as an intelligence analyst delivering a briefing. The tone must be direct, declarative, and focused on delivering information as established fact. Get straight to the point without introductory fluff.
 
-key_takeaways: 1-2 sentences of actionable insight. Highlight new developments, strategic implications, or decision-relevant information (e.g., pricing, availability, competitive shifts). Note the certainty of the information, distinguishing between confirmed facts and speculation or analysis.
+**summary:** A direct intelligence update (3-4 sentences) on the key facts relevant to the TOPIC.
+* **You must NOT use framing language like "The article reports," "According to the source," or any other phrasing that references the article itself.**
+* Instead, state the information directly. Lead with the subject (e.g., the company, the person, the event) and present the key developments.
+
+* **Example for TOPIC: "Apple Vision Pro" and "international launch date"**
+    * **Incorrect, reportorial style:** "This article announces that Apple has set the international release dates for its Vision Pro headset. It mentions the device will be available in China, Japan, and Singapore on June 28, with pre-orders starting June 13."
+    * **Correct, direct briefing style:** "Apple has confirmed the international launch dates for the Vision Pro. The headset will debut in China, Japan, and Singapore on June 28, followed by a second launch wave in Australia, Canada, and Europe on July 12. Pre-orders for the first group of countries will open on June 13."
+
+**key_takeaways:** 1-2 sentences that distill the most critical implication or actionable insight for a decision-maker.
+* Clearly distinguish between confirmed facts (e.g., "The launch price is confirmed at $3,999.") and speculation or analysis (e.g., "Analysts speculate this staggered launch is to manage supply chain constraints.").
 
 If ADDITIONAL CONTEXT is provided, tailor the summary and takeaways to that perspective.
 
@@ -170,7 +186,7 @@ if __name__ == "__main__":
     # 22 hours agoWhat should you buy instead of a Tesla Model Y?""".strip(),
     #     )
 
-    #     summary = summarize_text(
+    # summary = summarize_text(
     #         "https://www.carexpert.com.au/car-news/volkswagen-to-dump-gtx-badge-for-hot-electric-vehicles",
     #         "Volkswagen to dump GTX badge for hot electric vehicles | CarExpert",
     #         """\
