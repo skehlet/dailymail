@@ -19,6 +19,7 @@ data "aws_iam_policy_document" "rss_reader_assume_policy" {
 data "aws_iam_policy_document" "rss_reader_policy" {
   statement {
     actions = [
+      "dynamodb:BatchWriteItem",
       "dynamodb:DeleteItem",
       "dynamodb:DescribeTable",
       "dynamodb:GetItem",
