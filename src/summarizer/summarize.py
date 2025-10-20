@@ -1,164 +1,136 @@
-from pydantic import BaseModel
-from dailymail_shared.my_gemini import call_gemini_with_structured_outputs, GEMINI_CONTEXT_WINDOW_SIZE
+import os
+import instructor
+from pydantic import BaseModel, Field
+from dailymail_shared.my_instructor import (
+    get_instructor_client,
+    get_structured_output,
+    CONTEXT_WINDOW_SIZE,
+)
 
 
 class TextSummary(BaseModel):
     """
-    TextSummary object returned by the model, parsed from the response.
+    Analysis of article content to determine substantive value.
     """
 
-    summary: str
-    notable_aspects: str
-    relevance: str
-    relevance_explanation: str
+    is_substantive: bool = Field(
+        description="True if article contains complete news/analysis/reporting with meaningful insights. "
+        "False if it's a paywall message, platform text (e.g., Substack boilerplate), or content teaser."
+    )
+    summary: str = Field(
+        description="3-4 sentence summary in direct, active voice as if the author is speaking. "
+        "State the thesis directly without meta-commentary like 'The article discusses...' "
+        "Example: 'President Trump's proposal to exclude undocumented immigrants from the census was unconstitutional. This move undermines democracy...'"
+    )
+    key_takeaways: str = Field(
+        description="1-2 sentences on the most important implication. Direct voice, no meta-commentary."
+    )
 
-
-class GeminiTextSummary(BaseModel):
+class GoogleAlertSummary(BaseModel):
     """
-    GeminiTextSummary object returned by the model, parsed from the response.
-    """
-
-    is_substantive: bool
-    reasoning: str
-    summary: str
-    key_takeaways: str
-
-class GeminiGoogleAlertSummary(BaseModel):
-    """
-    GeminiGoogleAlertSummary object returned by the model, parsed from the response.
+    Analysis of article relevance to a specific topic.
     """
 
-    relevance: bool
-    relevance_explanation: str
-    summary: str
-    key_takeaways: str
+    relevance: bool = Field(
+        description="True only if article provides substantive, specific details about ALL aspects of the topic. "
+        "False if it only mentions keywords, addresses partial topic, or lacks detail."
+    )
+    summary: str = Field(
+        description="3-4 sentence intelligence briefing on key facts. Direct, declarative statements as established fact. "
+        "Lead with the subject (company/person/event), not the article. "
+        "Example: 'Apple has confirmed international launch dates. The headset debuts in China, Japan, and Singapore on June 28...'"
+    )
+    key_takeaways: str = Field(
+        description="1-2 sentences on critical implications or actionable insights. "
+        "Distinguish confirmed facts from speculation."
+    )
 
 
 
 def summarize_text(url, title, text, additional_context=None):  # pylint: disable=W0613:unused-argument
-    additional_context = f"\n\nADDITIONAL CONTEXT: {additional_context}" if additional_context else ""
     
     contents = f"""\
-# ROLE
-You are an intelligent content screener. Your purpose is to analyze a provided piece of text to determine if it contains substantive, meaningful content or if it is merely a placeholder, paywall, or platform announcement.
+You are a content screener analyzing articles to determine if they contain substantive content or are merely placeholders/paywalls/platform announcements.
 
-# TASK
-Evaluate if the ARTICLE_TEXT is substantive based on the criteria below. Your goal is to determine the correct values for the required output fields based on your finding. If—and only if—the text is substantive, you must also provide a summary and key takeaways.
-
-# CRITERIA
-
-1. Substantive Content (is_substantive: true):
-
-Must contain a complete, self-contained piece of news, analysis, original reporting, or expert opinion.
-
-Presents meaningful insights, data, or arguments.
-
-Example: "The report details a 15% year-over-year increase in renewable energy adoption, driven primarily by advancements in solar panel efficiency and government subsidies."
-
-2. Non-Substantive Content (is_substantive: false):
-This includes any text that falls into the following categories, which should be explained in the reasoning field.
-
-Paywall & Subscription Text: Any language that primarily serves to solicit subscriptions, ask for payment, or upsell the user.
-
-Example: "Support independent journalism by becoming a paid subscriber. Unlock exclusive content and join our community."
-
-Platform & Administrative Text: Generic text about the hosting platform or administrative boilerplate. This explicitly includes any text about Substack itself.
-
-Example: "This article is hosted on Substack, a platform for independent writers."
-
-Content Teasers & Placeholders: Text that only introduces or points to other content (especially audio/video) without containing the substance itself.
-
-Example: "Listen to this episode where we discuss the economy."
-
-3. Content Generation (For Substantive Articles Only):
-
-**VOICE & TONE:** The goal of the summary is to capture the essence of the author's message directly, as if the author themself were stating their main point. The tone should be active and declarative, not passive or reportorial.
-
-**summary:** A concise, 3-4 sentence summary of the article's core thesis.
-* **Crucially, you must NOT start with phrases like "The article details," "The author shares," "This text reviews," or any other third-person framing.**
-* Instead, state the primary argument directly. Present the key points as facts from the author's perspective.
-
-* **Example of what NOT to do:** "The article details President Trump's unconstitutional proposal to exclude undocumented immigrants from the U.S. Census, an action interpreted as an attempt to rig future elections alongside broader Republican gerrymandering efforts in various states."
-* **Example of the correct, direct style:** "President Trump's proposal to exclude undocumented immigrants from the census was an unconstitutional attempt to rig future elections. This move, combined with broader Republican gerrymandering, is part of a clear pattern of eroding democracy, which is also reflected in the administration's softening stance on human rights abuses abroad. However, growing public resistance offers a powerful pushback against these authoritarian tendencies."
-
-**key_takeaways:** 1-2 sentences that distill the single most important implication or the "so what?" of the article. This should also be written in a direct voice.
-
-If ADDITIONAL CONTEXT is provided, use it to refine the summary and key_takeaways for the user's specific interests.
-
-# ARTICLE TO ANALYZE
-
-ADDITIONAL CONTEXT: {additional_context}
-
-ARTICLE_TEXT: {text}
+ARTICLE_TEXT:
+{text}
 """
-    contents = contents[:GEMINI_CONTEXT_WINDOW_SIZE - 100]
-    summary: GeminiTextSummary = call_gemini_with_structured_outputs(contents, GeminiTextSummary)
-    # convert GeminiTextSummary to dict containing the same keys as TextSummary (this is what the caller expects)
-    return {
-        "summary": summary.summary,
-        "notable_aspects": summary.key_takeaways,
-        "relevance": "RELEVANT" if summary.is_substantive else "NOT RELEVANT",
-        "relevance_explanation": summary.reasoning,
-    }
+    
+    if additional_context:
+        contents += f"""
+
+IMPORTANT - ADDITIONAL CONTEXT FOR YOUR ANALYSIS:
+{additional_context}
+
+Tailor your summary and key_takeaways to address the specific interests mentioned in the additional context above.
+"""
+    contents = contents[:CONTEXT_WINDOW_SIZE - 100]
+    
+    try:
+        # Get instructor client
+        client = get_instructor_client()
+        
+        # Get structured output using instructor
+        summary: TextSummary = get_structured_output(client, contents, TextSummary)
+        
+        # convert TextSummary to dict containing the keys the caller expects
+        return {
+            "summary": summary.summary,
+            "notable_aspects": summary.key_takeaways,
+            "relevance": "RELEVANT" if summary.is_substantive else "NOT RELEVANT",
+        }
+    except instructor.exceptions.InstructorRetryException as e:
+        print(f"Instructor retry error: {e}")
+        raise
+    except Exception as e:
+        print(f"Unexpected error during summarization: {e}")
+        raise
 
 
 def summarize_google_alert(topic, url, title, text, additional_context=None):
-    additional_context = f"\n\nADDITIONAL CONTEXT: {additional_context}" if additional_context else ""
     
     contents = f"""\
-# ROLE
-You are an expert analyst tasked with reviewing news articles and providing a concise, actionable intelligence briefing for a user tracking specific topics.
+You are an intelligence analyst providing a briefing on whether an article is relevant to a specific topic.
 
-# TASK
-Analyze the provided article based on the user's TOPIC. Your goal is to determine the correct values for the required output fields based on the following criteria. First, determine if the article is relevant. If it is, you must also provide a summary and key takeaways.
-
-# CRITERIA
-
-1. Relevance Determination:
-
-An article is relevant (true) only if it contains substantive, specific details directly addressing the entire TOPIC.
-
-If the TOPIC contains multiple quoted terms (e.g., "product" and "release date"), the article must provide meaningful information on all of them.
-
-An article is not relevant (false) if it only mentions keywords from the TOPIC without detail, addresses only part of the TOPIC, or discusses related themes without focusing on the core TOPIC.
-
-Your reasoning for this choice should be captured in the relevance_explanation.
-
-2. Content Generation (For Relevant Articles Only):
-
-**VOICE & TONE:** Write as an intelligence analyst delivering a briefing. The tone must be direct, declarative, and focused on delivering information as established fact. Get straight to the point without introductory fluff.
-
-**summary:** A direct intelligence update (3-4 sentences) on the key facts relevant to the TOPIC.
-* **You must NOT use framing language like "The article reports," "According to the source," or any other phrasing that references the article itself.**
-* Instead, state the information directly. Lead with the subject (e.g., the company, the person, the event) and present the key developments.
-
-* **Example for TOPIC: "Apple Vision Pro" and "international launch date"**
-    * **Incorrect, reportorial style:** "This article announces that Apple has set the international release dates for its Vision Pro headset. It mentions the device will be available in China, Japan, and Singapore on June 28, with pre-orders starting June 13."
-    * **Correct, direct briefing style:** "Apple has confirmed the international launch dates for the Vision Pro. The headset will debut in China, Japan, and Singapore on June 28, followed by a second launch wave in Australia, Canada, and Europe on July 12. Pre-orders for the first group of countries will open on June 13."
-
-**key_takeaways:** 1-2 sentences that distill the most critical implication or actionable insight for a decision-maker.
-* Clearly distinguish between confirmed facts (e.g., "The launch price is confirmed at $3,999.") and speculation or analysis (e.g., "Analysts speculate this staggered launch is to manage supply chain constraints.").
-
-If ADDITIONAL CONTEXT is provided, tailor the summary and takeaways to that perspective.
-
-# ARTICLE TO ANALYZE
+Determine if the article addresses ALL aspects of the topic with specific, substantive details. If relevant, provide a direct intelligence briefing.
 
 TOPIC: {topic}
-ADDITIONAL CONTEXT: {additional_context}
 
+ARTICLE:
 Source: {url}
 Title: {title}
 Text: {text}
 """
-    contents = contents[:GEMINI_CONTEXT_WINDOW_SIZE - 100]
-    summary: GeminiGoogleAlertSummary = call_gemini_with_structured_outputs(contents, GeminiGoogleAlertSummary)
-    # convert GeminiGoogleAlertSummary to dict containing the same keys as TextSummary (this is what the caller expects)
-    return {
-        "summary": summary.summary,
-        "notable_aspects": summary.key_takeaways,
-        "relevance": "RELEVANT" if summary.relevance else "NOT RELEVANT",
-        "relevance_explanation": summary.relevance_explanation,
-    }
+    
+    if additional_context:
+        contents += f"""
+
+IMPORTANT - ADDITIONAL CONTEXT FOR YOUR ANALYSIS:
+{additional_context}
+
+Tailor your summary and key_takeaways to address the specific perspective or interests mentioned in the additional context above.
+"""
+    contents = contents[:CONTEXT_WINDOW_SIZE - 100]
+    
+    try:
+        # Get instructor client
+        client = get_instructor_client()
+        
+        # Get structured output using instructor
+        summary: GoogleAlertSummary = get_structured_output(client, contents, GoogleAlertSummary)
+
+        # convert GoogleAlertSummary to dict containing the keys the caller expects
+        return {
+            "summary": summary.summary,
+            "notable_aspects": summary.key_takeaways,
+            "relevance": "RELEVANT" if summary.relevance else "NOT RELEVANT",
+        }
+    except instructor.exceptions.InstructorRetryException as e:
+        print(f"Instructor retry error: {e}")
+        raise
+    except Exception as e:
+        print(f"Unexpected error during summarization: {e}")
+        raise
 
 
 if __name__ == "__main__":
@@ -247,22 +219,22 @@ if __name__ == "__main__":
 # """.strip()
 #     )
 
-    summary = summarize_google_alert(
-            "Golf Mk9",
-            "https://www.roadandtrack.com/news/a63081162/volkswagen-rivian-mk9-golf/",
-            "Volkswagen Says Rivian Will Help Develop Electric Mk9 Golf",
-            """\
-American software will meet Volkswagen hardware in the next-generation version of the iconic hatchback.
-Volkswagen and Rivian are joining forces as part of a $5.8 billion dollar deal, one that will see the two companies co-develop architectures and software for future electric vehicles. Now, one VW exec has confirmed where we'll first see the fruits of this joint development between the legacy German automaker and the U.S. startup: the next-generation Volkswagen Golf.
-According to reporting from CarSales, development of the electrified hatchback is set to start soon, and Volkswagen is seemingly excited to leverage the engineering prowess and zonal architecture of Illinois's premier electric pickup truck manufacturer. Currently in its eighth generation, the Volkswagen Golf just received a facelift for the 2025 model year, meaning the ninth-generation version of this iconic compact isn't set to arrive until 2029.
-Even so, Thomas Schaefer, Volkswagen’s passenger cars chief executive, confirmed earlier this week that the joint partnership between Rivian and Wolfsburg will be used first on the hatchback whose roots date back to the 1970s.
-"We decided on how to do the software-defined vehicle. It will happen with Rivian, the joint venture, where we put the new electric electronics architecture together," Schafer said to the media. "But we have also decided that we want to start this journey with a more iconic product. So, we’ll start with the Golf."
-Details remain sparse, but reports from CarSales indicate that the same shared electronic package will eventually make its way into Audi and Porsche products as well. Before that crossover, however, Volkswagen will first test the Rivian-designed software on its Scalable System Platform (SSP). Currently in development, the SSP will replace the MEB platform, which currently holds the ID-series of electric VWs. Notably, CarSales says the MK9 Golf Electric will replace the current ID.3 as VW's compact electric model.
-Rivian leadership has previously spoken out against the use of 800- and 900-volt architecture, indicating that this compact hatch may be a lower-voltage build. However, as consumers have voiced complaints about slower charging speeds on current ID-series models, we wouldn't be surprised to see VW push for the more powerful setup.
-Volkswagen previously offered the original E-Golf in the U.S. from 2015 through 2020 before culling the electrified Mk7 chassis. It's not immediately clear which markets the Mk9 Golf will be available in, seeing as the North American market has been void of a traditional Golf offering since 2021. We've retained the performance-forward GTI and Golf R, but the reintroduction of the Golf as an electric model for 2029 would be a big deal for the U.S. market.
-A New York transplant hailing from the Pacific Northwest, Emmet White has a passion for anything that goes: cars, bicycles, planes, and motorcycles. After learning to ride at 17, Emmet worked in the motorcycle industry before joining Autoweek in 2022 and Road & Track in 2024. The woes of alternate side parking have kept his fleet moderate, with a 2014 Volkswagen Jetta GLI and a BMW 318i E30 street parked in his Queens community.
-""".strip(),
-    )
+#     summary = summarize_google_alert(
+#             "Golf Mk9",
+#             "https://www.roadandtrack.com/news/a63081162/volkswagen-rivian-mk9-golf/",
+#             "Volkswagen Says Rivian Will Help Develop Electric Mk9 Golf",
+#             """\
+# American software will meet Volkswagen hardware in the next-generation version of the iconic hatchback.
+# Volkswagen and Rivian are joining forces as part of a $5.8 billion dollar deal, one that will see the two companies co-develop architectures and software for future electric vehicles. Now, one VW exec has confirmed where we'll first see the fruits of this joint development between the legacy German automaker and the U.S. startup: the next-generation Volkswagen Golf.
+# According to reporting from CarSales, development of the electrified hatchback is set to start soon, and Volkswagen is seemingly excited to leverage the engineering prowess and zonal architecture of Illinois's premier electric pickup truck manufacturer. Currently in its eighth generation, the Volkswagen Golf just received a facelift for the 2025 model year, meaning the ninth-generation version of this iconic compact isn't set to arrive until 2029.
+# Even so, Thomas Schaefer, Volkswagen’s passenger cars chief executive, confirmed earlier this week that the joint partnership between Rivian and Wolfsburg will be used first on the hatchback whose roots date back to the 1970s.
+# "We decided on how to do the software-defined vehicle. It will happen with Rivian, the joint venture, where we put the new electric electronics architecture together," Schafer said to the media. "But we have also decided that we want to start this journey with a more iconic product. So, we’ll start with the Golf."
+# Details remain sparse, but reports from CarSales indicate that the same shared electronic package will eventually make its way into Audi and Porsche products as well. Before that crossover, however, Volkswagen will first test the Rivian-designed software on its Scalable System Platform (SSP). Currently in development, the SSP will replace the MEB platform, which currently holds the ID-series of electric VWs. Notably, CarSales says the MK9 Golf Electric will replace the current ID.3 as VW's compact electric model.
+# Rivian leadership has previously spoken out against the use of 800- and 900-volt architecture, indicating that this compact hatch may be a lower-voltage build. However, as consumers have voiced complaints about slower charging speeds on current ID-series models, we wouldn't be surprised to see VW push for the more powerful setup.
+# Volkswagen previously offered the original E-Golf in the U.S. from 2015 through 2020 before culling the electrified Mk7 chassis. It's not immediately clear which markets the Mk9 Golf will be available in, seeing as the North American market has been void of a traditional Golf offering since 2021. We've retained the performance-forward GTI and Golf R, but the reintroduction of the Golf as an electric model for 2029 would be a big deal for the U.S. market.
+# A New York transplant hailing from the Pacific Northwest, Emmet White has a passion for anything that goes: cars, bicycles, planes, and motorcycles. After learning to ride at 17, Emmet worked in the motorcycle industry before joining Autoweek in 2022 and Road & Track in 2024. The woes of alternate side parking have kept his fleet moderate, with a 2014 Volkswagen Jetta GLI and a BMW 318i E30 street parked in his Queens community.
+# """.strip(),
+#     )
 
 #     summary = summarize_text(
 #         "https://heathercoxrichardson.substack.com/p/march-11-2025-fbc",
@@ -274,7 +246,27 @@ A New York transplant hailing from the Pacific Northwest, Emmet White has a pass
 # """.strip(),
 #     )
 
+    summary = summarize_text(
+        "https://heathercoxrichardson.substack.com/p/october-18-2025",
+        "October 18, 2025",
+        """\
+Today, millions of Americans and their allies turned out across the United States and around the globe to demonstrate their commitment to American democracy and their opposition to a president and an administration apparently bent on replacing that democracy with a dictatorship.
+Administration loyalists tried to claim the No Kings protests would be “hate America” rallies of “the pro-Hamas wing and Antifa people.” Texas governor Greg Abbott deployed the Texas National Guard ahead of the No Kings Day protests, warning that “[v]iolence and destruction will never be tolerated in Texas.”
+In fact, protesters turned out waving American flags and wearing frog and unicorn and banana costumes and carrying homemade signs that demanded the release of the Epstein files and defended Lady Liberty. They laughed and danced and took selfies and sang. City police departments, including those of New York City, San Diego, and Washington, D.C., said they had made no protest-related arrests.
+In Oakland, California, Mother Jones senior editor Michael Mechanic interviewed a man named Justin, asking him if, as a Black man, he had particular concerns about the actions of the Trump administration.
+Justin answered: “You know…a lot of times I have a hopeless feeling, but…being out here today just reminds me about the beauty of America and American protests. And, you know, the fact that they tried to…stomp on this, step on this, you know, say it’s non-American, because that’s what I’ve been reading a lot about. No, this is the point of America right here: to be able to have this opportunity to protest…. [This] does not look like Antifa, Hamas, none of this stuff that they’re talking about…. [Y]ou know, this is the beauty of America.”
+The No Kings demonstrations ran the gamut from hundreds of thousands of protesters in large, blue cities, to smaller crowds in small towns in Republican-dominated states. Together, they demonstrate that the administration’s claims to popularity are a lie. Such a high turnout means businesses and institutions that thought they must cater to the administration to appeal to a majority of Americans will be forced to recalculate.
+And the protests showed that Americans care fervently about democracy.
+Today, millions of Americans and their allies turned out across the United States and around the globe to demonstrate their commitment to American democracy and their opposition to a president and an administration apparently bent on replacing democracy with a dictatorship.
+[Photo, “History has its eyes on U.S.” anonymous photographer, Boston, Massachusetts, October 18, 2025]
+Tech CEOs are another breed, exhibit 42,205…
+Read more
+I am sorry I can't add a picture .... one person carried a sign that said:
+Our small red maga town had 300+ show up in the rain to peacefully address our grievances I was given some flowers and bubbles to blow. Said hello to a couple of non aggressive Trump hat guys. Thry said hello back. Progress
+Start your SubstackGet the app
+Substack is the home for great culture""".strip(),
+    )
+
     print(f"Summary: {summary['summary']}")
     print(f"Notable Aspects: {summary['notable_aspects']}")
     print(f"Relevance: {summary['relevance']}")
-    print(f"Relevance Explanation: {summary['relevance_explanation']}")

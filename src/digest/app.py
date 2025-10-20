@@ -59,7 +59,6 @@ def cleanup_group_and_sort_messages(messages):
             "summary": "(No summary)",
             "notable_aspects": "",
             "relevance": "",
-            "relevance_explanation": "",
         }
         for field, default in default_values.items():
             if field not in record:
@@ -83,7 +82,6 @@ def cleanup_group_and_sort_messages(messages):
         print(f"Summary: {record['summary']}")
         print(f"Notable Aspects: {record['notable_aspects']}")
         print(f"Relevance: {record['relevance']}")
-        print(f"Relevance Explanation: {record['relevance_explanation']}")
 
         # Group records by feed_title
         if record["feed_title"] not in records_by_feed:

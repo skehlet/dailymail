@@ -7,9 +7,9 @@ image
 
 ### Install Shared Package
 
-Before working on any service, install the shared utilities package in editable mode:
+Before working on any service, create a python venv, then install the shared utilities package in editable mode:
 
-```bash
+```sh
 cd dailymail_shared_package
 pip install -e .
 ```

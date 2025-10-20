@@ -101,7 +101,8 @@ if __name__ == "__main__":
         # "https://www.carsales.com.au/editorial/details/spy-pics-2025-volkswagen-id-2-spotted-147136/"
         # "https://www.tweaktown.com/news/100351/cooler-masters-shark-concept-pc-available-for-pre-order-7000-an-rtx-4070-ti-super/index.html"
         # "https://www.roadandtrack.com/news/a63081162/volkswagen-rivian-mk9-golf/"
-        "https://heathercoxrichardson.substack.com/p/march-11-2025-fbc"
+        # "https://heathercoxrichardson.substack.com/p/march-11-2025-fbc"
+        "https://heathercoxrichardson.substack.com/p/october-18-2025"
     )
     print(f"Title: {my_page_title}")
     print(f"Content: {my_content}")
