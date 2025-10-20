@@ -3,7 +3,7 @@ botocore==1.40.55
 httpx==0.28.1
 Jinja2==3.1.6
 jmespath==1.0.1
-openai==2.5.0
+openai==1.109.1
 MarkupSafe==3.0.3
 pydantic==2.12.3
 pydantic_core==2.41.4
