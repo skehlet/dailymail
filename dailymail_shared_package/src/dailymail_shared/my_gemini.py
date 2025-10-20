@@ -25,5 +25,4 @@ def call_gemini_with_structured_outputs(contents, output_class):
             "response_schema": output_class
         }
     )
-    print(f"Response: {response.text}")
     return response.parsed

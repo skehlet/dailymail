@@ -41,6 +41,8 @@ def process_s3_record(s3_record):
         # else just summarize the text
         summary_dict = summarize_text(record["url"], record["title"], record["content"], feed_context)
 
+    print(f"Response: {json.dumps(summary_dict, indent=2)}")
+
     # copy all fields from summary_dict to record
     for field in summary_dict:
         record[field] = summary_dict[field]

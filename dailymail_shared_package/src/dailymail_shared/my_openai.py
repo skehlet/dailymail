@@ -35,7 +35,6 @@ def call_openai_with_structured_outputs(messages, output_class):
             if response.refusal:
                 raise Exception(response.refusal)
             response_obj = completion.choices[0].message.parsed
-            print(response_obj.model_dump_json(indent=2))
             return response_obj.dict()
 
         except openai.RateLimitError:
