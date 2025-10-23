@@ -1,8 +1,7 @@
 import json
 from typing import List, Dict, Optional
 from pydantic import BaseModel, Field
-import instructor
-from dailymail_shared.my_instructor import get_instructor_client, get_structured_output, CONTEXT_WINDOW_SIZE
+from dailymail_shared.my_llm import call_llm_structured, get_context_window_size
 
 # --- Pydantic Models for Validation ---
 
@@ -76,17 +75,13 @@ FEED: {feed_title}
 ARTICLES:
 {articles_json}
 """
-    contents = contents[:CONTEXT_WINDOW_SIZE - 100]
+    contents = contents[:get_context_window_size() - 100]
     
     try:
-        client = get_instructor_client()
-        result = get_structured_output(client, contents, MultiArticleSummary)
+        result = call_llm_structured(contents, MultiArticleSummary)
         return result
-    except instructor.exceptions.InstructorRetryException as e:
-        print(f"Instructor retry error: {e}")
-        raise
     except Exception as e:
-        print(f"Unexpected error during summarization: {e}")
+        print(f"Error during summarization: {e}")
         raise
 
 

@@ -1,11 +1,5 @@
-import os
-import instructor
 from pydantic import BaseModel, Field
-from dailymail_shared.my_instructor import (
-    get_instructor_client,
-    get_structured_output,
-    CONTEXT_WINDOW_SIZE,
-)
+from dailymail_shared.my_llm import call_llm_structured, get_context_window_size
 
 
 class TextSummary(BaseModel):
@@ -64,14 +58,11 @@ IMPORTANT - ADDITIONAL CONTEXT FOR YOUR ANALYSIS:
 
 Tailor your summary and key_takeaways to address the specific interests mentioned in the additional context above.
 """
-    contents = contents[:CONTEXT_WINDOW_SIZE - 100]
+    contents = contents[:get_context_window_size() - 100]
     
     try:
-        # Get instructor client
-        client = get_instructor_client()
-        
-        # Get structured output using instructor
-        summary: TextSummary = get_structured_output(client, contents, TextSummary)
+        # Get structured output using unified LLM interface
+        summary: TextSummary = call_llm_structured(contents, TextSummary)
         
         # convert TextSummary to dict containing the keys the caller expects
         return {
@@ -79,11 +70,8 @@ Tailor your summary and key_takeaways to address the specific interests mentione
             "notable_aspects": summary.key_takeaways,
             "relevance": "RELEVANT" if summary.is_substantive else "NOT RELEVANT",
         }
-    except instructor.exceptions.InstructorRetryException as e:
-        print(f"Instructor retry error: {e}")
-        raise
     except Exception as e:
-        print(f"Unexpected error during summarization: {e}")
+        print(f"Error during summarization: {e}")
         raise
 
 
@@ -110,14 +98,11 @@ IMPORTANT - ADDITIONAL CONTEXT FOR YOUR ANALYSIS:
 
 Tailor your summary and key_takeaways to address the specific perspective or interests mentioned in the additional context above.
 """
-    contents = contents[:CONTEXT_WINDOW_SIZE - 100]
+    contents = contents[:get_context_window_size() - 100]
     
     try:
-        # Get instructor client
-        client = get_instructor_client()
-        
-        # Get structured output using instructor
-        summary: GoogleAlertSummary = get_structured_output(client, contents, GoogleAlertSummary)
+        # Get structured output using unified LLM interface
+        summary: GoogleAlertSummary = call_llm_structured(contents, GoogleAlertSummary)
 
         # convert GoogleAlertSummary to dict containing the keys the caller expects
         return {
@@ -125,11 +110,8 @@ Tailor your summary and key_takeaways to address the specific perspective or int
             "notable_aspects": summary.key_takeaways,
             "relevance": "RELEVANT" if summary.relevance else "NOT RELEVANT",
         }
-    except instructor.exceptions.InstructorRetryException as e:
-        print(f"Instructor retry error: {e}")
-        raise
     except Exception as e:
-        print(f"Unexpected error during summarization: {e}")
+        print(f"Error during summarization: {e}")
         raise
 
 

@@ -9,6 +9,7 @@ resource "aws_lambda_function" "summarizer" {
   environment {
     variables = {
       PIPELINE_EXECUTION_ID = var.pipeline_execution_id
+      LLM_PROVIDER          = "gemini"
       LLM                   = "gemini-2.5-flash-lite"
       CONTEXT_WINDOW_SIZE   = "50000"
     }
