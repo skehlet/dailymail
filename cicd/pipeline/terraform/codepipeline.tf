@@ -19,7 +19,7 @@ resource "aws_codepipeline" "codepipeline" {
       namespace        = "Source"
       output_artifacts = ["SourceArtifact"]
       configuration = {
-        ConnectionArn    = aws_codestarconnections_connection.dailymail_github.arn
+        ConnectionArn    = aws_codeconnections_connection.dailymail_github.arn
         FullRepositoryId = "skehlet/dailymail"
         BranchName       = "main"
       }
