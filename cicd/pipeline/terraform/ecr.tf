@@ -1,6 +1,14 @@
 resource "aws_ecr_repository" "image_repo" {
   for_each = toset(local.ecr_repos)
   name     = each.key
+  # Prevent tags from being overwritten (safer) and reduce accidental churn
+  image_tag_mutability = "IMMUTABLE"
+
+  # Disable automatic vulnerability scanning on push to avoid potential scan costs.
+  # You can enable this selectively later for sensitive repos.
+  image_scanning_configuration {
+    scan_on_push = false
+  }
 }
 
 resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
@@ -11,11 +19,11 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
       "rules" : [
         {
           "rulePriority" : 1,
-          "description" : "Only keep 2 images",
+          "description" : "Only keep 1 image (the latest deployed)",
           "selection" : {
             "tagStatus" : "any",
             "countType" : "imageCountMoreThan",
-            "countNumber" : 2
+            "countNumber" : 1
           },
           "action" : {
             "type" : "expire"
