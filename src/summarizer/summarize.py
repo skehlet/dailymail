@@ -12,12 +12,12 @@ class TextSummary(BaseModel):
         "False if it's a paywall message, platform text (e.g., Substack boilerplate), or content teaser."
     )
     summary: str = Field(
-        description="3-4 sentence summary in direct, active voice as if the author is speaking. "
-        "State the thesis directly without meta-commentary like 'The article discusses...' "
+        description="3-4 sentence summary using direct, declarative statements. "
+        "Lead with the subject matter, not the article. No meta-commentary like 'The article discusses...' "
         "Example: 'President Trump's proposal to exclude undocumented immigrants from the census was unconstitutional. This move undermines democracy...'"
     )
     key_takeaways: str = Field(
-        description="1-2 sentences on the most important implication. Direct voice, no meta-commentary."
+        description="1-2 sentences on the most important implication using direct, declarative statements. No meta-commentary."
     )
 
 class GoogleAlertSummary(BaseModel):
