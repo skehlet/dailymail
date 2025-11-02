@@ -23,3 +23,4 @@ from dailymail_shared.my_parameter_store import get_parameter
 ### Working on Services
 
 After installing the shared package, you can work in any service directory and imports will work properly. Changes to shared code are immediately available without reinstalling.
+
