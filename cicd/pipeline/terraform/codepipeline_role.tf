@@ -18,7 +18,10 @@ data "aws_iam_policy_document" "codepipeline_role_assume_policy" {
 
 data "aws_iam_policy_document" "codepipeline_role_policy" {
   statement {
-    actions = ["codeconnections:UseConnection"]
+    actions = [
+      "codeconnections:UseConnection",
+      "codestar-connections:UseConnection" // still needed for some reason
+    ]
     resources = [
       aws_codeconnections_connection.dailymail_github.arn
     ]
