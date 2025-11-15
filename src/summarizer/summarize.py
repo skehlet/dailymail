@@ -12,12 +12,14 @@ class TextSummary(BaseModel):
         "False if it's a paywall message, platform text (e.g., Substack boilerplate), or content teaser."
     )
     summary: str = Field(
-        description="3-4 sentence summary using direct, declarative statements. "
-        "Lead with the subject matter, not the article. No meta-commentary like 'The article discusses...' "
-        "Example: 'President Trump's proposal to exclude undocumented immigrants from the census was unconstitutional. This move undermines democracy...'"
+        description="Condense the article to its essence in 3-4 sentences. Maintain the original tone and style. "
+        "Write AS the content itself, not ABOUT it. If the original is urgent, be urgent. If analytical, be analytical. "
+        "Preserve first-person perspective if present. Never use meta-phrases like 'The article discusses' or 'This piece argues.' "
+        "Example: 'Millions turned out across America today, waving flags and demanding accountability. President Trump's attempt to ban these protests has failed spectacularly. This is what democracy looks like.'"
     )
     key_takeaways: str = Field(
-        description="1-2 sentences on the most important implication using direct, declarative statements. No meta-commentary."
+        description="1-2 sentences highlighting the most significant implication or why this matters. "
+        "This can be analytical even if the article isn't—extract the deeper meaning. No meta-commentary."
     )
 
 class GoogleAlertSummary(BaseModel):
@@ -30,13 +32,15 @@ class GoogleAlertSummary(BaseModel):
         "False if it only mentions keywords, addresses partial topic, or lacks detail."
     )
     summary: str = Field(
-        description="3-4 sentence intelligence briefing on key facts. Direct, declarative statements as established fact. "
-        "Lead with the subject (company/person/event), not the article. "
-        "Example: 'Apple has confirmed international launch dates. The headset debuts in China, Japan, and Singapore on June 28...'"
+        description="Distill the article's core information into 3-4 sentences, preserving its original tone. "
+        "Present the facts and claims directly, as if you ARE the source reporting them. "
+        "Match the article's voice: if it's breaking news, be direct and factual; if it's analysis, maintain that analytical tone. "
+        "Never use meta-phrases like 'The article reports' or 'According to this piece.' "
+        "Example: 'Apple confirmed international launch dates today. The Vision Pro debuts in China, Japan, and Singapore on June 28. Pre-orders begin June 13 across all three markets.'"
     )
     key_takeaways: str = Field(
-        description="1-2 sentences on critical implications or actionable insights. "
-        "Distinguish confirmed facts from speculation."
+        description="1-2 sentences on the most critical implication or what makes this actionable/significant. "
+        "Distinguish confirmed facts from speculation. This can interpret beyond what's stated."
     )
 
 
@@ -44,7 +48,13 @@ class GoogleAlertSummary(BaseModel):
 def summarize_text(url, title, text, additional_context=None):  # pylint: disable=W0613:unused-argument
     
     contents = f"""\
-You are a content screener analyzing articles to determine if they contain substantive content or are merely placeholders/paywalls/platform announcements.
+You are tasked with condensing article content to its essence while preserving the original tone and voice.
+
+Your job is to distill the text down to 3-4 sentences that capture the core message, maintaining the same style and perspective as the original. 
+Write AS the article itself, not ABOUT it. If it uses "we" or "I", you should too. If it's urgent, be urgent. If it's analytical, be analytical.
+
+First, determine if this is substantive content or just a paywall/placeholder/platform announcement.
+Then, condense it while staying true to its character.
 
 ARTICLE_TEXT:
 {text}
@@ -56,7 +66,7 @@ ARTICLE_TEXT:
 IMPORTANT - ADDITIONAL CONTEXT FOR YOUR ANALYSIS:
 {additional_context}
 
-Tailor your summary and key_takeaways to address the specific interests mentioned in the additional context above.
+Tailor your condensed version and key_takeaways to address the specific interests mentioned in the additional context above.
 """
     contents = contents[:get_context_window_size() - 100]
     
@@ -78,9 +88,13 @@ Tailor your summary and key_takeaways to address the specific interests mentione
 def summarize_google_alert(topic, url, title, text, additional_context=None):
     
     contents = f"""\
-You are an intelligence analyst providing a briefing on whether an article is relevant to a specific topic.
+You are analyzing an article for relevance to a specific topic and condensing it while preserving its original voice.
 
-Determine if the article addresses ALL aspects of the topic with specific, substantive details. If relevant, provide a direct intelligence briefing.
+First, determine if this article addresses ALL aspects of the topic with substantive detail.
+If relevant, distill the article's essence in 3-4 sentences, maintaining the same tone and perspective as the original source.
+
+Write AS the content, not ABOUT it. Present the information directly, as the original author would.
+Match the article's voice and style—whether it's breaking news, analysis, or commentary.
 
 TOPIC: {topic}
 
@@ -96,7 +110,7 @@ Text: {text}
 IMPORTANT - ADDITIONAL CONTEXT FOR YOUR ANALYSIS:
 {additional_context}
 
-Tailor your summary and key_takeaways to address the specific perspective or interests mentioned in the additional context above.
+Tailor your condensed version and key_takeaways to address the specific perspective or interests mentioned in the additional context above.
 """
     contents = contents[:get_context_window_size() - 100]
     
