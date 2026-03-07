@@ -15,4 +15,7 @@ RUN python -c "import nltk; \
     && rm -f ${LAMBDA_TASK_ROOT}/nltk_data/tokenizers/*.zip
 ENV NLTK_DATA=nltk_data
 
+# Pre-install the spaCy model for the unstructured library.
+RUN python -m spacy download en_core_web_sm
+
 CMD [ "index.handler" ]
