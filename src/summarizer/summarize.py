@@ -47,18 +47,16 @@ class GoogleAlertSummary(BaseModel):
 
 def summarize_text(url, title, text, additional_context=None):  # pylint: disable=W0613:unused-argument
     
-    contents = f"""\
+    system_prompt = """\
 You are tasked with condensing article content to its essence while preserving the original tone and voice.
 
 Your job is to distill the text down to 3-4 sentences that capture the core message, maintaining the same style and perspective as the original. 
 Write AS the article itself, not ABOUT it. If it uses "we" or "I", you should too. If it's urgent, be urgent. If it's analytical, be analytical.
 
 First, determine if this is substantive content or just a paywall/placeholder/platform announcement.
-Then, condense it while staying true to its character.
+Then, condense it while staying true to its character."""
 
-ARTICLE_TEXT:
-{text}
-"""
+    contents = f"ARTICLE_TEXT:\n{text}\n"
     
     if additional_context:
         contents += f"""
@@ -72,7 +70,7 @@ Tailor your condensed version and key_takeaways to address the specific interest
     
     try:
         # Get structured output using unified LLM interface
-        summary: TextSummary = call_llm_structured(contents, TextSummary)
+        summary: TextSummary = call_llm_structured(contents, TextSummary, system_prompt=system_prompt)
         
         # convert TextSummary to dict containing the keys the caller expects
         return {
@@ -87,15 +85,16 @@ Tailor your condensed version and key_takeaways to address the specific interest
 
 def summarize_google_alert(topic, url, title, text, additional_context=None):
     
-    contents = f"""\
+    system_prompt = """\
 You are analyzing an article for relevance to a specific topic and condensing it while preserving its original voice.
 
 First, determine if this article addresses ALL aspects of the topic with substantive detail.
 If relevant, distill the article's essence in 3-4 sentences, maintaining the same tone and perspective as the original source.
 
 Write AS the content, not ABOUT it. Present the information directly, as the original author would.
-Match the article's voice and style—whether it's breaking news, analysis, or commentary.
+Match the article's voice and style—whether it's breaking news, analysis, or commentary."""
 
+    contents = f"""\
 TOPIC: {topic}
 
 ARTICLE:
@@ -116,7 +115,7 @@ Tailor your condensed version and key_takeaways to address the specific perspect
     
     try:
         # Get structured output using unified LLM interface
-        summary: GoogleAlertSummary = call_llm_structured(contents, GoogleAlertSummary)
+        summary: GoogleAlertSummary = call_llm_structured(contents, GoogleAlertSummary, system_prompt=system_prompt)
 
         # convert GoogleAlertSummary to dict containing the keys the caller expects
         return {

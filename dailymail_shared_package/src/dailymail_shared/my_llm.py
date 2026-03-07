@@ -15,6 +15,7 @@ class LLMProvider(Enum):
     GEMINI = "gemini"
     OPENAI = "openai"
     INSTRUCTOR = "instructor"
+    BEDROCK = "bedrock"
 
 
 def get_provider_from_env() -> LLMProvider:
@@ -37,15 +38,18 @@ def get_provider_from_env() -> LLMProvider:
 def call_llm_structured(
     prompt: str,
     response_model: Type[T],
-    provider: LLMProvider = None
+    provider: LLMProvider = None,
+    system_prompt: str = None,
 ) -> T:
     """
     Call an LLM with structured output using the specified provider.
     
     Args:
-        prompt: The prompt/content to send to the LLM
+        prompt: The user message / data to send to the LLM
         response_model: Pydantic model class for structured output
         provider: Which LLM provider to use (defaults to LLM_PROVIDER env var)
+        system_prompt: Optional system-level instructions, passed separately from the
+                       user message where the provider supports it
     
     Returns:
         Instance of response_model with the LLM's structured response
@@ -56,23 +60,26 @@ def call_llm_structured(
     print(f"Using LLM provider: {provider.value}")
     
     if provider == LLMProvider.GEMINI:
-        return _call_gemini(prompt, response_model)
+        return _call_gemini(prompt, response_model, system_prompt)
     elif provider == LLMProvider.OPENAI:
-        return _call_openai(prompt, response_model)
+        return _call_openai(prompt, response_model, system_prompt)
     elif provider == LLMProvider.INSTRUCTOR:
-        return _call_instructor(prompt, response_model)
+        return _call_instructor(prompt, response_model, system_prompt)
+    elif provider == LLMProvider.BEDROCK:
+        return _call_bedrock(prompt, response_model, system_prompt)
     else:
         raise ValueError(f"Unsupported provider: {provider}")
 
 
-def _call_gemini(prompt: str, response_model: Type[T]) -> T:
+def _call_gemini(prompt: str, response_model: Type[T], system_prompt: str = None) -> T:
     """Call Gemini with structured outputs."""
     from dailymail_shared.my_gemini import call_gemini_with_structured_outputs
     
     # Gemini expects 'contents' parameter
     result = call_gemini_with_structured_outputs(
         contents=prompt,
-        output_class=response_model
+        output_class=response_model,
+        system_prompt=system_prompt,
     )
     
     # Gemini returns the parsed object directly, which should be a dict
@@ -84,12 +91,14 @@ def _call_gemini(prompt: str, response_model: Type[T]) -> T:
         return result
 
 
-def _call_openai(prompt: str, response_model: Type[T]) -> T:
+def _call_openai(prompt: str, response_model: Type[T], system_prompt: str = None) -> T:
     """Call OpenAI with structured outputs."""
     from dailymail_shared.my_openai import call_openai_with_structured_outputs
     
-    # OpenAI expects messages format
-    messages = [{"role": "user", "content": prompt}]
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
     
     result = call_openai_with_structured_outputs(
         messages=messages,
@@ -103,15 +112,26 @@ def _call_openai(prompt: str, response_model: Type[T]) -> T:
         return result
 
 
-def _call_instructor(prompt: str, response_model: Type[T]) -> T:
+def _call_instructor(prompt: str, response_model: Type[T], system_prompt: str = None) -> T:
     """Call Instructor with structured outputs."""
     from dailymail_shared.my_instructor import get_instructor_client, get_structured_output
     
     client = get_instructor_client()
     
     # Instructor returns the Pydantic model directly
-    result = get_structured_output(client, prompt, response_model)
+    result = get_structured_output(client, prompt, response_model, system_prompt=system_prompt)
     return result
+
+
+def _call_bedrock(prompt: str, response_model: Type[T], system_prompt: str = None) -> T:
+    """Call AWS Bedrock via the Converse API with structured outputs."""
+    from dailymail_shared.my_bedrock import call_bedrock_with_structured_outputs
+    
+    return call_bedrock_with_structured_outputs(
+        prompt=prompt,
+        response_model=response_model,
+        system_prompt=system_prompt,
+    )
 
 
 # Convenience function for backwards compatibility
@@ -134,6 +154,8 @@ def get_context_window_size() -> int:
     elif provider == LLMProvider.OPENAI:
         return 50000  # Conservative for GPT models
     elif provider == LLMProvider.INSTRUCTOR:
+        return 50000  # Conservative default
+    elif provider == LLMProvider.BEDROCK:
         return 50000  # Conservative default
     
     return 50000  # Safe default

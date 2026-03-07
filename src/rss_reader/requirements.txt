@@ -1,9 +1,9 @@
-boto3==1.40.55
-botocore==1.40.55
+boto3==1.42.63
+botocore==1.42.63
 feedparser==6.0.12
-jmespath==1.0.1
+jmespath==1.1.0
 python-dateutil==2.9.0.post0
-s3transfer==0.14.0
+s3transfer==0.16.0
 sgmllib3k==1.0.0
 six==1.17.0
-urllib3==2.5.0
+urllib3==2.6.3

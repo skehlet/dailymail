@@ -59,7 +59,7 @@ def get_instructor_client():
         )
 
 
-def get_structured_output(client, content: str, response_model: type[BaseModel]) -> BaseModel:
+def get_structured_output(client, content: str, response_model: type[BaseModel], system_prompt: str = None) -> BaseModel:
     """
     Call the LLM with structured output, handling provider-specific parameters.
     
@@ -67,18 +67,19 @@ def get_structured_output(client, content: str, response_model: type[BaseModel])
         client: The instructor client
         content: The prompt content to send to the LLM
         response_model: The Pydantic model class to use for structured output
+        system_prompt: Optional system-level instructions
     
     Returns:
         An instance of the response_model with the LLM's response
     """
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": content})
+
     # Base parameters that all providers support
     params = {
-        "messages": [
-            {
-                "role": "user",
-                "content": content,
-            }
-        ],
+        "messages": messages,
         "response_model": response_model,
         "max_retries": 3,
     }

@@ -65,20 +65,16 @@ def generate_multi_article_summary(feed_title: str, articles: list) -> MultiArti
     """
     articles_json = json.dumps(articles, indent=2)
     
-    contents = f"""\
+    system_prompt = """\
 You are an intelligence analyst synthesizing multiple articles from a single news feed into a consolidated briefing.
 
-Analyze all articles to identify overarching themes, collective insights, and key individual findings.
+Analyze all articles to identify overarching themes, collective insights, and key individual findings."""
 
-FEED: {feed_title}
-
-ARTICLES:
-{articles_json}
-"""
+    contents = f"FEED: {feed_title}\n\nARTICLES:\n{articles_json}"
     contents = contents[:get_context_window_size() - 100]
     
     try:
-        result = call_llm_structured(contents, MultiArticleSummary)
+        result = call_llm_structured(contents, MultiArticleSummary, system_prompt=system_prompt)
         return result
     except Exception as e:
         print(f"Error during summarization: {e}")

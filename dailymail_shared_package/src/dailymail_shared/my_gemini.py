@@ -15,14 +15,17 @@ def get_gemini_client():
     return genai.Client(api_key=get_gemini_api_key())
 
 
-def call_gemini_with_structured_outputs(contents, output_class):
+def call_gemini_with_structured_outputs(contents, output_class, system_prompt=None):
     client = get_gemini_client()
+    config = {
+        "response_mime_type": "application/json",
+        "response_schema": output_class,
+    }
+    if system_prompt:
+        config["system_instruction"] = system_prompt
     response = client.models.generate_content(
         model=LLM,
         contents=contents,
-        config={
-            "response_mime_type": "application/json",
-            "response_schema": output_class
-        }
+        config=config
     )
     return response.parsed
