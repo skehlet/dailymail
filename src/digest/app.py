@@ -61,7 +61,7 @@ def cleanup_group_and_sort_messages(messages):
             "relevance": "",
         }
         for field, default in default_values.items():
-            if field not in record:
+            if record.get(field) is None:
                 record[field] = default
 
         # parse and reformat dates

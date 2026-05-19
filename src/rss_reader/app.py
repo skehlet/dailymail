@@ -91,17 +91,15 @@ def process_rss_entries(url, feed_title, feed_description, feed_context, entries
             print(f"Already seen {url}/{article_id}")
             continue
 
-        article_title = entry.title
-        article_description = entry.description
-        article_published = entry.published
-        article_content = entry.summary
+        article_title = entry.get('title', '')
+        article_description = entry.get('description', '')
+        article_published = entry.get('published') or entry.get('updated')
 
         print(f"=== {article_id}")
         print(f"Title: {article_title}")
         print(f"URL: {article_url}")
         # print(f"Description: {article_description}")
         print(f"Published: {article_published}")
-        # print(f"Content: {article_content}")
         print("")
 
         record = {
@@ -112,8 +110,9 @@ def process_rss_entries(url, feed_title, feed_description, feed_context, entries
             "title": article_title,
             "url": article_url,
             "description": article_description,
-            "published": article_published,
         }
+        if article_published:
+            record["published"] = article_published
         write_to_queue(record)
 
         mark_id_as_processed(url, article_id)
