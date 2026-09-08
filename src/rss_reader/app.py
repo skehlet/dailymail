@@ -1,15 +1,15 @@
 import json
 from urllib.parse import urlparse, parse_qs
 import feedparser
-from app_settings import RSS_FEEDS_PARAMETER_NAME, SCRAPER_QUEUE
-from db import (
+from .app_settings import RSS_FEEDS_PARAMETER_NAME, SCRAPER_QUEUE
+from .db import (
     get_feed_metadata,
     store_feed_metadata,
     id_already_processed,
     mark_id_as_processed,
     cleanup_processed_ids,
 )
-from app_queue import enqueue
+from .app_queue import enqueue
 import boto3
 
 

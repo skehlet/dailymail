@@ -1,24 +1,6 @@
-variable "rss_reader_image_uri" {
+variable "image_uri" {
   type        = string
-  description = "URI of RSS Reader ECR image"
-  nullable    = false
-}
-
-variable "scraper_image_uri" {
-  type        = string
-  description = "URI of Scraper ECR image"
-  nullable    = false
-}
-
-variable "summarizer_image_uri" {
-  type        = string
-  description = "URI of Summarizer ECR image"
-  nullable    = false
-}
-
-variable "digest_image_uri" {
-  type        = string
-  description = "URI of Digest ECR image"
+  description = "URI of the shared Lambda image"
   nullable    = false
 }
 

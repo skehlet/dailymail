@@ -3,10 +3,9 @@
 ## Read-only file system errors
 
 Note to self: if you get `[Errno 30] Read-only file system: '/home/sbx_user1051'` errors, it's probably because the NLTK library is trying to download its language packages at runtime.
-I originally resolved this by pre-downloading them in the [Dockerfile](./Dockerfile), but recently upon upgrading to [0.15 of `unstructured`](./requirements.txt), 
-I ran into this issue again because NLTK changed the libraries it uses, and this mysterious error came up again.
+Older versions of `unstructured` required NLTK data to be downloaded into the image. The current locked version uses spaCy instead and has been verified by parsing HTML inside the Linux ARM64 Lambda image.
 
-## NLTK troubleshooting
+## Historical NLTK troubleshooting
 
 paths: list[str] = []
 

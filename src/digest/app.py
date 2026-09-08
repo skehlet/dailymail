@@ -1,10 +1,11 @@
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 from urllib.parse import urlparse
 import boto3
 from dateutil.parser import parse
 from jinja2 import Template
-from app_settings import (
+from .app_settings import (
     DIGEST_QUEUE,
     MY_TIMEZONE,
     DIGEST_EMAIL_FROM,
@@ -12,10 +13,11 @@ from app_settings import (
 )
 from dailymail_shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
 from dailymail_shared.my_datetime import utc_to_local
-from my_digest import generate_newsletter_digest
+from .my_digest import generate_newsletter_digest
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
+TEMPLATE_PATH = Path(__file__).with_name("digest.html.jinja")
 
 
 def read_from_digest_queue():
@@ -106,7 +108,7 @@ def create_email_and_send_it(feeds):
     today_date = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%A, %B %d, %Y')
     
     # Produce HTML message using the updated template
-    with open("digest.html.jinja", encoding="utf8") as f:
+    with TEMPLATE_PATH.open(encoding="utf8") as f:
         email = Template(f.read()).render(
             EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
             newsletter=newsletter,

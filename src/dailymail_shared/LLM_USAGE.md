@@ -27,7 +27,7 @@ Each provider also has its own specific configuration:
 
 ### Gemini
 ```bash
-export LLM=gemini-2.5-flash-lite  # Model to use
+export LLM=gemini-3.5-flash-lite  # Model to use
 export CONTEXT_WINDOW_SIZE=50000   # Optional: override default
 ```
 
@@ -39,7 +39,7 @@ export CONTEXT_WINDOW_SIZE=50000   # Optional: override default
 
 ### Instructor
 ```bash
-export LLM=gemini-2.5-flash-lite   # Can be gemini-*, gpt-*, or claude-*
+export LLM=gemini-3.5-flash-lite   # Can be gemini-*, gpt-*, or claude-*
 export CONTEXT_WINDOW_SIZE=50000   # Optional: override default
 export MAX_OUTPUT_TOKENS=10000     # Optional: max tokens in response
 ```

@@ -1,9 +1,9 @@
 import json
-from app_s3 import read_from_s3, delete_from_s3
-from app_queue import enqueue
-from app_settings import SUMMARIZER_BUCKET, DIGEST_QUEUE
-from google_alerts import is_google_alert, get_topic_from_google_alert_title
-from summarize import summarize_text, summarize_google_alert
+from .app_s3 import read_from_s3, delete_from_s3
+from .app_queue import enqueue
+from .app_settings import SUMMARIZER_BUCKET, DIGEST_QUEUE
+from .google_alerts import is_google_alert, get_topic_from_google_alert_title
+from .summarize import summarize_text, summarize_google_alert
 
 
 def process_sqs_record(sqs_record):

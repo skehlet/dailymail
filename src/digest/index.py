@@ -1,6 +1,6 @@
 import traceback
-from app_settings import show_settings
-from app import read_from_digest_queue
+from .app_settings import show_settings
+from .app import read_from_digest_queue
 
 
 def handler(event, context):  # pylint: disable=unused-argument,redefined-outer-name

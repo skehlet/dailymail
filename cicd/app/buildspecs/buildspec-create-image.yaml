@@ -1,0 +1,33 @@
+version: 0.2
+
+# env vars provided by the pipeline:
+# PIPELINE_EXECUTION_ID
+
+env:
+  exported-variables:
+    - IMAGE_URI
+
+phases:
+  install:
+    commands:
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - echo AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+      - echo PIPELINE_EXECUTION_ID=${PIPELINE_EXECUTION_ID}
+
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} |
+        docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+
+  build:
+    commands:
+      - docker buildx build --platform linux/arm64 --provenance=false --load -t dailymail .
+      - docker run --rm --platform linux/arm64 --entrypoint python dailymail -c
+        'import platform; from unstructured.documents.elements import NarrativeText; from unstructured.partition.html import partition_html; assert platform.machine() == "aarch64"; elements = partition_html(text="<article><p>This is substantial narrative text used to verify Unstructured inside the Lambda image.</p></article>"); assert any(isinstance(element, NarrativeText) for element in elements)'
+
+  post_build:
+    commands:
+      - IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/dailymail:${PIPELINE_EXECUTION_ID}
+      - echo ${IMAGE_URI}
+      - docker tag dailymail ${IMAGE_URI}
+      - docker push ${IMAGE_URI}

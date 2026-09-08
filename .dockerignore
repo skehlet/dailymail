@@ -1,0 +1,8 @@
+.git
+.terraform
+.venv
+**/__pycache__
+**/*.egg-info
+**/misc
+cicd
+tests

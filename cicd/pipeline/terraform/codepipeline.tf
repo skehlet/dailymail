@@ -29,65 +29,17 @@ resource "aws_codepipeline" "codepipeline" {
 
 
   stage {
-    name = "CreateImages"
+    name = "CreateImage"
     action {
-      name            = "CreateRssReaderImage"
-      namespace       = "CreateRssReaderImage"
+      name            = "CreateImage"
+      namespace       = "CreateImage"
       input_artifacts = ["SourceArtifact"]
       category        = "Build"
       provider        = "CodeBuild"
       owner           = "AWS"
       version         = "1"
       configuration = {
-        ProjectName = aws_codebuild_project.create_rssreader_image.name
-        EnvironmentVariables = jsonencode([
-          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
-        ])
-      }
-      run_order = 2
-    }
-    action {
-      name            = "CreateScraperImage"
-      namespace       = "CreateScraperImage"
-      input_artifacts = ["SourceArtifact"]
-      category        = "Build"
-      provider        = "CodeBuild"
-      owner           = "AWS"
-      version         = "1"
-      configuration = {
-        ProjectName = aws_codebuild_project.create_scraper_image.name
-        EnvironmentVariables = jsonencode([
-          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
-        ])
-      }
-      run_order = 2
-    }
-    action {
-      name            = "CreateSummarizerImage"
-      namespace       = "CreateSummarizerImage"
-      input_artifacts = ["SourceArtifact"]
-      category        = "Build"
-      provider        = "CodeBuild"
-      owner           = "AWS"
-      version         = "1"
-      configuration = {
-        ProjectName = aws_codebuild_project.create_summarizer_image.name
-        EnvironmentVariables = jsonencode([
-          { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
-        ])
-      }
-      run_order = 2
-    }
-    action {
-      name            = "CreateDigestImage"
-      namespace       = "CreateDigestImage"
-      input_artifacts = ["SourceArtifact"]
-      category        = "Build"
-      provider        = "CodeBuild"
-      owner           = "AWS"
-      version         = "1"
-      configuration = {
-        ProjectName = aws_codebuild_project.create_digest_image.name
+        ProjectName = aws_codebuild_project.create_image.name
         EnvironmentVariables = jsonencode([
           { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
         ])
@@ -112,10 +64,7 @@ resource "aws_codepipeline" "codepipeline" {
         ProjectName = aws_codebuild_project.dev_terraform_apply.name
         EnvironmentVariables = jsonencode([
           { "name" : "PIPELINE_EXECUTION_ID", "value" : "#{codepipeline.PipelineExecutionId}" },
-          { "name" : "RSS_READER_IMAGE_URI", "value" : "#{CreateRssReaderImage.RSS_READER_IMAGE_URI}" },
-          { "name" : "SCRAPER_IMAGE_URI", "value" : "#{CreateScraperImage.SCRAPER_IMAGE_URI}" },
-          { "name" : "SUMMARIZER_IMAGE_URI", "value" : "#{CreateSummarizerImage.SUMMARIZER_IMAGE_URI}" },
-          { "name" : "DIGEST_IMAGE_URI", "value" : "#{CreateDigestImage.DIGEST_IMAGE_URI}" },
+          { "name" : "IMAGE_URI", "value" : "#{CreateImage.IMAGE_URI}" },
         ])
       }
       run_order = 3
@@ -125,10 +74,10 @@ resource "aws_codepipeline" "codepipeline" {
 
 
 
-resource "aws_codebuild_project" "create_rssreader_image" {
-  name          = "${local.pipeline_name}-CreateRssReaderImage"
-  description   = "Create RssReader Image"
-  build_timeout = 5
+resource "aws_codebuild_project" "create_image" {
+  name          = "${local.pipeline_name}-CreateImage"
+  description   = "Create shared Lambda image"
+  build_timeout = 15
   service_role  = aws_iam_role.codebuild_role.arn
 
   artifacts {
@@ -137,77 +86,7 @@ resource "aws_codebuild_project" "create_rssreader_image" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "cicd/app/buildspecs/buildspec-create-rssreader-image.yaml"
-  }
-
-  environment {
-    compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "ARM_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
-    privileged_mode = true # to allow running docker commands
-  }
-}
-
-resource "aws_codebuild_project" "create_scraper_image" {
-  name          = "${local.pipeline_name}-CreateScraperImage"
-  description   = "Create Scraper Image"
-  build_timeout = 5
-  service_role  = aws_iam_role.codebuild_role.arn
-
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = "cicd/app/buildspecs/buildspec-create-scraper-image.yaml"
-  }
-
-  environment {
-    compute_type = "BUILD_GENERAL1_SMALL"
-    type         = "LINUX_CONTAINER"
-    # NLTK has issues with arm64, so for now, just stick with x86_64
-    image           = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
-    privileged_mode = true # to allow running docker commands
-  }
-}
-
-resource "aws_codebuild_project" "create_summarizer_image" {
-  name          = "${local.pipeline_name}-CreateSummarizerImage"
-  description   = "Create Summarizer Image"
-  build_timeout = 5
-  service_role  = aws_iam_role.codebuild_role.arn
-
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = "cicd/app/buildspecs/buildspec-create-summarizer-image.yaml"
-  }
-
-  environment {
-    compute_type    = "BUILD_GENERAL1_SMALL"
-    type            = "ARM_CONTAINER"
-    image           = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
-    privileged_mode = true # to allow running docker commands
-  }
-}
-
-resource "aws_codebuild_project" "create_digest_image" {
-  name          = "${local.pipeline_name}-CreateDigestImage"
-  description   = "Create Digest Image"
-  build_timeout = 5
-  service_role  = aws_iam_role.codebuild_role.arn
-
-  artifacts {
-    type = "CODEPIPELINE"
-  }
-
-  source {
-    type      = "CODEPIPELINE"
-    buildspec = "cicd/app/buildspecs/buildspec-create-digest-image.yaml"
+    buildspec = "cicd/app/buildspecs/buildspec-create-image.yaml"
   }
 
   environment {

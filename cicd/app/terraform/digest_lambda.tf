@@ -1,16 +1,19 @@
 resource "aws_lambda_function" "digest" {
   function_name = "${local.app_id}-Digest"
   package_type  = "Image"
-  image_uri     = var.digest_image_uri
+  image_uri     = var.image_uri
   architectures = ["arm64"]
   role          = aws_iam_role.digest.arn
   timeout       = 180
   memory_size   = 512
+  image_config {
+    command = ["digest.index.handler"]
+  }
   environment {
     variables = {
       PIPELINE_EXECUTION_ID = var.pipeline_execution_id
       LLM_PROVIDER          = "gemini"
-      LLM                   = "gemini-2.5-flash"
+      LLM                   = "gemini-3.5-flash-lite"
       CONTEXT_WINDOW_SIZE   = "50000"
     }
   }

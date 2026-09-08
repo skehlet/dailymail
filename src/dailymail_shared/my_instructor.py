@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from dailymail_shared.my_parameter_store import get_value_from_parameter_store
 
 # Get environment variables
-LLM = os.getenv("LLM", "gemini-2.5-flash-lite")
+LLM = os.getenv("LLM", "gemini-3.5-flash-lite")
 CONTEXT_WINDOW_SIZE = int(os.getenv("CONTEXT_WINDOW_SIZE", "50000"))
 MAX_OUTPUT_TOKENS = int(os.getenv("MAX_OUTPUT_TOKENS", "10000"))
 

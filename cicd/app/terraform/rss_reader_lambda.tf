@@ -1,11 +1,14 @@
 resource "aws_lambda_function" "rss_reader" {
   function_name = "${local.app_id}-RssReader"
   package_type  = "Image"
-  image_uri     = var.rss_reader_image_uri
+  image_uri     = var.image_uri
   architectures = ["arm64"]
   role          = aws_iam_role.rss_reader.arn
   timeout       = 180
   memory_size   = 512
+  image_config {
+    command = ["rss_reader.index.handler"]
+  }
   environment {
     variables = {
       PIPELINE_EXECUTION_ID = var.pipeline_execution_id

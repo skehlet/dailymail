@@ -1,7 +1,7 @@
 import json
 import traceback
-from app_settings import show_settings
-from app import process_sqs_record
+from .app_settings import show_settings
+from .app import process_sqs_record
 
 
 def handler(event, context):  # pylint: disable=unused-argument,redefined-outer-name

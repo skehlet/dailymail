@@ -1,7 +1,7 @@
 import uuid
 import json
-from scrape import fetch_site_content
-from app_settings import SUMMARIZER_BUCKET
+from .scrape import fetch_site_content
+from .app_settings import SUMMARIZER_BUCKET
 from dailymail_shared.my_s3 import write_to_s3
 
 

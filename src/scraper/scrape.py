@@ -5,7 +5,7 @@ import requests
 from unstructured.partition.html import partition_html
 from unstructured.documents.elements import NarrativeText
 from bs4 import BeautifulSoup
-from app_settings import PAYWALL_TEXTS
+from .app_settings import PAYWALL_TEXTS
 
 
 def extract_title_from_html(html):
