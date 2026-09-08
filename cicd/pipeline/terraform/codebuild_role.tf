@@ -76,9 +76,16 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
     resources = ["*"]
   }
   statement {
-    actions = ["ecr:*"]
+    actions = [
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:CompleteLayerUpload",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:InitiateLayerUpload",
+      "ecr:PutImage",
+      "ecr:UploadLayerPart",
+    ]
     resources = [
-      "arn:aws:ecr:*:*:repository/dailymail-*",
+      aws_ecr_repository.image_repo["dailymail"].arn,
     ]
   }
 
