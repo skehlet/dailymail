@@ -1,10 +1,14 @@
 import unittest
 
+import en_core_web_sm
 from unstructured.documents.elements import NarrativeText
 from unstructured.partition.html import partition_html
 
 
 class UnstructuredCompatibilityTests(unittest.TestCase):
+    def test_spacy_model_is_installed(self):
+        self.assertEqual(en_core_web_sm.load().meta["lang"], "en")
+
     def test_html_partition_produces_narrative_text(self):
         elements = partition_html(
             text="""

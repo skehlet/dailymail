@@ -3,7 +3,7 @@
 ## Read-only file system errors
 
 Note to self: if you get `[Errno 30] Read-only file system: '/home/sbx_user1051'` errors, it's probably because the NLTK library is trying to download its language packages at runtime.
-Older versions of `unstructured` required NLTK data to be downloaded into the image. The current locked version uses spaCy instead and has been verified by parsing HTML inside the Linux ARM64 Lambda image.
+Older versions of `unstructured` required NLTK data to be downloaded into the image. The current locked version uses spaCy and requires `en_core_web_sm` to be installed in the image because Lambda's package directory is read-only at runtime.
 
 ## Historical NLTK troubleshooting
 

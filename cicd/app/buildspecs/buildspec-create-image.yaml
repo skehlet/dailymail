@@ -23,7 +23,7 @@ phases:
     commands:
       - docker buildx build --platform linux/arm64 --provenance=false --load -t dailymail .
       - docker run --rm --platform linux/arm64 --entrypoint python dailymail -c
-        'import platform; from unstructured.documents.elements import NarrativeText; from unstructured.partition.html import partition_html; assert platform.machine() == "aarch64"; elements = partition_html(text="<article><p>This is substantial narrative text used to verify Unstructured inside the Lambda image.</p></article>"); assert any(isinstance(element, NarrativeText) for element in elements)'
+        'import en_core_web_sm, platform; from unstructured.documents.elements import NarrativeText; from unstructured.partition.html import partition_html; assert platform.machine() == "aarch64"; assert en_core_web_sm.load().meta["lang"] == "en"; elements = partition_html(text="<article><p>This is substantial narrative text used to verify Unstructured inside the Lambda image.</p></article>"); assert any(isinstance(element, NarrativeText) for element in elements)'
 
   post_build:
     commands:
