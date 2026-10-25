@@ -49,9 +49,12 @@ class CheckAlertForNewsTests(unittest.TestCase):
             new_developments=[
                 alert_news.NewDevelopment(
                     kind="changed", statement="PC version due 2027", status="rumor",
-                    source_urls=["https://vgc.com/a", "https://made-up.example/"],
+                    sources=[
+                        alert_news.DevelopmentSource(url="https://vgc.com/a", highlight="Leaker says 2027."),
+                        alert_news.DevelopmentSource(url="https://made-up.example/", highlight="?"),
+                    ],
                 ),
-                alert_news.NewDevelopment(kind="weird", statement="X", status="official", source_urls=[]),
+                alert_news.NewDevelopment(kind="weird", statement="X", status="official", sources=[]),
             ],
             summary="PC rumored for 2027.",
         )
@@ -59,7 +62,10 @@ class CheckAlertForNewsTests(unittest.TestCase):
         self.assertEqual([d.kind for d in update.developments], ["CHANGED", "NEW"])
         self.assertEqual([d.status for d in update.developments], ["RUMOR", "CONFIRMED"])
         # hallucinated URL dropped, real one mapped to its title
-        self.assertEqual([s.title for s in update.developments[0].sources], ["Take-Two CEO explains"])
+        self.assertEqual(
+            [(s.title, s.highlight) for s in update.developments[0].sources],
+            [("Take-Two CEO explains", "Leaker says 2027.")],
+        )
         self.assertEqual(update.updated_ledger.facts[-2], LedgerFact(date="2026-10-25", fact="PC version due 2027", status="RUMOR"))
         self.assertEqual(len(update.updated_ledger.facts), 3)
 
@@ -99,7 +105,8 @@ class ProcessMessagesTests(unittest.TestCase):
         with patch.object(digest_app, "send_email") as send_email:
             self.assertTrue(digest_app.create_email_and_send_it([], [self.update()]))
         html = send_email.call_args.kwargs["html"]
-        self.assertIn("What's New", html)
+        self.assertIn(">News<", html)
+        self.assertNotIn(">Articles<", html)
         self.assertIn("gta 6 pc", html)
 
 

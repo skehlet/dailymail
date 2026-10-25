@@ -12,6 +12,14 @@ KINDS = ("NEW", "CHANGED", "CONFIRMED", "CONTRADICTED")
 MAX_LEDGER_FACTS = 40
 
 
+class DevelopmentSource(BaseModel):
+    url: str = Field(description="URL of an article that reports this development.")
+    highlight: str = Field(
+        description="One concise sentence on what this article specifically says about the development, written directly "
+        "(no 'the article says')."
+    )
+
+
 class NewDevelopment(BaseModel):
     kind: str = Field(
         description="NEW (not covered by any known fact), CHANGED (supersedes a known fact, e.g. a date moved), "
@@ -22,7 +30,7 @@ class NewDevelopment(BaseModel):
         "Include specifics: names, dates, numbers."
     )
     status: str = Field(description="CONFIRMED (official/verified) or RUMOR (leak, speculation, unnamed sources).")
-    source_urls: List[str] = Field(description="URLs of the articles that report this development.")
+    sources: List[DevelopmentSource] = Field(description="The articles that report this development.")
 
 
 class AlertNewsCheck(BaseModel):
@@ -42,6 +50,7 @@ class CompactedLedger(BaseModel):
 class AlertSource(BaseModel):
     title: str
     url: str
+    highlight: str
 
 
 class AlertDevelopment(BaseModel):
@@ -77,7 +86,7 @@ These ARE new:
 - CONFIRMED: a known rumor is now officially confirmed.
 - CONTRADICTED: a credible source disputes a known fact.
 
-If several articles report the same development, list it once with all their URLs.
+If several articles report the same development, list it once with all of them as sources.
 Be strict: most days, most articles contain nothing new, and an empty list is the correct answer."""
 
 
@@ -119,7 +128,11 @@ def check_alert_for_news(topic: str, records: list, ledger: Ledger, today: str, 
             kind = "NEW"
         status = "RUMOR" if dev.status.strip().upper() == "RUMOR" else "CONFIRMED"
         # only keep URLs we actually gave the model
-        sources = [AlertSource(title=titles_by_url[url], url=url) for url in dev.source_urls if url in titles_by_url]
+        sources = [
+            AlertSource(title=titles_by_url[source.url], url=source.url, highlight=source.highlight)
+            for source in dev.sources
+            if source.url in titles_by_url
+        ]
         developments.append(AlertDevelopment(kind=kind, statement=dev.statement, status=status, sources=sources))
 
     facts = ledger.facts + [LedgerFact(date=today, fact=dev.statement, status=dev.status) for dev in developments]

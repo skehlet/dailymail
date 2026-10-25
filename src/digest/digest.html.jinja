@@ -3,37 +3,58 @@
 <div style="font-size: 28px; font-weight: bold; margin-bottom: 10px;">Today's News Digest</div>
 <div style="font-size: 18px; margin-bottom: 20px;">{{ today_date }}</div>
 
+{% set section_style = "font-size: 26px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #222; border-bottom: 2px solid #444; padding-bottom: 4px; margin-top: 30px; margin-bottom: 10px;" %}
+{% set kind_colors = {'NEW': '#2e7d32', 'CHANGED': '#ef6c00', 'CONFIRMED': '#1565c0', 'CONTRADICTED': '#c62828'} %}
+
 {% if alert_updates %}
-<div style="font-size: 24px; font-weight: bold; margin-top: 25px; margin-bottom: 15px;">What's New</div>
+<div style="{{ section_style }}">News</div>
+
 {% for update in alert_updates %}
-<div style="font-size: 20px; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">{{ update.topic }}</div>
-{% if update.summary %}
+<div style="font-size: 24px; font-weight: bold; margin-top: 25px; margin-bottom: 15px;">
+    {{ update.topic }}
+</div>
+
+{# With several facts, lead with the overview; with one, the fact says it all #}
+{% if update.developments|length > 1 and update.summary %}
 <div style="margin-bottom: 10px;">{{ update.summary }}</div>
 {% endif %}
+
 <ul style="margin-top: 5px; padding-left: 20px;">
     {% for dev in update.developments %}
-    <li style="margin-bottom: 12px;">
+    <li style="margin-bottom: 15px;">
         <div>
-            <span style="font-size: 12px; font-weight: bold; color: #fff; background: {{ {'NEW': '#2e7d32', 'CHANGED': '#ef6c00', 'CONFIRMED': '#1565c0', 'CONTRADICTED': '#c62828'}[dev.kind] }}; padding: 1px 5px; border-radius: 3px;">{{ dev.kind }}</span>
-            {% if dev.status == 'RUMOR' %}<span style="font-size: 12px; color: #888;">(rumor)</span>{% endif %}
+            <span style="font-size: 12px; font-weight: bold; color: #fff; background: {{ kind_colors[dev.kind] }}; padding: 1px 5px; border-radius: 3px;">{{ dev.kind }}</span>
+            {% if dev.status == 'RUMOR' %}<span style="font-size: 12px; color: #888; font-style: italic;">rumor</span>{% endif %}
             {{ dev.statement }}
         </div>
-        {% for source in dev.sources %}
-        <div style="margin-top: 3px; font-size: 14px;">
-            <a href="{{ source.url }}">{{ source.title }}</a>
-            <span style="color: #888;">[{{ source.url.split('//')[1].split('/')[0] }}]</span>
-        </div>
-        {% endfor %}
+        {% if dev.sources %}
+        <ul style="margin-top: 6px; padding-left: 20px; list-style-type: circle;">
+            {% for source in dev.sources %}
+            <li style="margin-bottom: 8px;">
+                <div style="font-size: 14px;">
+                    <a href="{{ source.url }}">{{ source.title }}</a>
+                    <span style="color: #888;">[{{ source.url.split('//')[1].split('/')[0] }}]</span>
+                </div>
+                {% if source.highlight %}
+                <div style="margin-top: 2px; color: #555; font-size: 14px;">{{ source.highlight }}</div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
     </li>
     {% endfor %}
 </ul>
-{% endfor %}
-{% if newsletter %}
+
+{% if not loop.last %}
 <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
 {% endif %}
+{% endfor %}
 {% endif %}
 
 {% if newsletter %}
+<div style="{{ section_style }}">Articles</div>
+
 {% for category, content in newsletter.categorized_content.items() %}
 <div style="font-size: 24px; font-weight: bold; margin-top: 25px; margin-bottom: 15px;">
     {{ category }}
@@ -47,8 +68,8 @@
 
 {% if content.sources|length == 1 %}
 <div style="margin-bottom: 10px;">
-  <b>Source:</b> 
-  <a href="{{ content.sources[0].url }}">{{ content.sources[0].title }}</a> 
+  <b>Source:</b>
+  <a href="{{ content.sources[0].url }}">{{ content.sources[0].title }}</a>
   <span style="color: #888; font-size: 14px;">[{{ content.sources[0].url.split('//')[1].split('/')[0] }}]</span>
 </div>
 {% else %}
@@ -57,7 +78,7 @@
     {% for source in content.sources %}
     <li style="margin-bottom: 12px;">
         <div>
-            <a href="{{ source.url }}">{{ source.title }}</a> 
+            <a href="{{ source.url }}">{{ source.title }}</a>
             <span style="color: #888; font-size: 14px;">[{{ source.url.split('//')[1].split('/')[0] }}]</span>
         </div>
         {% if not content.is_single_article %}
