@@ -28,8 +28,10 @@ class GoogleAlertSummary(BaseModel):
     """
 
     relevance: bool = Field(
-        description="True only if article provides substantive, specific details about ALL aspects of the topic. "
-        "False if it only mentions keywords, addresses partial topic, or lacks detail."
+        description="True if the article addresses the subject the topic describes, even briefly, as a rumor, "
+        "or as a restatement of known information (whether it is new is decided later). "
+        "False if the article is about something else and the keywords only appear in passing, "
+        "or if it is a paywall, placeholder, or boilerplate page."
     )
     summary: str = Field(
         description="Distill the article's core information into 3-4 sentences, preserving its original tone. "
@@ -88,7 +90,10 @@ def summarize_google_alert(topic, url, title, text, additional_context=None):
     system_prompt = """\
 You are analyzing an article for relevance to a specific topic and condensing it while preserving its original voice.
 
-First, determine if this article addresses ALL aspects of the topic with substantive detail.
+First, determine if this article addresses the subject the topic describes. A Google Alert topic is a set of keywords;
+infer what the reader is tracking from them (e.g. 'gta 6 "pc" "release date"' means the timing of GTA 6's PC release).
+Rumors, status updates ("still no date announced"), and brief sections count. Passing keyword mentions in an article
+about something else do not. Do not judge whether the information is new; a later step does that.
 If relevant, distill the article's essence in 3-4 sentences, maintaining the same tone and perspective as the original source.
 
 Write AS the content, not ABOUT it. Present the information directly, as the original author would.
