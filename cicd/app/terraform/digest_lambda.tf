@@ -15,6 +15,7 @@ resource "aws_lambda_function" "digest" {
       LLM_PROVIDER          = "gemini"
       LLM                   = "gemini-3.5-flash-lite"
       CONTEXT_WINDOW_SIZE   = "50000"
+      ALERT_LEDGER_BUCKET   = aws_s3_bucket.alert_ledger.bucket
     }
   }
   depends_on = [

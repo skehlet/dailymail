@@ -5,6 +5,7 @@ DIGEST_QUEUE = "DailyMail-DigestQueue"
 MY_TIMEZONE = "US/Pacific"
 DIGEST_EMAIL_FROM = os.environ.get("DIGEST_EMAIL_FROM", "digest@stevekehlet.com")
 DIGEST_EMAIL_TO = os.environ.get("DIGEST_EMAIL_TO", "steve.kehlet@gmail.com")
+ALERT_LEDGER_BUCKET = os.environ.get("ALERT_LEDGER_BUCKET", "skehlet-dailymail-alert-ledger")
 
 def show_settings():
     print(f"{PIPELINE_EXECUTION_ID=}")
@@ -12,3 +13,4 @@ def show_settings():
     print(f"{MY_TIMEZONE=}")
     print(f"{DIGEST_EMAIL_FROM=}")
     print(f"{DIGEST_EMAIL_TO=}")
+    print(f"{ALERT_LEDGER_BUCKET=}")

@@ -3,6 +3,37 @@
 <div style="font-size: 28px; font-weight: bold; margin-bottom: 10px;">Today's News Digest</div>
 <div style="font-size: 18px; margin-bottom: 20px;">{{ today_date }}</div>
 
+{% if alert_updates %}
+<div style="font-size: 24px; font-weight: bold; margin-top: 25px; margin-bottom: 15px;">What's New</div>
+{% for update in alert_updates %}
+<div style="font-size: 20px; font-weight: bold; margin-top: 20px; margin-bottom: 10px;">{{ update.topic }}</div>
+{% if update.summary %}
+<div style="margin-bottom: 10px;">{{ update.summary }}</div>
+{% endif %}
+<ul style="margin-top: 5px; padding-left: 20px;">
+    {% for dev in update.developments %}
+    <li style="margin-bottom: 12px;">
+        <div>
+            <span style="font-size: 12px; font-weight: bold; color: #fff; background: {{ {'NEW': '#2e7d32', 'CHANGED': '#ef6c00', 'CONFIRMED': '#1565c0', 'CONTRADICTED': '#c62828'}[dev.kind] }}; padding: 1px 5px; border-radius: 3px;">{{ dev.kind }}</span>
+            {% if dev.status == 'RUMOR' %}<span style="font-size: 12px; color: #888;">(rumor)</span>{% endif %}
+            {{ dev.statement }}
+        </div>
+        {% for source in dev.sources %}
+        <div style="margin-top: 3px; font-size: 14px;">
+            <a href="{{ source.url }}">{{ source.title }}</a>
+            <span style="color: #888;">[{{ source.url.split('//')[1].split('/')[0] }}]</span>
+        </div>
+        {% endfor %}
+    </li>
+    {% endfor %}
+</ul>
+{% endfor %}
+{% if newsletter %}
+<hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+{% endif %}
+{% endif %}
+
+{% if newsletter %}
 {% for category, content in newsletter.categorized_content.items() %}
 <div style="font-size: 24px; font-weight: bold; margin-top: 25px; margin-bottom: 15px;">
     {{ category }}
@@ -41,6 +72,7 @@
 <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
 {% endif %}
 {% endfor %}
+{% endif %}
 
 <div style="margin-top: 30px; color: #777; font-style: italic;">
     This newsletter is curated based on your interests. All information is current as of {{ today_date }}.

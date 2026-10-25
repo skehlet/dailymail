@@ -13,7 +13,10 @@ from .app_settings import (
 )
 from dailymail_shared.my_email_lib import send_email, EMAIL_INLINE_CSS_STYLE
 from dailymail_shared.my_datetime import utc_to_local
+from dailymail_shared.google_alerts import is_google_alert, get_topic_from_google_alert_title
 from .my_digest import generate_newsletter_digest
+from .ledger import load_ledger, save_ledger
+from .alert_news import check_alert_for_news
 
 sqs = boto3.client("sqs")
 queue_url = sqs.get_queue_url(QueueName=DIGEST_QUEUE)["QueueUrl"]
@@ -38,9 +41,42 @@ def read_all_from_queue():
         messages.extend(response["Messages"])
 
 
-def process_messages(messages):
+def process_messages(messages, dry_run=False):
     feeds = cleanup_group_and_sort_messages(messages)
-    create_email_and_send_it(feeds)
+    feeds, alert_updates = check_alerts_for_news(feeds)
+    sent = create_email_and_send_it(feeds, alert_updates, dry_run=dry_run)
+    # Only remember what we've told the reader once it has actually been sent
+    if sent and not dry_run:
+        for update in alert_updates:
+            save_ledger(update.updated_ledger)
+
+
+def check_alerts_for_news(feeds):
+    """
+    Compare each Google Alert feed against its ledger of already-reported facts.
+    Returns the remaining (non-alert) feeds, plus an AlertUpdate for each alert topic with something new.
+    If the check fails for a topic, its feed is kept with the regular feeds so nothing is lost.
+    """
+    today = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime("%Y-%m-%d")
+    remaining_feeds = []
+    alert_updates = []
+    for feed_title, records in feeds:
+        topic = get_topic_from_google_alert_title(feed_title) if is_google_alert(feed_title) else None
+        if not topic:
+            remaining_feeds.append((feed_title, records))
+            continue
+        try:
+            interest = next((r["feed_context"] for r in records if r.get("feed_context")), None)
+            update = check_alert_for_news(topic, records, load_ledger(topic), today, interest)
+        except Exception as e:
+            print(f"Error checking alert {topic!r} for news: {e}, including it unfiltered")
+            remaining_feeds.append((feed_title, records))
+            continue
+        if update.developments:
+            alert_updates.append(update)
+        else:
+            print(f"Nothing new for alert {topic!r} across {len(records)} articles, omitting")
+    return remaining_feeds, alert_updates
 
 
 def cleanup_group_and_sort_messages(messages):
@@ -97,12 +133,12 @@ def cleanup_group_and_sort_messages(messages):
     return feeds
 
 
-def create_email_and_send_it(feeds):
+def create_email_and_send_it(feeds, alert_updates, dry_run=False):
     # Generate the newsletter using our improved approach
     newsletter = generate_newsletter_digest(feeds)
-    if not newsletter:
+    if not newsletter and not alert_updates:
         print("No news today, nothing to send.")
-        return
+        return False
     
     # Get current date formatted for display
     today_date = utc_to_local(datetime.now(timezone.utc), MY_TIMEZONE).strftime('%A, %B %d, %Y')
@@ -112,6 +148,7 @@ def create_email_and_send_it(feeds):
         email = Template(f.read()).render(
             EMAIL_INLINE_CSS_STYLE=EMAIL_INLINE_CSS_STYLE,
             newsletter=newsletter,
+            alert_updates=alert_updates,
             today_date=today_date,
         )
     
@@ -121,7 +158,11 @@ def create_email_and_send_it(feeds):
     print(f"Subject: {subject}")
     print("Body:")
     print(email)
+    if dry_run:
+        print("Dry run, not sending")
+        return False
     send_email(DIGEST_EMAIL_FROM, DIGEST_EMAIL_TO, subject, html=email)
+    return True
 
 
 def delete_messages_from_queue(messages):
@@ -138,7 +179,7 @@ def delete_messages_from_queue(messages):
 def local_test():
     with open("misc/example-messages.json", "r", encoding="utf-8") as f:
         messages = json.load(f)
-        process_messages(messages)
+        process_messages(messages, dry_run=True)
 
 
 if __name__ == "__main__":

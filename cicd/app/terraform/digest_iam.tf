@@ -31,6 +31,18 @@ data "aws_iam_policy_document" "digest_policy" {
     resources = ["*"]
   }
   statement {
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+    ]
+    resources = ["${aws_s3_bucket.alert_ledger.arn}/*"]
+  }
+  statement {
+    // without ListBucket, a missing ledger returns AccessDenied instead of NoSuchKey
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.alert_ledger.arn]
+  }
+  statement {
     actions = ["ssm:GetParameter"]
     resources = [
       "arn:aws:ssm:*:*:parameter/OPENAI_API_KEY",
